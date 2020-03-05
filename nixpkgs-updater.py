@@ -72,6 +72,7 @@ def main() -> None:
         sys.exit(1)
     package_attr = sys.argv[1]
     package_attr = sys.argv[1]
+    version = None
     if len(sys.argv) == 3:
         version = sys.argv[2]
     update(package_attr, version)
