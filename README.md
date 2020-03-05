@@ -10,13 +10,13 @@ This tool is still in early development.
 
 ## USAGE
 
-````
+```
 $ NIX_PATH=nixpkgs=/path/to/git python nixpkgs-updater.py attribute [version]
 ```
 
 Example:
 
-````
+```
 $ NIX_PATH=nixpkgs=/path/to/git python nixpkgs-updater.py nixpkgs-review
 ```
 
