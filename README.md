@@ -1,6 +1,6 @@
-# nixpkgs-updater
+# nix-update
 
-Update packages in nixpkgs likes it is 2020.
+Update nix packages likes it is 2020.
 This tool is still in early development.
 
 ## Dependencies
@@ -10,20 +10,20 @@ This tool is still in early development.
 
 ## USAGE
 
-```
-$ NIX_PATH=nixpkgs=/path/to/git python nixpkgs-updater.py attribute [version]
-```
-
-Example:
+First change to your directory containing the nix expression (Could be a nixpkgs or your own repository). Than run `nix-update` as follows
 
 ```
-$ NIX_PATH=nixpkgs=/path/to/git python nixpkgs-updater.py nixpkgs-review
+$ python nix-update.py attribute [version]
 ```
 
-(fetches the latest github release)
-
-or:
+This example will fetch the latest github release:
 
 ```
-$ NIX_PATH=nixpkgs=/path/to/git python nixpkgs-updater.py nixpkgs-review 2.1.1
+$ python nix-update.py nixpkgs-review
+```
+
+It is also possible to specify the version manually
+
+```
+$ python nix-update.py nixpkgs-review 2.1.1
 ```
