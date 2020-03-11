@@ -27,3 +27,9 @@ It is also possible to specify the version manually
 ```
 $ python nix-update.py nixpkgs-review 2.1.1
 ```
+
+## TODO
+
+- [ ] make it a proper python/nix package
+- [ ] optionally commit update
+- [ ] optionally(?) build update
