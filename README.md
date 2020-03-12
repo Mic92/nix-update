@@ -32,4 +32,3 @@ $ python nix-update.py nixpkgs-review 2.1.1
 
 - [ ] make it a proper python/nix package
 - [ ] optionally commit update
-- [ ] optionally(?) build update
