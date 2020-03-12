@@ -11,7 +11,7 @@ import os
 import tempfile
 import sys
 from typing import Optional
-from urllib.parse import urlparse
+from urllib.parse import urlparse, ParseResult
 
 
 def die(msg: str) -> None:
@@ -19,12 +19,9 @@ def die(msg: str) -> None:
     sys.exit(1)
 
 
-def fetch_latest_release(url_str: str) -> str:
-    url = urlparse(url_str)
+def fetch_latest_github_release(url: ParseResult) -> str:
     parts = url.path.split("/")
     owner, repo = parts[1], parts[2]
-    if url.netloc != "github.com":
-        die("Please specify the version. We can only get the latest version from github projects right now")
     resp = urllib.request.urlopen(f"https://github.com/{owner}/{repo}/releases.atom")
     tree = ET.fromstring(resp.read())
     release = tree.find(".//{http://www.w3.org/2005/Atom}entry")
@@ -34,6 +31,28 @@ def fetch_latest_release(url_str: str) -> str:
     href = link.attrib["href"]
     url = urlparse(href)
     return url.path.split("/")[-1]
+
+
+def fetch_latest_pypi_release(url: ParseResult) -> str:
+    parts = url.path.split("/")
+    package = parts[2]
+    resp = urllib.request.urlopen(f"https://pypi.org/pypi/{package}/json")
+    data = json.loads(resp.read())
+    return data["info"]["version"]
+
+
+def fetch_latest_release(url_str: str) -> str:
+    url = urlparse(url_str)
+
+    if url.netloc == "pypi":
+        return fetch_latest_pypi_release(url)
+    elif url.netloc == "github.com":
+        return fetch_latest_github_release(url)
+    else:
+        die(
+            "Please specify the version. We can only get the latest version from github/pypi projects right now"
+        )
+        return ""
 
 
 # def find_repology_release(attr) -> str:
@@ -77,7 +96,9 @@ def update_hash(filename: str, current: str, target: str):
                 print(line, end="")
 
 
-def update(import_path: str, attr: str, target_version: Optional[str]) -> None:
+def update(
+    import_path: str, attr: str, target_version: Optional[str]
+) -> None:
     res = subprocess.run(
         ["nix", "eval", "--json", eval_attr(import_path, attr)],
         text=True,
