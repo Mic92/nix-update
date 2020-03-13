@@ -155,7 +155,7 @@ def main() -> None:
     if args.build:
         subprocess.run(["nix", "build", "-f", args.file, args.attribute])
     if args.run:
-        subprocess.run(["nix", "run", "-f", args.file, args.attribute, "-c", "zsh"])
+        subprocess.run(["nix", "run", "-f", args.file, args.attribute])
 
     if args.shell:
         nix_shell(args.file, args.attribute)
