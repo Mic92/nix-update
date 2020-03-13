@@ -75,6 +75,7 @@ def eval_attr(import_path: str, attr: str) -> str:
       position = pkg.meta.position;
       urls = pkg.src.urls;
       hash = pkg.src.outputHash;
+      modSha256 = pkg.modSha256 or null;
     }})"""
 
 
@@ -96,9 +97,25 @@ def update_hash(filename: str, current: str, target: str):
                 print(line, end="")
 
 
-def update(
-    import_path: str, attr: str, target_version: Optional[str]
-) -> None:
+def nix_prefetch(cmd: str) -> str:
+    res = subprocess.run(
+        ["nix-prefetch", cmd], text=True, stdout=subprocess.PIPE, check=True,
+    )
+    return res.stdout.strip()
+
+
+def update_src_hash(import_path: str, attr: str, filename: str, current_hash: str):
+    target_hash = nix_prefetch(f"(import {import_path} {{}}).{attr}")
+    update_hash(filename, current_hash, target_hash)
+
+
+def update_mod256_hash(import_path: str, attr: str, filename: str, current_hash: str):
+    expr = f"{{ sha256 }}: (import {import_path} {{}}).{attr}.go-modules.overrideAttrs (_: {{ modSha256 = sha256; }})"
+    target_hash = nix_prefetch(expr)
+    update_hash(filename, current_hash, target_hash)
+
+
+def update(import_path: str, attr: str, target_version: Optional[str]) -> None:
     res = subprocess.run(
         ["nix", "eval", "--json", eval_attr(import_path, attr)],
         text=True,
@@ -109,23 +126,18 @@ def update(
     if current_version == "":
         name = out["name"]
         die(f"Nix's builtins.parseDrvName could not parse the version from {name}")
-    current_hash: str = out["hash"]
     filename, line = out["position"].rsplit(":", 1)
 
     if not target_version:
         # latest_version = find_repology_release(attr)
         # if latest_version is None:
         target_version = fetch_latest_release(out["urls"][0])
-
     update_version(filename, current_version, target_version)
-    res2 = subprocess.run(
-        ["nix-prefetch", f"(import {import_path} {{}}).{attr}"],
-        text=True,
-        stdout=subprocess.PIPE,
-        check=True,
-    )
-    target_hash = res2.stdout.strip()
-    update_hash(filename, current_hash, target_hash)
+
+    update_src_hash(import_path, attr, filename, out["hash"])
+
+    if "modSha256" in out:
+        update_mod256_hash(import_path, attr, filename, out["modSha256"])
 
 
 def parse_args():
@@ -133,8 +145,14 @@ def parse_args():
     help = "File to import rather than default.nix. Examples, ./release.nix"
     parser.add_argument("-f", "--file", default="./.", help=help)
     parser.add_argument("--build", action="store_true", help="build the package")
-    parser.add_argument("--run", action="store_true", help="provide a shell based on `nix run` with the package in $PATH")
-    parser.add_argument("--shell", action="store_true", help="provide a shell with the package")
+    parser.add_argument(
+        "--run",
+        action="store_true",
+        help="provide a shell based on `nix run` with the package in $PATH",
+    )
+    parser.add_argument(
+        "--shell", action="store_true", help="provide a shell with the package"
+    )
     parser.add_argument("attribute", help="Attribute name within the file evaluated")
     parser.add_argument("version", nargs="?", help="Version to update to")
     return parser.parse_args()
@@ -142,9 +160,11 @@ def parse_args():
 
 def nix_shell(filename: str, attribute: str) -> None:
     with tempfile.NamedTemporaryFile(mode="w") as f:
-        f.write(f"""
+        f.write(
+            f"""
         with import {filename}; mkShell {{ buildInputs = [ {attribute} ]; }}
-        """)
+        """
+        )
         f.flush()
         subprocess.run(["nix-shell", f.name])
 
