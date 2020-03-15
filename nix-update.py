@@ -7,25 +7,26 @@ import re
 import subprocess
 import urllib.request
 import xml.etree.ElementTree as ET
-import os
 import tempfile
 import sys
-from typing import Optional
+from typing import Optional, List, NoReturn
 from urllib.parse import urlparse, ParseResult
 
 
-def die(msg: str) -> None:
+def die(msg: str) -> NoReturn:
     print(msg, file=sys.stderr)
     sys.exit(1)
 
 
-def fetch_latest_github_release(url: ParseResult) -> str:
+def fetch_latest_github_release(url: ParseResult) -> Optional[str]:
     parts = url.path.split("/")
     owner, repo = parts[1], parts[2]
+    # TODO fallback to tags?
     resp = urllib.request.urlopen(f"https://github.com/{owner}/{repo}/releases.atom")
     tree = ET.fromstring(resp.read())
     release = tree.find(".//{http://www.w3.org/2005/Atom}entry")
-    assert release is not None
+    if release is None:
+        return None
     link = release.find("{http://www.w3.org/2005/Atom}link")
     assert link is not None
     href = link.attrib["href"]
@@ -41,18 +42,29 @@ def fetch_latest_pypi_release(url: ParseResult) -> str:
     return data["info"]["version"]
 
 
-def fetch_latest_release(url_str: str) -> str:
+def fetch_latest_gitlab_release(url: ParseResult) -> Optional[str]:
+    parts = url.path.split("/")
+    project_id = parts[4]
+    resp = urllib.request.urlopen(f"https://gitlab.com/api/v4/projects/{project_id}/repository/tags")
+    data = json.loads(resp.read())
+    if len(data) == 0:
+        return None
+    return data[0]["name"]
+
+
+def fetch_latest_release(url_str: str) -> Optional[str]:
     url = urlparse(url_str)
 
     if url.netloc == "pypi":
         return fetch_latest_pypi_release(url)
     elif url.netloc == "github.com":
         return fetch_latest_github_release(url)
+    elif url.netloc == "gitlab.com":
+        return fetch_latest_gitlab_release(url)
     else:
         die(
             "Please specify the version. We can only get the latest version from github/pypi projects right now"
         )
-        return ""
 
 
 # def find_repology_release(attr) -> str:
@@ -76,6 +88,7 @@ def eval_attr(import_path: str, attr: str) -> str:
       urls = pkg.src.urls;
       hash = pkg.src.outputHash;
       modSha256 = pkg.modSha256 or null;
+      cargoSha256 = pkg.cargoSha256 or null;
     }})"""
 
 
@@ -89,7 +102,7 @@ def update_version(filename: str, current: str, target: str):
                 print(line.replace(current, target), end="")
 
 
-def update_hash(filename: str, current: str, target: str):
+def replace_hash(filename: str, current: str, target: str):
     if current != target:
         with fileinput.FileInput(filename, inplace=True) as f:
             for line in f:
@@ -97,22 +110,27 @@ def update_hash(filename: str, current: str, target: str):
                 print(line, end="")
 
 
-def nix_prefetch(cmd: str) -> str:
+def nix_prefetch(cmd: List[str]) -> str:
     res = subprocess.run(
-        ["nix-prefetch", cmd], text=True, stdout=subprocess.PIPE, check=True,
+        ["nix-prefetch"] + cmd, text=True, stdout=subprocess.PIPE, check=True,
     )
     return res.stdout.strip()
 
 
 def update_src_hash(import_path: str, attr: str, filename: str, current_hash: str):
-    target_hash = nix_prefetch(f"(import {import_path} {{}}).{attr}")
-    update_hash(filename, current_hash, target_hash)
+    target_hash = nix_prefetch([f"(import {import_path} {{}}).{attr}"])
+    replace_hash(filename, current_hash, target_hash)
 
 
 def update_mod256_hash(import_path: str, attr: str, filename: str, current_hash: str):
     expr = f"{{ sha256 }}: (import {import_path} {{}}).{attr}.go-modules.overrideAttrs (_: {{ modSha256 = sha256; }})"
-    target_hash = nix_prefetch(expr)
-    update_hash(filename, current_hash, target_hash)
+    target_hash = nix_prefetch([expr])
+    replace_hash(filename, current_hash, target_hash)
+
+
+def update_cargoSha256_hash(import_path: str, attr: str, filename: str, current_hash: str):
+    target_hash = nix_prefetch([f"{{ sha256 }}: (import {import_path} {{}}).{attr}.cargoDeps.overrideAttrs (_: {{ inherit sha256; }})"])
+    replace_hash(filename, current_hash, target_hash)
 
 
 def update(import_path: str, attr: str, target_version: Optional[str]) -> None:
@@ -131,13 +149,19 @@ def update(import_path: str, attr: str, target_version: Optional[str]) -> None:
     if not target_version:
         # latest_version = find_repology_release(attr)
         # if latest_version is None:
-        target_version = fetch_latest_release(out["urls"][0])
+        url = out["urls"][0]
+        target_version = fetch_latest_release(url)
+        if target_version is None:
+            die("No releases found")
     update_version(filename, current_version, target_version)
 
     update_src_hash(import_path, attr, filename, out["hash"])
 
-    if "modSha256" in out:
+    if out["modSha256"]:
         update_mod256_hash(import_path, attr, filename, out["modSha256"])
+
+    if out["cargoSha256"]:
+        update_cargoSha256_hash(import_path, attr, filename, out["cargoSha256"])
 
 
 def parse_args():
