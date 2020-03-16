@@ -10,6 +10,17 @@ Dependencies
 -  python 3
 -  `nix-prefetch <https://github.com/msteen/nix-prefetch/>`__
 
+Features
+--------
+
+- automatically figure out the latest version of packages from:
+  - github.com
+  - gitlab.com
+  - pypi
+- update buildRustPackage's cargoSha256
+- update buildGoModule's modSha256
+- build and run the resulting package (see `--build`, `--run` or `--shell` flag)
+
 USAGE
 -----
 
