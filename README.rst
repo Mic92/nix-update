@@ -14,6 +14,7 @@ Features
 --------
 
 - automatically figure out the latest version of packages from:
+
   - github.com
   - gitlab.com
   - pypi
