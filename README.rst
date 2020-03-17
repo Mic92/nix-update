@@ -29,22 +29,22 @@ Installation
 
 To use it run without installing it, use:
 
-```console
-$ nix-shell -p nur.repos.mic92.nix-update
-```
+::
+
+   $ nix-shell -p nur.repos.mic92.nix-update
 
 To install it:
 
-```console
-$ nix-env -f '<nixpkgs>' -iA nix-update
-```
+::
+
+   $ nix-env -f '<nixpkgs>' -iA nix-update
 
 To run it from the git repository:
 
-```console
-$ nix-build
-$ ./result/bin/nix-update
-```
+::
+
+    $ nix-build
+    $ ./result/bin/nix-update
 
 Note that this asserts formatting with the latest version of
 [black](https://github.com/psf/black), so you may need to specify a more up to
