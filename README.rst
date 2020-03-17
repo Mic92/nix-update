@@ -22,6 +22,39 @@ Features
 - update buildGoModule's modSha256
 - build and run the resulting package (see `--build`, `--run` or `--shell` flag)
 
+Installation
+------------
+
+`nix-update` is included in [NUR](https://github.com/nix-community/NUR).
+
+To use it run without installing it, use:
+
+```console
+$ nix-shell -p nur.repos.mic92.nix-update
+```
+
+To install it:
+
+```console
+$ nix-env -f '<nixpkgs>' -iA nix-update
+```
+
+To run it from the git repository:
+
+```console
+$ nix-build
+$ ./result/bin/nix-update
+```
+
+Note that this asserts formatting with the latest version of
+[black](https://github.com/psf/black), so you may need to specify a more up to
+date version of NixPkgs:
+
+```console
+$ nix-build -I nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixpkgs-unstable.tar.gz
+$ ./result/bin/nix-update
+```
+
 USAGE
 -----
 
@@ -48,3 +81,4 @@ TODO
 ----
 
 -  ☐ optionally commit update
+-  ☐ update unstable packages from git to latest master
