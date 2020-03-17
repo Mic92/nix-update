@@ -25,7 +25,7 @@ Features
 Installation
 ------------
 
-`nix-update` is included in [NUR](https://github.com/nix-community/NUR).
+`nix-update` is included in `NUR <https://github.com/nix-community/NUR>`__.
 
 To use it run without installing it, use:
 
@@ -47,7 +47,7 @@ To run it from the git repository:
     $ ./result/bin/nix-update
 
 Note that this asserts formatting with the latest version of
-[black](https://github.com/psf/black), so you may need to specify a more up to
+`black <https://github.com/psf/black>`__, so you may need to specify a more up to
 date version of NixPkgs:
 
 ::
