@@ -75,7 +75,14 @@ It is also possible to specify the version manually
 
 ::
 
-   $ nix-update nixpkgs-review 2.1.1
+   $ nix-update --version=2.1.1 nixpkgs-review
+
+To only update sources hashes without updating the version:
+
+::
+
+   $ nix-update --version=skip nixpkgs-review
+
 
 TODO
 ----

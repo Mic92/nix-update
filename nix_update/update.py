@@ -6,6 +6,7 @@ from typing import List, Optional
 from .utils import run, info
 from .errors import UpdateError
 from .version import fetch_latest_version
+from .options import Options
 
 
 def eval_attr(import_path: str, attr: str) -> str:
@@ -50,30 +51,30 @@ def nix_prefetch(cmd: List[str]) -> str:
 
 
 def update_src_hash(
-    import_path: str, attr: str, filename: str, current_hash: str
+    opts: Options, filename: str, current_hash: str
 ) -> None:
-    target_hash = nix_prefetch([f"(import {import_path} {{}}).{attr}"])
+    target_hash = nix_prefetch([f"(import {opts.import_path} {{}}).{opts.attribute}"])
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_mod256_hash(
-    import_path: str, attr: str, filename: str, current_hash: str
+    opts: Options, filename: str, current_hash: str
 ) -> None:
-    expr = f"{{ sha256 }}: (import {import_path} {{}}).{attr}.go-modules.overrideAttrs (_: {{ modSha256 = sha256; }})"
+    expr = f"{{ sha256 }}: (import {opts.import_path} {{}}).{opts.attribute}.go-modules.overrideAttrs (_: {{ modSha256 = sha256; }})"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_cargoSha256_hash(
-    import_path: str, attr: str, filename: str, current_hash: str
+    opts: Options, filename: str, current_hash: str
 ) -> None:
-    expr = f"{{ sha256 }}: (import {import_path} {{}}).{attr}.cargoDeps.overrideAttrs (_: {{ inherit sha256; }})"
+    expr = f"{{ sha256 }}: (import {opts.import_path} {{}}).{opts.attribute}.cargoDeps.overrideAttrs (_: {{ inherit sha256; }})"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
 
 
-def update(import_path: str, attr: str, target_version: Optional[str]) -> None:
-    res = run(["nix", "eval", "--json", eval_attr(import_path, attr)])
+def update(opts: Options) -> None:
+    res = run(["nix", "eval", "--json", eval_attr(opts.import_path, opts.attribute)])
     out = json.loads(res.stdout)
     current_version: str = out["version"]
     if current_version == "":
@@ -83,17 +84,20 @@ def update(import_path: str, attr: str, target_version: Optional[str]) -> None:
         )
     filename, line = out["position"].rsplit(":", 1)
 
-    if not target_version:
-        # latest_version = find_repology_release(attr)
-        # if latest_version is None:
-        url = out["urls"][0]
-        target_version = fetch_latest_version(url)
-    update_version(filename, current_version, target_version)
+    if opts.version != "skip":
+        if opts.version == "auto":
+            # latest_version = find_repology_release(attr)
+            # if latest_version is None:
+            url = out["urls"][0]
+            target_version = fetch_latest_version(url)
+        else:
+            target_version = opts.version
+        update_version(filename, current_version, target_version)
 
-    update_src_hash(import_path, attr, filename, out["hash"])
+    update_src_hash(opts, filename, out["hash"])
 
     if out["modSha256"]:
-        update_mod256_hash(import_path, attr, filename, out["modSha256"])
+        update_mod256_hash(opts, filename, out["modSha256"])
 
     if out["cargoSha256"]:
-        update_cargoSha256_hash(import_path, attr, filename, out["cargoSha256"])
+        update_cargoSha256_hash(opts, filename, out["cargoSha256"])
