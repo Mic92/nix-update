@@ -50,10 +50,10 @@ Note that this asserts formatting with the latest version of
 [black](https://github.com/psf/black), so you may need to specify a more up to
 date version of NixPkgs:
 
-```console
-$ nix-build -I nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixpkgs-unstable.tar.gz
-$ ./result/bin/nix-update
-```
+::
+
+    $ nix-build -I nixpkgs=https://github.com/NixOS/nixpkgs-channels/archive/nixpkgs-unstable.tar.gz
+    $ ./result/bin/nix-update
 
 USAGE
 -----
