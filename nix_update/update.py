@@ -3,7 +3,7 @@ import re
 import json
 from typing import List, Optional
 
-from .utils import run
+from .utils import run, info
 from .errors import UpdateError
 from .version import fetch_latest_version
 
@@ -28,9 +28,12 @@ def update_version(filename: str, current: str, target: str) -> None:
         target = target[1:]
 
     if current != target:
+        info(f"Update {current} -> {target} in {filename}")
         with fileinput.FileInput(filename, inplace=True) as f:
             for line in f:
                 print(line.replace(current, target), end="")
+    else:
+        info(f"Not updating version, already {current}")
 
 
 def replace_hash(filename: str, current: str, target: str) -> None:
