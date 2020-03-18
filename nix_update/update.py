@@ -17,7 +17,8 @@ def eval_attr(import_path: str, attr: str) -> str:
       name = pkg.name;
       version = (builtins.parseDrvName pkg.name).version;
       position = pkg.meta.position;
-      urls = pkg.src.urls;
+      urls = pkg.src.urls or null;
+      url = pkg.src.url or null;
       hash = pkg.src.outputHash;
       modSha256 = pkg.modSha256 or null;
       cargoSha256 = pkg.cargoSha256 or null;
@@ -79,7 +80,7 @@ def update(opts: Options) -> None:
     current_version: str = out["version"]
     if current_version == "":
         name = out["name"]
-        UpdateError(
+        raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {name}"
         )
     filename, line = out["position"].rsplit(":", 1)
@@ -88,7 +89,13 @@ def update(opts: Options) -> None:
         if opts.version == "auto":
             # latest_version = find_repology_release(attr)
             # if latest_version is None:
-            url = out["urls"][0]
+            url = out.get("url", None)
+            urls = out.get("urls", None)
+            if not url:
+                if urls:
+                    url = urls[0]
+                else:
+                    raise UpdateError("Could not find a url in the derivations src attribute")
             target_version = fetch_latest_version(url)
         else:
             target_version = opts.version
