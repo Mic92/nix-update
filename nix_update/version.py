@@ -2,6 +2,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse, ParseResult
 import json
+import re
 
 from .errors import VersionError
 from .utils import info
@@ -10,7 +11,7 @@ from .utils import info
 def fetch_latest_github_version(url: ParseResult) -> str:
     parts = url.path.split("/")
     owner, repo = parts[1], parts[2]
-    repo = repo.rstrip(".git")
+    repo = re.sub(r"\.git$", "", repo)
     # TODO fallback to tags?
     feed_url = f"https://github.com/{owner}/{repo}/releases.atom"
     info(f"fetch {feed_url}")
