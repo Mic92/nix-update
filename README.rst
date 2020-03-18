@@ -88,4 +88,5 @@ TODO
 ----
 
 -  ☐ optionally commit update
+-  ☐ add tests
 -  ☐ update unstable packages from git to latest master
