@@ -1,7 +1,7 @@
 import fileinput
 import re
 import json
-from typing import List, Optional
+from typing import List
 
 from .utils import run, info
 from .errors import UpdateError
