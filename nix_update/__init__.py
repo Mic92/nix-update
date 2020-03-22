@@ -49,12 +49,12 @@ def main() -> None:
     options = parse_args()
     update(options)
     if options.build:
-        run(["nix", "build", "-f", options.file, options.attribute], stdout=None)
+        run(["nix", "build", "-f", options.import_path, options.attribute], stdout=None)
     if options.run:
-        run(["nix", "run", "-f", options.file, options.attribute], stdout=None)
+        run(["nix", "run", "-f", options.import_path, options.attribute], stdout=None)
 
     if options.shell:
-        nix_shell(options.file, options.attribute)
+        nix_shell(options.import_path, options.attribute)
 
 
 if __name__ == "__main__":
