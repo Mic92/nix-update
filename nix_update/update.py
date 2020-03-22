@@ -51,24 +51,18 @@ def nix_prefetch(cmd: List[str]) -> str:
     return res.stdout.strip()
 
 
-def update_src_hash(
-    opts: Options, filename: str, current_hash: str
-) -> None:
+def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch([f"(import {opts.import_path} {{}}).{opts.attribute}"])
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_mod256_hash(
-    opts: Options, filename: str, current_hash: str
-) -> None:
+def update_mod256_hash(opts: Options, filename: str, current_hash: str) -> None:
     expr = f"{{ sha256 }}: (import {opts.import_path} {{}}).{opts.attribute}.go-modules.overrideAttrs (_: {{ modSha256 = sha256; }})"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_cargoSha256_hash(
-    opts: Options, filename: str, current_hash: str
-) -> None:
+def update_cargoSha256_hash(opts: Options, filename: str, current_hash: str) -> None:
     expr = f"{{ sha256 }}: (import {opts.import_path} {{}}).{opts.attribute}.cargoDeps.overrideAttrs (_: {{ inherit sha256; }})"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
@@ -95,7 +89,9 @@ def update(opts: Options) -> None:
                 if urls:
                     url = urls[0]
                 else:
-                    raise UpdateError("Could not find a url in the derivations src attribute")
+                    raise UpdateError(
+                        "Could not find a url in the derivations src attribute"
+                    )
             target_version = fetch_latest_version(url)
         else:
             target_version = opts.version
