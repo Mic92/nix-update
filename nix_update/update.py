@@ -1,28 +1,12 @@
 import fileinput
 import re
-import json
 from typing import List
 
 from .utils import run, info
 from .errors import UpdateError
 from .version import fetch_latest_version
 from .options import Options
-
-
-def eval_attr(import_path: str, attr: str) -> str:
-    return f"""(with import {import_path} {{}};
-    let
-      pkg = {attr};
-    in {{
-      name = pkg.name;
-      version = (builtins.parseDrvName pkg.name).version;
-      position = pkg.meta.position;
-      urls = pkg.src.urls or null;
-      url = pkg.src.url or null;
-      hash = pkg.src.outputHash;
-      modSha256 = pkg.modSha256 or null;
-      cargoSha256 = pkg.cargoSha256 or null;
-    }})"""
+from .eval import eval_attr
 
 
 def update_version(filename: str, current: str, target: str) -> None:
@@ -62,32 +46,20 @@ def update_mod256_hash(opts: Options, filename: str, current_hash: str) -> None:
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_cargoSha256_hash(opts: Options, filename: str, current_hash: str) -> None:
+def update_cargo_sha256_hash(opts: Options, filename: str, current_hash: str) -> None:
     expr = f"{{ sha256 }}: (import {opts.import_path} {{}}).{opts.attribute}.cargoDeps.overrideAttrs (_: {{ inherit sha256; }})"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
 
 
 def update(opts: Options) -> None:
-    res = run(["nix", "eval", "--json", eval_attr(opts.import_path, opts.attribute)])
-    out = json.loads(res.stdout)
-    current_version: str = out["version"]
-    if current_version == "":
-        name = out["name"]
-        raise UpdateError(
-            f"Nix's builtins.parseDrvName could not parse the version from {name}"
-        )
-    filename, line = out["position"].rsplit(":", 1)
+    package = eval_attr(opts)
 
     if opts.version != "skip":
         if opts.version == "auto":
-            # latest_version = find_repology_release(attr)
-            # if latest_version is None:
-            url = out.get("url", None)
-            urls = out.get("urls", None)
-            if not url:
-                if urls:
-                    url = urls[0]
+            if not package.url:
+                if package.urls:
+                    url = package.urls[0]
                 else:
                     raise UpdateError(
                         "Could not find a url in the derivations src attribute"
@@ -95,12 +67,12 @@ def update(opts: Options) -> None:
             target_version = fetch_latest_version(url)
         else:
             target_version = opts.version
-        update_version(filename, current_version, target_version)
+        update_version(package.filename, package.version, target_version)
 
-    update_src_hash(opts, filename, out["hash"])
+    update_src_hash(opts, package.filename, package.hash)
 
-    if out["modSha256"]:
-        update_mod256_hash(opts, filename, out["modSha256"])
+    if package.mod_sha256:
+        update_mod256_hash(opts, package.filename, package.mod_sha256)
 
-    if out["cargoSha256"]:
-        update_cargoSha256_hash(opts, filename, out["cargoSha256"])
+    if package.cargo_sha256:
+        update_cargo_sha256_hash(opts, package.filename, package.cargo_sha256)
