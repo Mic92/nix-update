@@ -6,20 +6,23 @@ from .utils import run, info
 from .errors import UpdateError
 from .version import fetch_latest_version
 from .options import Options
-from .eval import eval_attr
+from .eval import eval_attr, Package
 
 
-def update_version(filename: str, current: str, target: str) -> None:
-    if target.startswith("v"):
-        target = target[1:]
+def update_version(package: Package) -> None:
+    old_version = package.old_version
+    new_version = package.new_version
+    assert new_version is not None
+    if new_version.startswith("v"):
+        new_version = new_version[1:]
 
-    if current != target:
-        info(f"Update {current} -> {target} in {filename}")
-        with fileinput.FileInput(filename, inplace=True) as f:
+    if old_version != new_version:
+        info(f"Update {old_version} -> {new_version} in {package.filename}")
+        with fileinput.FileInput(package.filename, inplace=True) as f:
             for line in f:
-                print(line.replace(current, target), end="")
+                print(line.replace(old_version, new_version), end="")
     else:
-        info(f"Not updating version, already {current}")
+        info(f"Not updating version, already {old_version}")
 
 
 def replace_hash(filename: str, current: str, target: str) -> None:
@@ -52,7 +55,7 @@ def update_cargo_sha256_hash(opts: Options, filename: str, current_hash: str) ->
     replace_hash(filename, current_hash, target_hash)
 
 
-def update(opts: Options) -> None:
+def update(opts: Options) -> Package:
     package = eval_attr(opts)
 
     if opts.version != "skip":
@@ -64,10 +67,11 @@ def update(opts: Options) -> None:
                     raise UpdateError(
                         "Could not find a url in the derivations src attribute"
                     )
-            target_version = fetch_latest_version(url)
+            new_version = fetch_latest_version(url)
         else:
-            target_version = opts.version
-        update_version(package.filename, package.version, target_version)
+            new_version = opts.version
+        package.new_version = new_version
+        update_version(package)
 
     update_src_hash(opts, package.filename, package.hash)
 
@@ -76,3 +80,5 @@ def update(opts: Options) -> None:
 
     if package.cargo_sha256:
         update_cargo_sha256_hash(opts, package.filename, package.cargo_sha256)
+
+    return package

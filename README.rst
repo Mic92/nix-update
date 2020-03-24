@@ -87,6 +87,6 @@ To only update sources hashes without updating the version:
 TODO
 ----
 
--  ☐ optionally commit update
 -  ☐ add tests
+-  ☐ document all other flags
 -  ☐ update unstable packages from git to latest master
