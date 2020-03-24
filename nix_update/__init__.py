@@ -47,11 +47,11 @@ def parse_args() -> Options:
     )
 
 
-def nix_shell(filename: str, attribute: str) -> None:
+def nix_shell(options: Options) -> None:
     with tempfile.NamedTemporaryFile(mode="w") as f:
         f.write(
             f"""
-        with import {filename}; mkShell {{ buildInputs = [ {attribute} ]; }}
+        with import {options.import_path}; mkShell {{ buildInputs = [ {options.attribute} ]; }}
         """
         )
         f.flush()
@@ -110,6 +110,22 @@ def validate_git_dir(import_path: str) -> str:
     return git_dir
 
 
+def nix_run(options: Options) -> None:
+    run(
+        ["nix", "run", "-f", options.import_path, options.attribute],
+        stdout=None,
+        check=False,
+    )
+
+
+def nix_build(options: Options) -> None:
+    run(
+        ["nix", "build", "-f", options.import_path, options.attribute],
+        stdout=None,
+        check=False,
+    )
+
+
 def main() -> None:
     options = parse_args()
 
@@ -120,22 +136,15 @@ def main() -> None:
         git_dir = validate_git_dir(options.import_path)
 
     package = update(options)
+
     if options.build:
-        run(
-            ["nix", "build", "-f", options.import_path, options.attribute],
-            stdout=None,
-            check=False,
-        )
+        nix_build(options)
 
     if options.run:
-        run(
-            ["nix", "run", "-f", options.import_path, options.attribute],
-            stdout=None,
-            check=False,
-        )
+        nix_run(options)
 
     if options.shell:
-        nix_shell(options.import_path, options.attribute)
+        nix_shell(options)
 
     if options.commit:
         commit(git_dir, package)
