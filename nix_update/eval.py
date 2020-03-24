@@ -10,7 +10,7 @@ from .errors import UpdateError
 @dataclass
 class Package:
     name: str
-    version: str
+    old_version: str
     filename: str
     line: int
     urls: Optional[List[str]]
@@ -20,6 +20,8 @@ class Package:
     mod_sha256: Optional[str]
     cargo_sha256: Optional[str]
 
+    new_version: Optional[str] = None
+
 
 def eval_expression(import_path: str, attr: str) -> str:
     return f"""(with import {import_path} {{}};
@@ -27,7 +29,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       pkg = {attr};
     in {{
       name = pkg.name;
-      version = (builtins.parseDrvName pkg.name).version;
+      old_version = (builtins.parseDrvName pkg.name).version;
       position = pkg.meta.position;
       urls = pkg.src.urls or null;
       url = pkg.src.url or null;
@@ -48,7 +50,7 @@ def eval_attr(opts: Options) -> Package:
     del out["position"]
 
     package = Package(filename=filename, line=int(line), **out)
-    if package.version == "":
+    if package.old_version == "":
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"
         )

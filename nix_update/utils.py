@@ -26,6 +26,7 @@ def run(
     command: List[str],
     cwd: Optional[Union[Path, str]] = None,
     stdout: Union[None, int, IO[Any]] = subprocess.PIPE,
+    check: bool = True,
 ) -> subprocess.CompletedProcess:
     info("$ " + " ".join(command))
-    return subprocess.run(command, cwd=cwd, check=True, text=True, stdout=stdout)
+    return subprocess.run(command, cwd=cwd, check=check, text=True, stdout=stdout)
