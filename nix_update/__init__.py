@@ -59,14 +59,18 @@ def nix_shell(options: Options) -> None:
 
 
 def git_commit(git_dir: str, attribute: str, package: Package) -> None:
+
     run(["git", "-C", git_dir, "add", package.filename], stdout=None)
     diff = run(["git", "-C", git_dir, "diff", "--staged"])
     if len(diff.stdout) == 0:
         print("No changes made, skip commit", file=sys.stderr)
         return
 
-    if package.new_version and package.old_version != package.new_version:
-        msg = f"{attribute}: {package.old_version} -> {package.new_version}"
+    new_version = package.new_version
+    if new_version and package.old_version != new_version:
+        if new_version.startswith("v"):
+            new_version = new_version[1:]
+        msg = f"{attribute}: {package.old_version} -> {new_version}"
         run(
             ["git", "-C", git_dir, "commit", "--verbose", "--message", msg], stdout=None
         )
