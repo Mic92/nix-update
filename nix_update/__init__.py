@@ -58,7 +58,7 @@ def nix_shell(options: Options) -> None:
         run(["nix-shell", f.name], stdout=None, check=False)
 
 
-def commit(git_dir: str, package: Package) -> None:
+def git_commit(git_dir: str, attribute: str, package: Package) -> None:
     run(["git", "-C", git_dir, "add", package.filename], stdout=None)
     diff = run(["git", "-C", git_dir, "diff", "--staged"])
     if len(diff.stdout) == 0:
@@ -66,13 +66,13 @@ def commit(git_dir: str, package: Package) -> None:
         return
 
     if package.new_version and package.old_version != package.new_version:
-        msg = f"{package.name}: {package.old_version} -> {package.new_version}"
+        msg = f"{attribute}: {package.old_version} -> {package.new_version}"
         run(
             ["git", "-C", git_dir, "commit", "--verbose", "--message", msg], stdout=None
         )
     else:
         with tempfile.NamedTemporaryFile(mode="w") as f:
-            f.write(f"{package.name}:")
+            f.write(f"{attribute}:")
             f.flush()
             run(
                 ["git", "-C", git_dir, "commit", "--verbose", "--template", f.name],
@@ -147,7 +147,7 @@ def main() -> None:
         nix_shell(options)
 
     if options.commit:
-        commit(git_dir, package)
+        git_commit(git_dir, options.attribute, package)
 
 
 if __name__ == "__main__":
