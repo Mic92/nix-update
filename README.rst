@@ -84,10 +84,29 @@ To only update sources hashes without updating the version:
 
    $ nix-update --version=skip nixpkgs-review
 
+With the `--shell`, `--build` and `--run` flags the update can be tested
+
+::
+
+   # Also runs nix-build
+   $ nix-update --build nixpkgs-review
+   # Also runs nix-shell
+   $ nix-update --build nixpkgs-review 
+   # Also runs nix run
+   $ nix-update --run nixpkgs-review
+
+Nix-update also can optionally generate a commit message in the form
+`attribute: old_version -> new_version` with the applied version update:
+
+::
+
+   $ nix-update --commit bitcoin-abc
+   ...
+   [master 53d68a6a5a9] bitcoin-abc: 0.21.1 -> 0.21.2
+   1 file changed, 2 insertions(+), 2 deletions(-)
 
 TODO
 ----
 
 -  ☐ add tests
--  ☐ document all other flags
 -  ☐ update unstable packages from git to latest master
