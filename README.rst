@@ -108,5 +108,6 @@ Nix-update also can optionally generate a commit message in the form
 TODO
 ----
 
--  ☐ add tests
--  ☐ update unstable packages from git to latest master
+-  add tests
+-  create pull requests
+-  update unstable packages from git to latest master
