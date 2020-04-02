@@ -111,3 +111,10 @@ TODO
 -  add tests
 -  create pull requests
 -  update unstable packages from git to latest master
+
+Known Bugs
+----------
+
+nix-update might not work correctly if a file contain multiple packages as
+perform naive search and replace to update version numbers. This might be a
+problem if a file contains the same version string for multiple packages.
