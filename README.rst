@@ -115,6 +115,20 @@ TODO
 Known Bugs
 ----------
 
-nix-update might not work correctly if a file contain multiple packages as
-perform naive search and replace to update version numbers. This might be a
+nix-update might not work correctly if a file contain multiple packages as it
+performs naive search and replace to update version numbers. This might be a
 problem if a file contains the same version string for multiple packages.
+
+Related projects:
+-----------------
+
+- [nixpkgs-update](https://github.com/ryantm/nixpkgs-update)
+  - nixpkgs-update is optimized for mass-updates in nixpkgs while nix-update is
+    better suited for interactive usage that might require user-intervention
+    i.e. fixing the build and testing the result. nix-update is also not limited
+    to nixpkgs.
+  - nixpkgs-update uses [repology](https://repology.org/) to find packages needs
+    updates while nix-update fetches is release information from the source
+    directly i.e. github or Pypy. However not all packages are on repology and
+    repology can be out-of-date since it relies on having a different
+    distribution having a newer version of the package.
