@@ -91,7 +91,7 @@ With the `--shell`, `--build` and `--run` flags the update can be tested
    # Also runs nix-build
    $ nix-update --build nixpkgs-review
    # Also runs nix-shell
-   $ nix-update --build nixpkgs-review 
+   $ nix-update --build nixpkgs-review
    # Also runs nix run
    $ nix-update --run nixpkgs-review
 
@@ -127,8 +127,3 @@ Related projects:
     better suited for interactive usage that might require user-intervention
     i.e. fixing the build and testing the result. nix-update is also not limited
     to nixpkgs.
-  - nixpkgs-update uses [repology](https://repology.org/) to find packages needs
-    updates while nix-update fetches is release information from the source
-    directly i.e. github or Pypy. However not all packages are on repology and
-    repology can be out-of-date since it relies on having a different
-    distribution having a newer version of the package.
