@@ -122,8 +122,7 @@ problem if a file contains the same version string for multiple packages.
 Related projects:
 -----------------
 
-- [nixpkgs-update](https://github.com/ryantm/nixpkgs-update)
-  - nixpkgs-update is optimized for mass-updates in nixpkgs while nix-update is
-    better suited for interactive usage that might require user-intervention
-    i.e. fixing the build and testing the result. nix-update is also not limited
-    to nixpkgs.
+- [nixpkgs-update](https://github.com/ryantm/nixpkgs-update) is optimized for
+  mass-updates in nixpkgs while nix-update is better suited for interactive
+  usage that might require user-intervention i.e. fixing the build and testing
+  the result. nix-update is also not limited to nixpkgs.
