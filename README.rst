@@ -1,14 +1,8 @@
 nix-update
 ==========
 
-Update nix packages likes it is 2020. This tool is still in early
-development.
-
-Dependencies
-------------
-
--  python 3
--  `nix-prefetch <https://github.com/msteen/nix-prefetch/>`__
+Nix-update updates versions/source hashes of nix packages.
+It is designed to work with nixpkgs but also other package sets.
 
 Features
 --------
