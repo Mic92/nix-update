@@ -27,10 +27,12 @@ def eval_expression(import_path: str, attr: str) -> str:
     return f"""(with import {import_path} {{}};
     let
       pkg = {attr};
+      position = builtins.unsafeGetAttrPos "src" pkg;
     in {{
       name = pkg.name;
       old_version = (builtins.parseDrvName pkg.name).version;
-      position = pkg.meta.position;
+      filename = position.file;
+      line = position.line;
       urls = pkg.src.urls or null;
       url = pkg.src.url or null;
       rev = pkg.src.url.rev or null;
@@ -45,11 +47,7 @@ def eval_attr(opts: Options) -> Package:
         ["nix", "eval", "--json", eval_expression(opts.import_path, opts.attribute)]
     )
     out = json.loads(res.stdout)
-
-    filename, line = out["position"].rsplit(":", 1)
-    del out["position"]
-
-    package = Package(filename=filename, line=int(line), **out)
+    package = Package(**out)
     if package.old_version == "":
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"
