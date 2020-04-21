@@ -1,13 +1,13 @@
 import argparse
-import tempfile
 import os
 import sys
-from typing import Optional, NoReturn
+import tempfile
+from typing import NoReturn, Optional
 
+from .eval import Package
+from .options import Options
 from .update import update
 from .utils import run
-from .options import Options
-from .eval import Package
 
 
 def die(msg: str) -> NoReturn:

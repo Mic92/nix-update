@@ -1,10 +1,10 @@
-from dataclasses import dataclass
-from typing import Optional, List
 import json
+from dataclasses import dataclass
+from typing import List, Optional
 
-from .utils import run
-from .options import Options
 from .errors import UpdateError
+from .options import Options
+from .utils import run
 
 
 @dataclass

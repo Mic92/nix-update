@@ -2,11 +2,11 @@ import fileinput
 import re
 from typing import List
 
-from .utils import run, info
 from .errors import UpdateError
-from .version import fetch_latest_version
+from .eval import Package, eval_attr
 from .options import Options
-from .eval import eval_attr, Package
+from .utils import info, run
+from .version import fetch_latest_version
 
 
 def update_version(package: Package) -> None:
