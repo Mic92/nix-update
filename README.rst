@@ -10,8 +10,9 @@ Features
 - automatically figure out the latest version of packages from:
 
   - github.com
-  - gitlab.com
+  - gitlab.com or other instances that uses fetchFromGitLab
   - pypi
+  - rubygems.org
 - update buildRustPackage's cargoSha256
 - update buildGoModule's modSha256
 - build and run the resulting package (see `--build`, `--run` or `--shell` flag)
