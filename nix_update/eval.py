@@ -27,7 +27,10 @@ def eval_expression(import_path: str, attr: str) -> str:
     return f"""(with import {import_path} {{}};
     let
       pkg = {attr};
-      position = builtins.unsafeGetAttrPos "src" pkg;
+      position = if pkg ? isRubyGem then
+        builtins.unsafeGetAttrPos "version" pkg
+      else
+        builtins.unsafeGetAttrPos "src" pkg;
     in {{
       name = pkg.name;
       old_version = (builtins.parseDrvName pkg.name).version;

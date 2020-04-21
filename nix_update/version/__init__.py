@@ -4,6 +4,7 @@ from ..errors import VersionError
 from .github import fetch_github_version
 from .gitlab import fetch_gitlab_version
 from .pypi import fetch_pypi_version
+from .rubygems import fetch_rubygem_version
 
 # def find_repology_release(attr) -> str:
 #    resp = urllib.request.urlopen(f"https://repology.org/api/v1/projects/{attr}/")
@@ -19,6 +20,7 @@ fetchers = [
     fetch_pypi_version,
     fetch_github_version,
     fetch_gitlab_version,
+    fetch_rubygem_version,
 ]
 
 
