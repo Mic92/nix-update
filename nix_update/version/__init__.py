@@ -1,4 +1,3 @@
-import json
 from urllib.parse import urlparse
 
 from ..errors import VersionError
