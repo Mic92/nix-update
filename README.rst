@@ -33,7 +33,7 @@ To install it:
 
 ::
 
-   $ nix-env -f '<nixpkgs>' -iA nix-update
+   $ nix-env -f '<nixpkgs>' -iA nur.repos.mic92.nix-update
 
 To run it from the git repository:
 
