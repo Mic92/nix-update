@@ -59,7 +59,7 @@ nixpkgs or your own repository). Than run ``nix-update`` as follows
 
 ::
 
-   $ nix-update attribute [version]
+   $ nix-update attribute [--version version]
 
 This example will fetch the latest github release:
 
@@ -112,7 +112,15 @@ Known Bugs
 
 nix-update might not work correctly if a file contain multiple packages as it
 performs naive search and replace to update version numbers. This might be a
-problem if a file contains the same version string for multiple packages.
+problem if:
+
+- A file contains the same version string for multiple packages.
+- `name` is used instead of `pname` and/or `${version}` is injected into `name`.
+
+Related discussions:
+
+- https://github.com/repology/repology-updater/issues/854
+- https://github.com/NixOS/nixpkgs/issues/68531#issuecomment-533760929
 
 Related projects:
 -----------------
