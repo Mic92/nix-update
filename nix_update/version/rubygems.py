@@ -21,5 +21,9 @@ def fetch_rubygem_version(url: ParseResult) -> Optional[str]:
         raise VersionError("No versions found")
     for version in versions:
         if not version["prerelease"]:
-            return version["number"]
-    return versions[0]["number"]
+            number = version["number"]
+            assert isinstance(number, str)
+            return number
+    number = versions[0]["number"]
+    assert isinstance(number, str)
+    return number

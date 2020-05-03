@@ -26,6 +26,10 @@ def fetch_gitlab_version(url: ParseResult) -> Optional[str]:
         raise VersionError("No git tags found")
     for tag in tags:
         if tag["release"]:
-            return tag["name"]
+            name = tag["name"]
+            assert isinstance(name, str)
+            return name
     # if no release is found, use latest tag
-    return tags[0]["name"]
+    name = tags[0]["name"]
+    assert isinstance(name, str)
+    return name

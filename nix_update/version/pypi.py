@@ -15,4 +15,6 @@ def fetch_pypi_version(url: ParseResult) -> Optional[str]:
     info(f"fetch {pypi_url}")
     resp = urllib.request.urlopen(pypi_url)
     data = json.loads(resp.read())
-    return data["info"]["version"]
+    version = data["info"]["version"]
+    assert isinstance(version, str)
+    return version
