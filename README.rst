@@ -14,7 +14,7 @@ Features
   - pypi
   - rubygems.org
 - update buildRustPackage's cargoSha256
-- update buildGoModule's modSha256
+- update buildGoModule's vendorSha256/modSha256
 - build and run the resulting package (see `--build`, `--run` or `--shell` flag)
 - commit updated files (see `--commit` flag)
 

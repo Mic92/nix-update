@@ -52,7 +52,6 @@ def update_mod256_hash(opts: Options, filename: str, current_hash: str) -> None:
 def update_go_vendor_hash(opts: Options, filename: str, current_hash: str) -> None:
     expr = f"{{ sha256 }}: (import {opts.import_path} {{}}).{opts.attribute}.go-modules.overrideAttrs (_: {{ vendorSha256 = sha256; }})"
     target_hash = nix_prefetch([expr])
-    breakpoint()
     replace_hash(filename, current_hash, target_hash)
 
 
