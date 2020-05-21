@@ -21,19 +21,19 @@ Features
 Installation
 ------------
 
-`nix-update` is included in `NUR <https://github.com/nix-community/NUR>`__.
+`nix-update` is included in nixpkgs (unstable channel, right now) or `NUR <https://github.com/nix-community/NUR>`__ (nur.repos.mic92.nix-update).
 
 To use it run without installing it, use:
 
 ::
 
-   $ nix-shell -p nur.repos.mic92.nix-update
+   $ nix-shell -p nix-update
 
 To install it:
 
 ::
 
-   $ nix-env -f '<nixpkgs>' -iA nur.repos.mic92.nix-update
+   $ nix-env -f '<nixpkgs>' -iA nix-update
 
 To run it from the git repository:
 
