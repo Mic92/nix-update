@@ -3,6 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import IO, Any, Callable, List, Optional, Union
+from functools import lru_cache
 
 HAS_TTY = sys.stdout.isatty()
 ROOT = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -20,6 +21,15 @@ def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
 
 warn = color_text(31, file=sys.stderr)
 info = color_text(32)
+
+
+@lru_cache(maxsize=None)
+def is_nix_flakes() -> bool:
+    try:
+        subprocess.run(["nix", "flake", "--help"], stdout=subprocess.DEVNULL)
+    except subprocess.CalledProcessError:
+        return False
+    return True
 
 
 def run(

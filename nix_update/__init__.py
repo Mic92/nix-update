@@ -7,7 +7,7 @@ from typing import NoReturn, Optional
 from .eval import Package
 from .options import Options
 from .update import update
-from .utils import run
+from .utils import run, is_nix_flakes
 
 
 def die(msg: str) -> NoReturn:
@@ -48,14 +48,13 @@ def parse_args() -> Options:
 
 
 def nix_shell(options: Options) -> None:
-    with tempfile.NamedTemporaryFile(mode="w") as f:
-        f.write(
-            f"""
-        with import {options.import_path}; mkShell {{ buildInputs = [ {options.attribute} ]; }}
-        """
-        )
-        f.flush()
-        run(["nix-shell", f.name], stdout=None, check=False)
+    import_path = os.path.realpath(options.import_path)
+    expr = f"with import {import_path} {{}}; mkShell {{ buildInputs = [ {options.attribute} ]; }}"
+    with tempfile.TemporaryDirectory() as d:
+        path = os.path.join(d, "default.nix")
+        with open(path, "w") as f:
+            f.write(expr)
+        run(["nix-shell", path], stdout=None, check=False)
 
 
 def git_commit(git_dir: str, attribute: str, package: Package) -> None:
@@ -115,24 +114,26 @@ def validate_git_dir(import_path: str) -> str:
 
 
 def nix_run(options: Options) -> None:
+    if is_nix_flakes():
+        cmd = ["nix", "shell", "--experimental-features", "nix-command"]
+    else:
+        cmd = ["nix", "run"]
     run(
-        ["nix", "run", "-f", options.import_path, options.attribute],
-        stdout=None,
-        check=False,
+        cmd + ["-f", options.import_path, options.attribute], stdout=None, check=False,
     )
 
 
 def nix_build(options: Options) -> None:
+    cmd = ["nix", "build"]
+    if is_nix_flakes():
+        cmd += ["--experimental-features", "nix-command"]
     run(
-        ["nix", "build", "-f", options.import_path, options.attribute],
-        stdout=None,
-        check=False,
+        cmd + ["-f", options.import_path, options.attribute], stdout=None, check=False,
     )
 
 
 def main() -> None:
     options = parse_args()
-
     if not os.path.exists(options.import_path):
         die(f"path {options.import_path} does not exists")
 

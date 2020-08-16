@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from .errors import UpdateError
 from .options import Options
-from .utils import run
+from .utils import run, is_nix_flakes
 
 
 @dataclass
@@ -48,9 +48,21 @@ def eval_expression(import_path: str, attr: str) -> str:
 
 
 def eval_attr(opts: Options) -> Package:
-    res = run(
-        ["nix", "eval", "--json", eval_expression(opts.import_path, opts.attribute)]
-    )
+    expr = eval_expression(opts.import_path, opts.attribute)
+    if is_nix_flakes():
+        cmd = [
+            "nix",
+            "eval",
+            "--json",
+            "--impure",
+            "--experimental-features",
+            "nix-command",
+            "--expr",
+            expr,
+        ]
+    else:
+        cmd = ["nix", "eval", "--json", expr]
+    res = run(cmd)
     out = json.loads(res.stdout)
     package = Package(**out)
     if package.old_version == "":
