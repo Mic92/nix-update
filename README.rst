@@ -92,7 +92,7 @@ With the `--shell`, `--build` and `--run` flags the update can be tested
    # Also runs nix-build
    $ nix-update --build nixpkgs-review
    # Also runs nix-shell
-   $ nix-update --build nixpkgs-review
+   $ nix-update --shell nixpkgs-review
    # Also runs nix run
    $ nix-update --run nixpkgs-review
 
