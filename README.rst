@@ -42,6 +42,12 @@ To run it from the git repository:
     $ nix-build
     $ ./result/bin/nix-update
 
+If you have nix flakes enabled you can also do:
+
+::
+
+    $ nix run github:Mic92/nix-update
+
 Note that this asserts formatting with the latest version of
 `black <https://github.com/psf/black>`__, so you may need to specify a more up to
 date version of NixPkgs:
