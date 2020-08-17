@@ -26,7 +26,9 @@ info = color_text(32)
 @lru_cache(maxsize=None)
 def is_nix_flakes() -> bool:
     try:
-        subprocess.run(["nix", "flake", "--help"], stdout=subprocess.DEVNULL, check=True)
+        subprocess.run(
+            ["nix", "flake", "--help"], stdout=subprocess.DEVNULL, check=True
+        )
     except subprocess.CalledProcessError:
         return False
     return True
