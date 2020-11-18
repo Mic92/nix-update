@@ -7,7 +7,7 @@ from typing import NoReturn, Optional
 from .eval import Package
 from .options import Options
 from .update import update
-from .utils import run, is_nix_flakes
+from .utils import run
 
 
 def die(msg: str) -> NoReturn:
@@ -114,21 +114,24 @@ def validate_git_dir(import_path: str) -> str:
 
 
 def nix_run(options: Options) -> None:
-    if is_nix_flakes():
-        cmd = ["nix", "shell", "--experimental-features", "nix-command"]
-    else:
-        cmd = ["nix", "run"]
+    cmd = ["nix", "shell", "--experimental-features", "nix-command"]
     run(
         cmd + ["-f", options.import_path, options.attribute], stdout=None, check=False,
     )
 
 
 def nix_build(options: Options) -> None:
-    cmd = ["nix", "build"]
-    if is_nix_flakes():
-        cmd += ["--experimental-features", "nix-command"]
+    cmd = [
+        "nix",
+        "build",
+        "--experimental-features",
+        "nix-command",
+        "-f",
+        options.import_path,
+        options.attribute,
+    ]
     run(
-        cmd + ["-f", options.import_path, options.attribute], stdout=None, check=False,
+        cmd, stdout=None, check=False,
     )
 
 
