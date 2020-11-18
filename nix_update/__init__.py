@@ -7,7 +7,7 @@ from typing import NoReturn, Optional
 from .eval import Package
 from .options import Options
 from .update import update
-from .utils import run, current_system
+from .utils import run
 
 
 def die(msg: str) -> NoReturn:
@@ -139,16 +139,16 @@ def nix_build(options: Options) -> None:
     )
 
 
-def nix_test(git_dir: str, package: Package, system: Optional[str]) -> None:
-    if not package.tests or not system:
-        die(f"Package {package.name} does not define any tests for {system}")
-    else:
-        tests = []
-        for t in package.tests:
-            tests.append("-A")
-            tests.append(f"tests.{t}.{system}")
-        cmd = ["nix-build", f"{git_dir}/nixos/release.nix"] + tests
-        run(cmd)
+def nix_test(package: Package) -> None:
+    if not package.tests:
+        die(f"Package '{package.name}' does not define any tests")
+
+    tests = []
+    for t in package.tests:
+        tests.append("-A")
+        tests.append(f"{package.attribute}.tests.{t}")
+    cmd = ["nix-build"] + tests
+    run(cmd)
 
 
 def main() -> None:
@@ -156,11 +156,8 @@ def main() -> None:
     if not os.path.exists(options.import_path):
         die(f"path {options.import_path} does not exists")
 
-    if options.commit or options.test:
+    if options.commit:
         git_dir = validate_git_dir(options.import_path)
-
-    if options.test:
-        system = current_system()
 
     package = update(options)
 
@@ -174,7 +171,7 @@ def main() -> None:
         nix_shell(options)
 
     if options.test:
-        nix_test(git_dir, package, system)
+        nix_test(package)
 
     if options.commit:
         git_commit(git_dir, options.attribute, package)

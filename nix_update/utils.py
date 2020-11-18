@@ -30,13 +30,3 @@ def run(
 ) -> "subprocess.CompletedProcess[str]":
     info("$ " + " ".join(command))
     return subprocess.run(command, cwd=cwd, check=check, text=True, stdout=stdout)
-
-
-def current_system() -> Optional[str]:
-    try:
-        proc = run(
-            ["nix-instantiate", "--eval", "--strict", "-E", "builtins.currentSystem"]
-        )
-        return proc.stdout.strip().strip('"')
-    except subprocess.CalledProcessError:
-        return None

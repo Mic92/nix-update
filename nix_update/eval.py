@@ -9,6 +9,7 @@ from .utils import run
 
 @dataclass
 class Package:
+    attribute: str
     name: str
     old_version: str
     filename: str
@@ -63,7 +64,7 @@ def eval_attr(opts: Options) -> Package:
     ]
     res = run(cmd)
     out = json.loads(res.stdout)
-    package = Package(**out)
+    package = Package(attribute=opts.attribute, **out)
     if package.old_version == "":
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"
