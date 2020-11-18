@@ -7,7 +7,7 @@ from typing import NoReturn, Optional
 from .eval import Package
 from .options import Options
 from .update import update
-from .utils import run
+from .utils import run, current_system
 
 
 def die(msg: str) -> NoReturn:
@@ -20,6 +20,9 @@ def parse_args() -> Options:
     help = "File to import rather than default.nix. Examples, ./release.nix"
     parser.add_argument("-f", "--file", default="./.", help=help)
     parser.add_argument("--build", action="store_true", help="build the package")
+    parser.add_argument(
+        "--test", action="store_true", help="Run package's `passthru.tests`"
+    )
     parser.add_argument(
         "--commit", action="store_true", help="Commit the updated package"
     )
@@ -44,6 +47,7 @@ def parse_args() -> Options:
         shell=args.shell,
         version=args.version,
         attribute=args.attribute,
+        test=args.test,
     )
 
 
@@ -135,13 +139,28 @@ def nix_build(options: Options) -> None:
     )
 
 
+def nix_test(git_dir: str, package: Package, system: Optional[str]) -> None:
+    if not package.tests or not system:
+        die(f"Package {package.name} does not define any tests for {system}")
+    else:
+        tests = []
+        for t in package.tests:
+            tests.append("-A")
+            tests.append(f"tests.{t}.{system}")
+        cmd = ["nix-build", f"{git_dir}/nixos/release.nix"] + tests
+        run(cmd)
+
+
 def main() -> None:
     options = parse_args()
     if not os.path.exists(options.import_path):
         die(f"path {options.import_path} does not exists")
 
-    if options.commit:
+    if options.commit or options.test:
         git_dir = validate_git_dir(options.import_path)
+
+    if options.test:
+        system = current_system()
 
     package = update(options)
 
@@ -153,6 +172,9 @@ def main() -> None:
 
     if options.shell:
         nix_shell(options)
+
+    if options.test:
+        nix_test(git_dir, package, system)
 
     if options.commit:
         git_commit(git_dir, options.attribute, package)
