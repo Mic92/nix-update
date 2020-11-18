@@ -6,7 +6,11 @@ python3.pkgs.buildPythonApplication rec {
   name = "nix-update";
   src = ./.;
   buildInputs = [ makeWrapper ];
-  checkInputs = [ mypy python3.pkgs.black python3.pkgs.flake8 glibcLocales ];
+  checkInputs = [
+    mypy python3.pkgs.black python3.pkgs.flake8 glibcLocales
+    # technically not a test input, but we need it for development in PATH
+    nixFlakes
+  ];
   checkPhase = ''
     echo -e "\x1b[32m## run black\x1b[0m"
     LC_ALL=en_US.utf-8 black --check .
@@ -16,7 +20,7 @@ python3.pkgs.buildPythonApplication rec {
     mypy --strict nix_update
   '';
   makeWrapperArgs = [
-    "--prefix PATH" ":" (lib.makeBinPath [ nix nix-prefetch ])
+    "--prefix PATH" ":" (lib.makeBinPath [ nixFlakes nix-prefetch ])
   ];
   shellHook = ''
     # workaround because `python setup.py develop` breaks for me
