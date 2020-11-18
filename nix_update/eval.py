@@ -9,6 +9,7 @@ from .utils import run
 
 @dataclass
 class Package:
+    attribute: str
     name: str
     old_version: str
     filename: str
@@ -20,6 +21,7 @@ class Package:
     mod_sha256: Optional[str]
     vendor_sha256: Optional[str]
     cargo_sha256: Optional[str]
+    tests: Optional[List[str]]
 
     new_version: Optional[str] = None
 
@@ -44,6 +46,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       mod_sha256 = pkg.modSha256 or null;
       vendor_sha256 = pkg.vendorSha256 or null;
       cargo_sha256 = pkg.cargoSha256 or null;
+      tests = pkg.passthru.tests or null;
     }})"""
 
 
@@ -61,7 +64,7 @@ def eval_attr(opts: Options) -> Package:
     ]
     res = run(cmd)
     out = json.loads(res.stdout)
-    package = Package(**out)
+    package = Package(attribute=opts.attribute, **out)
     if package.old_version == "":
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"

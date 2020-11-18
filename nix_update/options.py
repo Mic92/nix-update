@@ -10,3 +10,4 @@ class Options:
     shell: bool
     run: bool
     build: bool
+    test: bool

@@ -21,6 +21,9 @@ def parse_args() -> Options:
     parser.add_argument("-f", "--file", default="./.", help=help)
     parser.add_argument("--build", action="store_true", help="build the package")
     parser.add_argument(
+        "--test", action="store_true", help="Run package's `passthru.tests`"
+    )
+    parser.add_argument(
         "--commit", action="store_true", help="Commit the updated package"
     )
     parser.add_argument(
@@ -44,6 +47,7 @@ def parse_args() -> Options:
         shell=args.shell,
         version=args.version,
         attribute=args.attribute,
+        test=args.test,
     )
 
 
@@ -135,6 +139,18 @@ def nix_build(options: Options) -> None:
     )
 
 
+def nix_test(package: Package) -> None:
+    if not package.tests:
+        die(f"Package '{package.name}' does not define any tests")
+
+    tests = []
+    for t in package.tests:
+        tests.append("-A")
+        tests.append(f"{package.attribute}.tests.{t}")
+    cmd = ["nix-build"] + tests
+    run(cmd)
+
+
 def main() -> None:
     options = parse_args()
     if not os.path.exists(options.import_path):
@@ -153,6 +169,9 @@ def main() -> None:
 
     if options.shell:
         nix_shell(options)
+
+    if options.test:
+        nix_test(package)
 
     if options.commit:
         git_commit(git_dir, options.attribute, package)
