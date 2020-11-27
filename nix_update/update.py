@@ -11,7 +11,7 @@ from .version import fetch_latest_version
 from .git import old_version_from_git
 
 
-def replace_version(package: Package) -> None:
+def replace_version(package: Package) -> bool:
     old_version = package.old_version
     new_version = package.new_version
     assert new_version is not None
@@ -25,6 +25,8 @@ def replace_version(package: Package) -> None:
                 print(line.replace(old_version, new_version), end="")
     else:
         info(f"Not updating version, already {old_version}")
+
+    return old_version != new_version
 
 
 def to_sri(hashstr: str) -> str:
@@ -91,7 +93,7 @@ def update_cargo_sha256_hash(opts: Options, filename: str, current_hash: str) ->
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_version(package: Package, version: str) -> None:
+def update_version(package: Package, version: str) -> bool:
     if version == "auto":
         if not package.url:
             if package.urls:
@@ -111,25 +113,28 @@ def update_version(package: Package, version: str) -> None:
         )
         if recovered_version:
             package.old_version = recovered_version
-            return
-    replace_version(package)
+            return False
+    return replace_version(package)
 
 
 def update(opts: Options) -> Package:
     package = eval_attr(opts)
 
+    update_hash = True
+
     if opts.version != "skip":
-        update_version(package, opts.version)
+        update_hash = update_version(package, opts.version)
 
-    update_src_hash(opts, package.filename, package.hash)
+    if update_hash:
+        update_src_hash(opts, package.filename, package.hash)
 
-    if package.vendor_sha256:
-        update_go_vendor_hash(opts, package.filename, package.vendor_sha256)
-    # legacy go module checksums
-    elif package.mod_sha256:
-        update_mod256_hash(opts, package.filename, package.mod_sha256)
+        if package.vendor_sha256:
+            update_go_vendor_hash(opts, package.filename, package.vendor_sha256)
+        # legacy go module checksums
+        elif package.mod_sha256:
+            update_mod256_hash(opts, package.filename, package.mod_sha256)
 
-    if package.cargo_sha256:
-        update_cargo_sha256_hash(opts, package.filename, package.cargo_sha256)
+        if package.cargo_sha256:
+            update_cargo_sha256_hash(opts, package.filename, package.cargo_sha256)
 
     return package
