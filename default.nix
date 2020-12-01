@@ -18,6 +18,8 @@ python3.pkgs.buildPythonApplication rec {
   checkPhase = ''
     echo -e "\x1b[32m## run black\x1b[0m"
     LC_ALL=en_US.utf-8 black --check .
+    echo -e "\x1b[32m## run pytest\x1b[0m"
+    py.test -s .
     echo -e "\x1b[32m## run flake8\x1b[0m"
     flake8 nix_update
     echo -e "\x1b[32m## run mypy\x1b[0m"
