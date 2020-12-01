@@ -8,9 +8,10 @@ from .eval import Package, eval_attr
 from .options import Options
 from .utils import info, run
 from .version import fetch_latest_version
+from .git import old_version_from_git
 
 
-def update_version(package: Package) -> None:
+def replace_version(package: Package) -> None:
     old_version = package.old_version
     new_version = package.new_version
     assert new_version is not None
@@ -90,23 +91,35 @@ def update_cargo_sha256_hash(opts: Options, filename: str, current_hash: str) ->
     replace_hash(filename, current_hash, target_hash)
 
 
+def update_version(package: Package, version: str) -> None:
+    if version == "auto":
+        if not package.url:
+            if package.urls:
+                url = package.urls[0]
+            else:
+                raise UpdateError(
+                    "Could not find a url in the derivations src attribute"
+                )
+        new_version = fetch_latest_version(url)
+    else:
+        new_version = version
+    package.new_version = new_version
+    position = package.version_position
+    if new_version == package.old_version and position:
+        recovered_version = old_version_from_git(
+            position.file, position.line, new_version
+        )
+        if recovered_version:
+            package.old_version = recovered_version
+            return
+    replace_version(package)
+
+
 def update(opts: Options) -> Package:
     package = eval_attr(opts)
 
     if opts.version != "skip":
-        if opts.version == "auto":
-            if not package.url:
-                if package.urls:
-                    url = package.urls[0]
-                else:
-                    raise UpdateError(
-                        "Could not find a url in the derivations src attribute"
-                    )
-            new_version = fetch_latest_version(url)
-        else:
-            new_version = opts.version
-        package.new_version = new_version
-        update_version(package)
+        update_version(package, opts.version)
 
     update_src_hash(opts, package.filename, package.hash)
 

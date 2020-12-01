@@ -7,7 +7,11 @@ python3.pkgs.buildPythonApplication rec {
   src = ./.;
   buildInputs = [ makeWrapper ];
   checkInputs = [
-    mypy python3.pkgs.black python3.pkgs.flake8 glibcLocales
+    python3.pkgs.pytest
+    python3.pkgs.black
+    python3.pkgs.flake8
+    glibcLocales
+    mypy
     # technically not a test input, but we need it for development in PATH
     nixFlakes
   ];
