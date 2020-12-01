@@ -1,19 +1,27 @@
-{ pkgs ?  import <nixpkgs> {} }:
+{ pkgs ?  import <nixpkgs> {},
+  src ? ./.
+}:
 
 
 with pkgs;
 python3.pkgs.buildPythonApplication rec {
   name = "nix-update";
-  src = ./.;
+  inherit src;
   buildInputs = [ makeWrapper ];
   checkInputs = [
-    mypy python3.pkgs.black python3.pkgs.flake8 glibcLocales
+    python3.pkgs.pytest
+    python3.pkgs.black
+    python3.pkgs.flake8
+    glibcLocales
+    mypy
     # technically not a test input, but we need it for development in PATH
     nixFlakes
   ];
   checkPhase = ''
     echo -e "\x1b[32m## run black\x1b[0m"
     LC_ALL=en_US.utf-8 black --check .
+    echo -e "\x1b[32m## run pytest\x1b[0m"
+    py.test -s .
     echo -e "\x1b[32m## run flake8\x1b[0m"
     flake8 nix_update
     echo -e "\x1b[32m## run mypy\x1b[0m"

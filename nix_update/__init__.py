@@ -62,7 +62,6 @@ def nix_shell(options: Options) -> None:
 
 
 def git_commit(git_dir: str, attribute: str, package: Package) -> None:
-
     run(["git", "-C", git_dir, "add", package.filename], stdout=None)
     diff = run(["git", "-C", git_dir, "diff", "--staged"])
     if len(diff.stdout) == 0:
@@ -79,7 +78,7 @@ def git_commit(git_dir: str, attribute: str, package: Package) -> None:
         )
     else:
         with tempfile.NamedTemporaryFile(mode="w") as f:
-            f.write(f"{attribute}:")
+            f.write(f"{attribute}: {package.old_version} -> {package.new_version}")
             f.flush()
             run(
                 ["git", "-C", git_dir, "commit", "--verbose", "--template", f.name],
@@ -120,7 +119,9 @@ def validate_git_dir(import_path: str) -> str:
 def nix_run(options: Options) -> None:
     cmd = ["nix", "shell", "--experimental-features", "nix-command"]
     run(
-        cmd + ["-f", options.import_path, options.attribute], stdout=None, check=False,
+        cmd + ["-f", options.import_path, options.attribute],
+        stdout=None,
+        check=False,
     )
 
 
@@ -135,7 +136,9 @@ def nix_build(options: Options) -> None:
         options.attribute,
     ]
     run(
-        cmd, stdout=None, check=False,
+        cmd,
+        stdout=None,
+        check=False,
     )
 
 

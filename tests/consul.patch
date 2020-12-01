@@ -1,0 +1,21 @@
+diff --git a/pkgs/servers/consul/default.nix b/pkgs/servers/consul/default.nix
+index eef9054ae70..334528e7673 100644
+--- a/pkgs/servers/consul/default.nix
++++ b/pkgs/servers/consul/default.nix
+@@ -2,7 +2,7 @@
+
+~
+ buildGoModule rec {
+~
+   pname = "consul";
+~
+   version =
+-"1.8.6";
++"1.9.0";
+~
+   rev = "v${version}";
+~
+
+~
+   # Note: Currently only release tags are supported, because they have the Consul UI
+~
