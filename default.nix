@@ -1,10 +1,12 @@
-{ pkgs ?  import <nixpkgs> {} }:
+{ pkgs ?  import <nixpkgs> {},
+  src ? ./.
+}:
 
 
 with pkgs;
 python3.pkgs.buildPythonApplication rec {
   name = "nix-update";
-  src = ./.;
+  inherit src;
   buildInputs = [ makeWrapper ];
   checkInputs = [
     python3.pkgs.pytest
