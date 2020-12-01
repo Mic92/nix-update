@@ -32,7 +32,7 @@ def old_version_from_diff(
         return None
     idx = new_str.index(new_version)
     prefix = new_str[:idx]
-    suffix = new_str[idx + len(new_version):]
+    suffix = new_str[idx + len(new_version) :]
     return old_str.lstrip(prefix).rstrip(suffix)
 
 
