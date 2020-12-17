@@ -11,3 +11,4 @@ class Options:
     run: bool
     build: bool
     test: bool
+    version_regex: str

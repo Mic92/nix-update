@@ -1,14 +1,25 @@
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import Element
 from typing import Optional
 from urllib.parse import ParseResult, urlparse
 
 from ..errors import VersionError
-from ..utils import info
+from ..utils import extract_version, info
 
 
-def fetch_github_version(url: ParseResult) -> Optional[str]:
+def version_from_entry(entry: Element) -> Optional[str]:
+    if entry is None:
+        raise VersionError("No release found")
+    link = entry.find("{http://www.w3.org/2005/Atom}link")
+    assert link is not None
+    href = link.attrib["href"]
+    url = urlparse(href)
+    return url.path.split("/")[-1]
+
+
+def fetch_github_version(url: ParseResult, version_regex: str) -> Optional[str]:
     if url.netloc != "github.com":
         return None
     parts = url.path.split("/")
@@ -19,11 +30,10 @@ def fetch_github_version(url: ParseResult) -> Optional[str]:
     info(f"fetch {feed_url}")
     resp = urllib.request.urlopen(feed_url)
     tree = ET.fromstring(resp.read())
-    release = tree.find(".//{http://www.w3.org/2005/Atom}entry")
-    if release is None:
-        raise VersionError("No release found")
-    link = release.find("{http://www.w3.org/2005/Atom}link")
-    assert link is not None
-    href = link.attrib["href"]
-    url = urlparse(href)
-    return url.path.split("/")[-1]
+    releases = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
+    entries = [version_from_entry(x) for x in releases]
+    filtered = [
+        x for x in entries if x is not None and extract_version(x, version_regex)
+    ]
+
+    return filtered[0]

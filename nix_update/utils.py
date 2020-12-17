@@ -1,4 +1,5 @@
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -30,3 +31,13 @@ def run(
 ) -> "subprocess.CompletedProcess[str]":
     info("$ " + " ".join(command))
     return subprocess.run(command, cwd=cwd, check=check, text=True, stdout=stdout)
+
+
+def extract_version(version: str, version_regex: str) -> Optional[str]:
+    pattern = re.compile(version_regex)
+    match = re.match(pattern, version)
+    if match is not None:
+        group = match.group(1)
+        if group is not None:
+            return group
+    return None

@@ -17,6 +17,7 @@ Features
 - update buildGoModule's vendorSha256/modSha256
 - build and run the resulting package (see `--build`, `--run` or `--shell` flag)
 - commit updated files (see `--commit` flag)
+- run package tests (see `--test` flag)
 
 Installation
 ------------
@@ -85,12 +86,21 @@ To only update sources hashes without updating the version:
 
    $ nix-update --version=skip nixpkgs-review
 
-With the `--shell`, `--build` and `--run` flags the update can be tested
+To extract version information from versions with prefixes or suffixes, a regex
+can be used
+
+::
+
+   $ nix-update jq --version-regex 'jq-(.*)'
+
+With the `--shell`, `--build`, `--test` and `--run` flags the update can be tested
 
 ::
 
    # Also runs nix-build
    $ nix-update --build nixpkgs-review
+   # Also runs nix-build nixpkgs-review.tests
+   $ nix-update --test nixpkgs-review
    # Also runs nix-shell
    $ nix-update --shell nixpkgs-review
    # Also runs nix run
