@@ -1,5 +1,4 @@
 import fileinput
-import re
 from typing import List
 import subprocess
 
@@ -61,7 +60,7 @@ def replace_hash(filename: str, current: str, target: str) -> None:
     if to_sri(current) != normalized_hash:
         with fileinput.FileInput(filename, inplace=True) as f:
             for line in f:
-                line = re.sub(current, normalized_hash, line)
+                line = line.replace(current, normalized_hash)
                 print(line, end="")
 
 
