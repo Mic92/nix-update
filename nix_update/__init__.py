@@ -138,7 +138,7 @@ def nix_build(options: Options) -> None:
     run(
         cmd,
         stdout=None,
-        check=False,
+        check=True,
     )
 
 
@@ -151,7 +151,7 @@ def nix_test(package: Package) -> None:
         tests.append("-A")
         tests.append(f"{package.attribute}.tests.{t}")
     cmd = ["nix-build"] + tests
-    run(cmd)
+    run(cmd, check=True)
 
 
 def main() -> None:
