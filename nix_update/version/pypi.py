@@ -3,10 +3,10 @@ import urllib.request
 from typing import Optional
 from urllib.parse import ParseResult
 
-from ..utils import info
+from ..utils import extract_version, info
 
 
-def fetch_pypi_version(url: ParseResult) -> Optional[str]:
+def fetch_pypi_version(url: ParseResult, version_regex: str) -> Optional[str]:
     if url.netloc != "pypi":
         return None
     parts = url.path.split("/")
@@ -17,4 +17,4 @@ def fetch_pypi_version(url: ParseResult) -> Optional[str]:
     data = json.loads(resp.read())
     version = data["info"]["version"]
     assert isinstance(version, str)
-    return version
+    return extract_version(version, version_regex)

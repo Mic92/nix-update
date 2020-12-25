@@ -4,10 +4,10 @@ from urllib.parse import ParseResult
 import json
 
 from ..errors import VersionError
-from ..utils import info
+from ..utils import extract_version, info
 
 
-def fetch_rubygem_version(url: ParseResult) -> Optional[str]:
+def fetch_rubygem_version(url: ParseResult, version_regex: str) -> Optional[str]:
     if url.netloc != "rubygems.org":
         return None
     parts = url.path.split("/")
@@ -23,7 +23,9 @@ def fetch_rubygem_version(url: ParseResult) -> Optional[str]:
         if not version["prerelease"]:
             number = version["number"]
             assert isinstance(number, str)
-            return number
+            extracted = extract_version(number, version_regex)
+            if extracted is not None:
+                return extracted
     number = versions[0]["number"]
     assert isinstance(number, str)
-    return number
+    return extract_version(number, version_regex)

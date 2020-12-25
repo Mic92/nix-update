@@ -27,6 +27,12 @@ def parse_args() -> Options:
         "--commit", action="store_true", help="Commit the updated package"
     )
     parser.add_argument(
+        "-vr",
+        "--version-regex",
+        help="Regex to extract version with, i.e. 'jq-(.*)'",
+        default="(.*)",
+    )
+    parser.add_argument(
         "--run",
         action="store_true",
         help="provide a shell based on `nix run` with the package in $PATH",
@@ -48,6 +54,7 @@ def parse_args() -> Options:
         version=args.version,
         attribute=args.attribute,
         test=args.test,
+        version_regex=args.version_regex,
     )
 
 
