@@ -96,12 +96,12 @@ def update_version(package: Package, version: str, version_regex: str) -> bool:
     if version == "auto":
         if not package.url:
             if package.urls:
-                url = package.urls[0]
+                package.url = package.urls[0]
             else:
                 raise UpdateError(
                     "Could not find a url in the derivations src attribute"
                 )
-        new_version = fetch_latest_version(url, version_regex)
+        new_version = fetch_latest_version(package.url, version_regex)
     else:
         new_version = version
     package.new_version = new_version
