@@ -1,6 +1,7 @@
 import fileinput
-from typing import List
+from typing import List, Optional, Dict
 import subprocess
+import tempfile
 
 from .errors import UpdateError
 from .eval import Package, eval_attr
@@ -66,7 +67,16 @@ def replace_hash(filename: str, current: str, target: str) -> None:
 
 
 def nix_prefetch(cmd: List[str]) -> str:
-    res = run(["nix-prefetch"] + cmd)
+    extra_env: Dict[str, str] = {}
+    tempdir: Optional[tempfile.TemporaryDirectory[str]] = None
+    if extra_env.get("XDG_RUNTIME_DIR") is None:
+        tempdir = tempfile.TemporaryDirectory()
+        extra_env["XDG_RUNTIME_DIR"] = tempdir.name
+    try:
+        res = run(["nix-prefetch"] + cmd, extra_env=extra_env)
+    finally:
+        if tempdir:
+            tempdir.cleanup()
     return res.stdout.strip()
 
 
