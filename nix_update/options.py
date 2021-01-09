@@ -3,12 +3,12 @@ from dataclasses import dataclass
 
 @dataclass
 class Options:
-    version: str
-    import_path: str
-    commit: bool
     attribute: str
-    shell: bool
-    run: bool
-    build: bool
-    test: bool
-    version_regex: str
+    version: str = "auto"
+    version_regex: str = "(.*)"
+    import_path: str = "./."
+    commit: bool = False
+    shell: bool = False
+    run: bool = False
+    build: bool = False
+    test: bool = False
