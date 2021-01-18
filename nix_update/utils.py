@@ -46,3 +46,9 @@ def extract_version(version: str, version_regex: str) -> Optional[str]:
         if group is not None:
             return group
     return None
+
+
+def version_is_stable(version: str) -> bool:
+    filters = ["rc", "alpha", "beta", "preview", "nightly", "m[0-9]"]
+    filters_in_version = [x for x in filters if re.search(x, version, re.IGNORECASE)]
+    return version is not None and (not any(filters_in_version))

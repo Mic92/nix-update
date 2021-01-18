@@ -6,7 +6,7 @@ from typing import Optional
 from urllib.parse import ParseResult, urlparse
 
 from ..errors import VersionError
-from ..utils import extract_version, info
+from ..utils import extract_version, info, version_is_stable
 
 
 def version_from_entry(entry: Element) -> Optional[str]:
@@ -19,7 +19,9 @@ def version_from_entry(entry: Element) -> Optional[str]:
     return url.path.split("/")[-1]
 
 
-def fetch_github_version(url: ParseResult, version_regex: str) -> Optional[str]:
+def fetch_github_version(
+    url: ParseResult, version_regex: str, unstable_version: bool
+) -> Optional[str]:
     if url.netloc != "github.com":
         return None
     parts = url.path.split("/")
@@ -32,8 +34,19 @@ def fetch_github_version(url: ParseResult, version_regex: str) -> Optional[str]:
     tree = ET.fromstring(resp.read())
     releases = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
     entries = [version_from_entry(x) for x in releases]
+    extracted = [extract_version(x, version_regex) for x in entries if x is not None]
     filtered = [
-        x for x in entries if x is not None and extract_version(x, version_regex)
+        x
+        for x in extracted
+        if x is not None and (unstable_version or version_is_stable(x))
     ]
 
-    return filtered[0]
+    if filtered[0] is not None:
+        return filtered[0]
+
+    if extracted[0] is not None and not unstable_version:
+        print(
+            f"Found an unstable version {extracted[0]}, which is being ignored. To update to unstable version, please use '--unstable-version'"
+        )
+
+    return None

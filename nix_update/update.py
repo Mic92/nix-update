@@ -103,7 +103,9 @@ def update_cargo_sha256_hash(opts: Options, filename: str, current_hash: str) ->
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_version(package: Package, version: str, version_regex: str) -> bool:
+def update_version(
+    package: Package, version: str, version_regex: str, unstable_version: bool
+) -> bool:
     if version == "auto":
         if not package.url:
             if package.urls:
@@ -112,7 +114,7 @@ def update_version(package: Package, version: str, version_regex: str) -> bool:
                 raise UpdateError(
                     "Could not find a url in the derivations src attribute"
                 )
-        new_version = fetch_latest_version(package.url, version_regex)
+        new_version = fetch_latest_version(package.url, version_regex, unstable_version)
     else:
         new_version = version
     package.new_version = new_version
@@ -133,7 +135,9 @@ def update(opts: Options) -> Package:
     update_hash = True
 
     if opts.version != "skip":
-        update_hash = update_version(package, opts.version, opts.version_regex)
+        update_hash = update_version(
+            package, opts.version, opts.version_regex, opts.unstable_version
+        )
 
     if update_hash:
         update_src_hash(opts, package.filename, package.hash)

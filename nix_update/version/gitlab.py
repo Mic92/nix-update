@@ -5,14 +5,16 @@ from typing import Optional
 from urllib.parse import ParseResult
 
 from ..errors import VersionError
-from ..utils import extract_version, info
+from ..utils import extract_version, info, version_is_stable
 
 GITLAB_API = re.compile(
     r"http(s)?://(?P<domain>[^/]+)/api/v4/projects/(?P<project_id>[^/]*)/repository/archive.tar.gz\?sha=(?P<version>.+)"
 )
 
 
-def fetch_gitlab_version(url: ParseResult, version_regex: str) -> Optional[str]:
+def fetch_gitlab_version(
+    url: ParseResult, version_regex: str, unstable_version: bool
+) -> Optional[str]:
     match = GITLAB_API.match(url.geturl())
     if not match:
         return None
@@ -29,7 +31,9 @@ def fetch_gitlab_version(url: ParseResult, version_regex: str) -> Optional[str]:
             name = tag["name"]
             assert isinstance(name, str)
             extracted = extract_version(name, version_regex)
-            if extracted is not None:
+            if extracted is not None and (
+                unstable_version or version_is_stable(extracted)
+            ):
                 return extracted
     # if no release is found, use latest tag
     name = tags[0]["name"]

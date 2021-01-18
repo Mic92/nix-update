@@ -1,7 +1,6 @@
 from urllib.parse import urlparse
 
 from ..errors import VersionError
-from ..utils import extract_version
 from .github import fetch_github_version
 from .gitlab import fetch_gitlab_version
 from .pypi import fetch_pypi_version
@@ -25,15 +24,15 @@ fetchers = [
 ]
 
 
-def fetch_latest_version(url_str: str, version_regex: str) -> str:
+def fetch_latest_version(
+    url_str: str, version_regex: str, unstable_version: bool
+) -> str:
     url = urlparse(url_str)
 
     for fetcher in fetchers:
-        version = fetcher(url, version_regex)
+        version = fetcher(url, version_regex, unstable_version)
         if version is not None:
-            extracted = extract_version(version, version_regex)
-            if extracted is not None:
-                return extracted
+            return version
 
     raise VersionError(
         "Please specify the version. We can only get the latest version from github/gitlab/pypi/rubygems projects right now"
