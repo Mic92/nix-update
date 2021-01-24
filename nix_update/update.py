@@ -8,6 +8,7 @@ from .eval import Package, eval_attr
 from .options import Options
 from .utils import info, run
 from .version import fetch_latest_version
+from .version.version import VersionPreference
 from .git import old_version_from_git
 
 
@@ -104,9 +105,11 @@ def update_cargo_sha256_hash(opts: Options, filename: str, current_hash: str) ->
 
 
 def update_version(
-    package: Package, version: str, version_regex: str, unstable_version: bool
+    package: Package, version: str, preference: VersionPreference, version_regex: str
 ) -> bool:
-    if version == "auto":
+    if preference == VersionPreference.FIXED:
+        new_version = version
+    else:
         if not package.url:
             if package.urls:
                 package.url = package.urls[0]
@@ -114,9 +117,8 @@ def update_version(
                 raise UpdateError(
                     "Could not find a url in the derivations src attribute"
                 )
-        new_version = fetch_latest_version(package.url, version_regex, unstable_version)
-    else:
-        new_version = version
+        version
+        new_version = fetch_latest_version(package.url, preference, version_regex)
     package.new_version = new_version
     position = package.version_position
     if new_version == package.old_version and position:
@@ -134,9 +136,11 @@ def update(opts: Options) -> Package:
 
     update_hash = True
 
-    if opts.version != "skip":
+    version_preference = VersionPreference.from_str(opts.version)
+
+    if version_preference != VersionPreference.SKIP:
         update_hash = update_version(
-            package, opts.version, opts.version_regex, opts.unstable_version
+            package, opts.version, version_preference, opts.version_regex
         )
 
     if update_hash:

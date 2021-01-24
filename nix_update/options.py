@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass
 class Options:
     attribute: str
-    version: str = "auto"
+    version: str = "stable"
     version_regex: str = "(.*)"
     import_path: str = "./."
     commit: bool = False

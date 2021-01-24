@@ -1,16 +1,15 @@
 import json
 import urllib.request
-from typing import Optional
+from typing import List
 from urllib.parse import ParseResult
 
-from ..utils import extract_version, info, version_is_stable
+from .version import Version
+from ..utils import info
 
 
-def fetch_pypi_version(
-    url: ParseResult, version_regex: str, unstable_version: bool
-) -> Optional[str]:
+def fetch_pypi_versions(url: ParseResult) -> List[Version]:
     if url.netloc != "pypi":
-        return None
+        return []
     parts = url.path.split("/")
     package = parts[2]
     pypi_url = f"https://pypi.org/pypi/{package}/json"
@@ -19,8 +18,5 @@ def fetch_pypi_version(
     data = json.loads(resp.read())
     version = data["info"]["version"]
     assert isinstance(version, str)
-    extracted = extract_version(version, version_regex)
-    if extracted is not None and (unstable_version or version_is_stable(extracted)):
-        return extracted
-
-    return None
+    # TODO look at info->releases instead
+    return [Version(version)]

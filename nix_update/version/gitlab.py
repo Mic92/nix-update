@@ -1,41 +1,41 @@
 import json
 import re
 import urllib.request
-from typing import Optional
+from typing import List
 from urllib.parse import ParseResult
 
+from .version import Version
 from ..errors import VersionError
-from ..utils import extract_version, info, version_is_stable
+from ..utils import info
 
 GITLAB_API = re.compile(
     r"http(s)?://(?P<domain>[^/]+)/api/v4/projects/(?P<project_id>[^/]*)/repository/archive.tar.gz\?sha=(?P<version>.+)"
 )
 
 
-def fetch_gitlab_version(
-    url: ParseResult, version_regex: str, unstable_version: bool
-) -> Optional[str]:
+def fetch_gitlab_versions(url: ParseResult) -> List[Version]:
     match = GITLAB_API.match(url.geturl())
     if not match:
-        return None
+        return []
     domain = match.group("domain")
     project_id = match.group("project_id")
     gitlab_url = f"https://{domain}/api/v4/projects/{project_id}/repository/tags"
     info(f"fetch {gitlab_url}")
     resp = urllib.request.urlopen(gitlab_url)
-    tags = json.loads(resp.read())
-    if len(tags) == 0:
+    json_tags = json.loads(resp.read())
+    if len(json_tags) == 0:
         raise VersionError("No git tags found")
-    for tag in tags:
+    releases = []
+    tags = []
+    for tag in json_tags:
+        name = tag["name"]
+        assert isinstance(name, str)
         if tag["release"]:
-            name = tag["name"]
-            assert isinstance(name, str)
-            extracted = extract_version(name, version_regex)
-            if extracted is not None and (
-                unstable_version or version_is_stable(extracted)
-            ):
-                return extracted
+            # TODO: has gitlab preleases?
+            releases.append(Version(name))
+        else:
+            tags.append(Version(name))
     # if no release is found, use latest tag
-    name = tags[0]["name"]
-    assert isinstance(name, str)
-    return extract_version(name, version_regex)
+    if releases == []:
+        return tags
+    return releases
