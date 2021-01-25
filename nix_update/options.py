@@ -12,4 +12,3 @@ class Options:
     run: bool = False
     build: bool = False
     test: bool = False
-    unstable_version: bool = False
