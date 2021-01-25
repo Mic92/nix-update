@@ -116,6 +116,18 @@ Nix-update also can optionally generate a commit message in the form
    [master 53d68a6a5a9] bitcoin-abc: 0.21.1 -> 0.21.2
    1 file changed, 2 insertions(+), 2 deletions(-)
 
+By default, nix-update will attempt to update to the next stable version of a package.
+Alphas, betas, release candidates and similar unstable releases will be ignored.
+This can be affected by changing the parameter `version` from its default value `stable` to `unstable`.
+
+::
+
+  $ nix-update sbt
+  Not updating version, already 1.4.6
+
+  $ nix-update sbt --version=unstable
+  Update 1.4.6 -> 1.5.0-M1 in sbt
+
 TODO
 ----
 
