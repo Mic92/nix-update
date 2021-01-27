@@ -41,7 +41,7 @@ def parse_args() -> Options:
         "--shell", action="store_true", help="provide a shell with the package"
     )
     parser.add_argument(
-        "--version", nargs="?", help="Version to update to", default="auto"
+        "--version", nargs="?", help="Version to update to", default="stable"
     )
     parser.add_argument("attribute", help="Attribute name within the file evaluated")
     args = parser.parse_args()

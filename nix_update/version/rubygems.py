@@ -1,31 +1,32 @@
 import urllib.request
-from typing import Optional
+from typing import List
 from urllib.parse import ParseResult
 import json
 
+from .version import Version
 from ..errors import VersionError
-from ..utils import extract_version, info
+
+from ..utils import info
 
 
-def fetch_rubygem_version(url: ParseResult, version_regex: str) -> Optional[str]:
+def fetch_rubygem_versions(url: ParseResult) -> List[Version]:
     if url.netloc != "rubygems.org":
-        return None
+        return []
     parts = url.path.split("/")
     gem = parts[-1]
     gem_name, rest = gem.rsplit("-")
     versions_url = f"https://rubygems.org/api/v1/versions/{gem_name}.json"
     info(f"fetch {versions_url}")
     resp = urllib.request.urlopen(versions_url)
-    versions = json.load(resp)
-    if len(versions) == 0:
+    json_versions = json.load(resp)
+    if len(json_versions) == 0:
         raise VersionError("No versions found")
-    for version in versions:
-        if not version["prerelease"]:
-            number = version["number"]
-            assert isinstance(number, str)
-            extracted = extract_version(number, version_regex)
-            if extracted is not None:
-                return extracted
-    number = versions[0]["number"]
-    assert isinstance(number, str)
-    return extract_version(number, version_regex)
+
+    versions: List[Version] = []
+    for version in json_versions:
+        number = version["number"]
+        assert isinstance(number, str)
+        prerelease = version["prerelease"]
+        assert isinstance(prerelease, bool)
+        version.append(Version(number, prerelease=prerelease))
+    return versions
