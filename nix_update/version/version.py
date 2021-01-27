@@ -7,7 +7,7 @@ from typing import Optional
 @dataclass
 class Version:
     number: str
-    prerelease: Optional[bool] = False
+    prerelease: Optional[bool] = None
 
 
 class VersionPreference(Enum):

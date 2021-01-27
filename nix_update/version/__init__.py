@@ -36,11 +36,11 @@ def extract_version(version: str, version_regex: str) -> Optional[str]:
     return None
 
 
-def is_stable(version: Version, extracted: str) -> bool:
+def is_unstable(version: Version, extracted: str) -> bool:
     if version.prerelease is not None:
         return version.prerelease
     pattern = "rc|alpha|beta|preview|nightly|m[0-9]+"
-    return re.search(pattern, extracted, re.IGNORECASE) is None
+    return re.search(pattern, extracted, re.IGNORECASE) is not None
 
 
 def fetch_latest_version(
@@ -59,7 +59,7 @@ def fetch_latest_version(
             extracted = extract_version(version.number, version_regex)
             if extracted is None:
                 filtered.append(version.number)
-            elif preference == VersionPreference.STABLE and is_stable(
+            elif preference == VersionPreference.STABLE and is_unstable(
                 version, extracted
             ):
                 unstable.append(extracted)
