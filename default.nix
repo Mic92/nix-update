@@ -27,7 +27,7 @@ python3.pkgs.buildPythonApplication rec {
     mypy --strict nix_update
   '';
   makeWrapperArgs = [
-    "--prefix PATH" ":" (lib.makeBinPath [ nixFlakes nix-prefetch ])
+    "--prefix PATH" ":" (lib.makeBinPath [ nixFlakes nix-prefetch nixpkgs-review ])
   ];
   shellHook = ''
     # workaround because `python setup.py develop` breaks for me

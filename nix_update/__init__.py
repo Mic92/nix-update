@@ -24,6 +24,9 @@ def parse_args() -> Options:
         "--test", action="store_true", help="Run package's `passthru.tests`"
     )
     parser.add_argument(
+        "--review", action="store_true", help="Run `nixpkgs-review wip`"
+    )
+    parser.add_argument(
         "--commit", action="store_true", help="Commit the updated package"
     )
     parser.add_argument(
@@ -55,6 +58,7 @@ def parse_args() -> Options:
         attribute=args.attribute,
         test=args.test,
         version_regex=args.version_regex,
+        review=args.review,
     )
 
 
@@ -68,13 +72,13 @@ def nix_shell(options: Options) -> None:
         run(["nix-shell", path], stdout=None, check=False)
 
 
-def git_commit(git_dir: str, attribute: str, package: Package) -> None:
+def git_has_diff(git_dir: str, package: Package) -> bool:
     run(["git", "-C", git_dir, "add", package.filename], stdout=None)
     diff = run(["git", "-C", git_dir, "diff", "--staged"])
-    if len(diff.stdout) == 0:
-        print("No changes made, skip commit", file=sys.stderr)
-        return
+    return len(diff.stdout) > 0
 
+
+def git_commit(git_dir: str, attribute: str, package: Package) -> None:
     new_version = package.new_version
     if new_version and package.old_version != new_version:
         if new_version.startswith("v"):
@@ -161,6 +165,14 @@ def nix_test(package: Package) -> None:
     run(cmd, check=True)
 
 
+def nixpkgs_review() -> None:
+    cmd = [
+        "nixpkgs-review",
+        "wip",
+    ]
+    run(cmd, check=True)
+
+
 def main() -> None:
     options = parse_args()
     if not os.path.exists(options.import_path):
@@ -180,10 +192,18 @@ def main() -> None:
     if options.shell:
         nix_shell(options)
 
-    if options.test:
+    changes_detected = git_has_diff(git_dir, package)
+
+    if not changes_detected:
+        print("No changes detected, skipping remaining steps")
+
+    if options.test and changes_detected:
         nix_test(package)
 
-    if options.commit:
+    if options.review and changes_detected:
+        nixpkgs_review()
+
+    if options.commit and changes_detected:
         git_commit(git_dir, options.attribute, package)
 
 
