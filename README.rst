@@ -96,7 +96,7 @@ can be used
 With the `--shell`, `--build`, `--test` and `--run` flags the update can be
 tested.
 Additionally, the `--review` flag can be used to initiate a run of
-[nixpkgs-review](https://github.com/Mic92/nixpkgs-review), which will ensure all
+nixpkgs-review <https://github.com/Mic92/nixpkgs-review>, which will ensure all
 dependent packages can be built.
 
 
