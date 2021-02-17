@@ -178,7 +178,8 @@ def main() -> None:
     if not os.path.exists(options.import_path):
         die(f"path {options.import_path} does not exists")
 
-    if options.commit:
+    git_dir = None
+    if options.commit or options.review:
         git_dir = validate_git_dir(options.import_path)
 
     package = update(options)
@@ -192,18 +193,23 @@ def main() -> None:
     if options.shell:
         nix_shell(options)
 
-    changes_detected = git_has_diff(git_dir, package)
+    if not git_dir:
+        git_dir = find_git_root(options.import_path)
+
+    changes_detected = not git_dir or git_has_diff(git_dir, package)
 
     if not changes_detected:
         print("No changes detected, skipping remaining steps")
+        return
 
-    if options.test and changes_detected:
+    if options.test:
         nix_test(package)
 
-    if options.review and changes_detected:
+    if options.review:
         nixpkgs_review()
 
-    if options.commit and changes_detected:
+    if options.commit:
+        assert git_dir is not None
         git_commit(git_dir, options.attribute, package)
 
 
