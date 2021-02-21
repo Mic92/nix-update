@@ -98,6 +98,8 @@ tested.
 Additionally, the `--review` flag can be used to initiate a run of
 nixpkgs-review <https://github.com/Mic92/nixpkgs-review>, which will ensure all
 dependent packages can be built.
+In order to ensure consistent formatting, the `--format` flag will invoke
+[nixpkgs-fmt](https://github.com/nix-community/nixpkgs-fmt).
 
 
 ::
@@ -112,6 +114,8 @@ dependent packages can be built.
    $ nix-update --run nixpkgs-review
    # Run `nixpkgs-review wip` to validate dependent packages
    $ nix-update --review nixpkgs-review
+   # Format file
+   $ nix-update --format nixpkgs-review
 
 Nix-update also can optionally generate a commit message in the form
 `attribute: old_version -> new_version` with the applied version update:
