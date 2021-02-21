@@ -13,3 +13,4 @@ class Options:
     build: bool = False
     test: bool = False
     review: bool = False
+    format: bool = False
