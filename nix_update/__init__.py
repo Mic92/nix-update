@@ -178,8 +178,7 @@ def main() -> None:
     if not os.path.exists(options.import_path):
         die(f"path {options.import_path} does not exists")
 
-    if options.commit:
-        git_dir = validate_git_dir(options.import_path)
+    git_dir = validate_git_dir(options.import_path)
 
     package = update(options)
 
