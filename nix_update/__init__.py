@@ -175,9 +175,11 @@ def nixpkgs_review() -> None:
     run(cmd, check=True)
 
 
-def nixpkgs_fmt(package: Package) -> None:
+def nixpkgs_fmt(package: Package, git_dir: Optional[str]) -> None:
     cmd = ["nixpkgs-fmt", package.filename]
     run(cmd, check=True)
+    if git_dir is not None:
+        run(["git", "-C", git_dir, "add", package.filename], stdout=None)
 
 
 def main() -> None:
@@ -216,7 +218,7 @@ def main() -> None:
         nixpkgs_review()
 
     if options.format:
-        nixpkgs_fmt(package)
+        nixpkgs_fmt(package, git_dir)
 
     if options.commit:
         assert git_dir is not None
