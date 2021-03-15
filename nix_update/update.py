@@ -81,25 +81,30 @@ def nix_prefetch(cmd: List[str]) -> str:
     return res.stdout.strip()
 
 
+def get_config_check_meta(opts: Options) -> str:
+    return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.import_path}))) then {{ config.checkMeta = false; }} else {{ }}))'
+
+
 def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
-    target_hash = nix_prefetch([f"(import {opts.import_path} {{}}).{opts.attribute}"])
+    expr = f"(import {opts.import_path} {get_config_check_meta(opts)}.{opts.attribute}"
+    target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_mod256_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"{{ sha256 }}: (import {opts.import_path} {{}}).{opts.attribute}.go-modules.overrideAttrs (_: {{ modSha256 = sha256; }})"
+    expr = f"{{ sha256 }}: (import {opts.import_path} {get_config_check_meta(opts)}).{opts.attribute}.go-modules.overrideAttrs (_: {{ modSha256 = sha256; }})"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_go_vendor_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"{{ sha256 }}: (import {opts.import_path} {{}}).{opts.attribute}.go-modules.overrideAttrs (_: {{ vendorSha256 = sha256; }})"
+    expr = f"{{ sha256 }}: (import {opts.import_path} {get_config_check_meta(opts)}).{opts.attribute}.go-modules.overrideAttrs (_: {{ vendorSha256 = sha256; }})"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_cargo_sha256_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"{{ sha256 }}: (import {opts.import_path} {{}}).{opts.attribute}.cargoDeps.overrideAttrs (_: {{ inherit sha256; }})"
+    expr = f"{{ sha256 }}: (import {opts.import_path} {get_config_check_meta(opts)}).{opts.attribute}.cargoDeps.overrideAttrs (_: {{ inherit sha256; }})"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
 
