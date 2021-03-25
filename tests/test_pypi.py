@@ -8,7 +8,7 @@ import conftest
 
 def test_update(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs() as path:
-        opts = Options(attribute="pypi", import_path=path)
+        opts = Options(attribute="pypi", import_path=str(path))
         update(opts)
         version = subprocess.run(
             [

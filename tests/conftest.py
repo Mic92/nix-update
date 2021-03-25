@@ -28,6 +28,6 @@ class Helpers:
             yield Path(tmpdirname)
 
 
-@pytest.fixture
+@pytest.fixture  # type: ignore
 def helpers() -> Type[Helpers]:
     return Helpers
