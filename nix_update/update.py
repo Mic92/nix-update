@@ -82,11 +82,11 @@ def nix_prefetch(cmd: List[str]) -> str:
 
 
 def disable_check_meta(opts: Options) -> str:
-    return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.import_path}))) then {{ config.checkMeta = false; }} else {{ }}))'
+    return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.import_path}))) then {{ config.checkMeta = false; }} else {{ }})'
 
 
 def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"(import {opts.import_path} {disable_check_meta(opts)}.{opts.attribute}"
+    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
 
