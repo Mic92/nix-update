@@ -64,7 +64,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       hash = pkg.src.outputHash;
       mod_sha256 = pkg.modSha256 or null;
       vendor_sha256 = pkg.vendorSha256 or null;
-      cargo_sha256 = pkg.cargoSha256 or null;
+      cargo_sha256 = pkg.cargoHash or pkg.cargoSha256 or null;
       tests = pkg.passthru.tests or null;
     }})"""
 
