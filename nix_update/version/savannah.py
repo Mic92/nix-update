@@ -39,7 +39,7 @@ def fetch_savannah_versions(url: ParseResult) -> List[Version]:
     tree = ET.fromstring(html[start:end])
 
     versions = []
-    for a in tree.findall('.//a'):
+    for a in tree.findall(".//a"):
         version = version_from_link(a, dir_url)
         if version:
             versions.append(version)
