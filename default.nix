@@ -15,7 +15,7 @@ python3.pkgs.buildPythonApplication rec {
     glibcLocales
     mypy
     # technically not a test input, but we need it for development in PATH
-    nixFlakes
+    nixUnstable
     nix-prefetch
   ];
   checkPhase = ''
@@ -27,7 +27,7 @@ python3.pkgs.buildPythonApplication rec {
     mypy --strict nix_update tests
   '';
   makeWrapperArgs = [
-    "--prefix PATH" ":" (lib.makeBinPath [ nixFlakes nix-prefetch nixpkgs-fmt nixpkgs-review ])
+    "--prefix PATH" ":" (lib.makeBinPath [ nixUnstable nix-prefetch nixpkgs-fmt nixpkgs-review ])
   ];
   shellHook = ''
     # workaround because `python setup.py develop` breaks for me
