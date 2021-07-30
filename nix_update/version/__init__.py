@@ -8,6 +8,7 @@ from .gitlab import fetch_gitlab_versions
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
+from .sourcehut import fetch_sourcehut_versions
 from .version import VersionPreference, Version
 
 # def find_repology_release(attr) -> str:
@@ -25,6 +26,7 @@ fetchers: List[Callable[[ParseResult], List[Version]]] = [
     fetch_gitlab_versions,
     fetch_rubygem_versions,
     fetch_savannah_versions,
+    fetch_sourcehut_versions,
 ]
 
 
