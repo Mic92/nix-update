@@ -3,7 +3,7 @@
 import pytest
 import sys
 from pathlib import Path
-from typing import Type, Iterator, Any
+from typing import Type, Iterator
 import shutil
 import tempfile
 from contextlib import contextmanager
