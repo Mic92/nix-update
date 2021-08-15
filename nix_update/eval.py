@@ -43,7 +43,11 @@ class Package:
 
 
 def eval_expression(import_path: str, attr: str) -> str:
-    return f"""(with import {import_path} {{}};
+    return f"""(
+    let
+      inputs = (if (builtins.hasAttr "overlays" (builtins.functionArgs (import {import_path}))) then {{ overlays = []; }} else {{ }});
+    in
+    with import {import_path} inputs;
     let
       pkg = {attr};
       raw_version_position = builtins.unsafeGetAttrPos "version" pkg;
