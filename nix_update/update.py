@@ -141,16 +141,16 @@ def update(opts: Options) -> Package:
 
     update_hash = True
 
-    version_preference = VersionPreference.from_str(opts.version)
-
-    if version_preference != VersionPreference.SKIP:
+    if opts.version_preference != VersionPreference.SKIP:
         update_hash = update_version(
-            package, opts.version, version_preference, opts.version_regex
+            package, opts.version, opts.version_preference, opts.version_regex
         )
 
-    if update_hash:
+    if package.hash and update_hash:
         update_src_hash(opts, package.filename, package.hash)
 
+    # if no package.hash was provided we just update the other hashes unconditionally
+    if update_hash or not package.hash:
         if package.vendor_sha256:
             update_go_vendor_hash(opts, package.filename, package.vendor_sha256)
         # legacy go module checksums

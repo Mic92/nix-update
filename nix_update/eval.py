@@ -4,6 +4,7 @@ from typing import List, Optional, Dict, Any
 
 from .errors import UpdateError
 from .options import Options
+from .version.version import VersionPreference
 from .utils import run
 
 
@@ -24,7 +25,7 @@ class Package:
     urls: Optional[List[str]]
     url: Optional[str]
     rev: str
-    hash: str
+    hash: Optional[str]
     mod_sha256: Optional[str]
     vendor_sha256: Optional[str]
     cargo_sha256: Optional[str]
@@ -65,7 +66,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       urls = pkg.src.urls or null;
       url = pkg.src.url or null;
       rev = pkg.src.url.rev or null;
-      hash = pkg.src.outputHash;
+      hash = pkg.src.outputHash or null;
       mod_sha256 = pkg.modSha256 or null;
       vendor_sha256 = pkg.vendorSha256 or null;
       cargo_sha256 = pkg.cargoHash or pkg.cargoSha256 or null;
@@ -88,7 +89,7 @@ def eval_attr(opts: Options) -> Package:
     res = run(cmd)
     out = json.loads(res.stdout)
     package = Package(attribute=opts.attribute, **out)
-    if package.old_version == "":
+    if opts.version_preference != VersionPreference.SKIP and package.old_version == "":
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"
         )

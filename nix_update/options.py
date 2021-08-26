@@ -1,10 +1,12 @@
 from dataclasses import dataclass
+from .version.version import VersionPreference
 
 
 @dataclass
 class Options:
     attribute: str
     version: str = "stable"
+    version_preference: VersionPreference = VersionPreference.STABLE
     version_regex: str = "(.*)"
     import_path: str = "./."
     commit: bool = False
