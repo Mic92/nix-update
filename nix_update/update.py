@@ -141,11 +141,9 @@ def update(opts: Options) -> Package:
 
     update_hash = True
 
-    version_preference = VersionPreference.from_str(opts.version)
-
-    if version_preference != VersionPreference.SKIP:
+    if opts.version_preference != VersionPreference.SKIP:
         update_hash = update_version(
-            package, opts.version, version_preference, opts.version_regex
+            package, opts.version, opts.version_preference, opts.version_regex
         )
 
     if package.hash and update_hash:

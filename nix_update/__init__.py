@@ -4,6 +4,7 @@ import sys
 import tempfile
 from typing import NoReturn, Optional
 
+from .version.version import VersionPreference
 from .eval import Package
 from .options import Options
 from .update import update
@@ -56,6 +57,7 @@ def parse_args() -> Options:
         run=args.run,
         shell=args.shell,
         version=args.version,
+        version_preference=VersionPreference.from_str(args.version),
         attribute=args.attribute,
         test=args.test,
         version_regex=args.version_regex,

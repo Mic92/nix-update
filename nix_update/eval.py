@@ -4,6 +4,7 @@ from typing import List, Optional, Dict, Any
 
 from .errors import UpdateError
 from .options import Options
+from .version.version import VersionPreference
 from .utils import run
 
 
@@ -88,7 +89,7 @@ def eval_attr(opts: Options) -> Package:
     res = run(cmd)
     out = json.loads(res.stdout)
     package = Package(attribute=opts.attribute, **out)
-    if package.old_version == "":
+    if opts.version_preference != VersionPreference.SKIP and package.old_version == "":
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"
         )
