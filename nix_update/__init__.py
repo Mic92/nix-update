@@ -74,9 +74,13 @@ def nix_shell(options: Options) -> None:
         run(["nix-shell", path], stdout=None, check=False)
 
 
-def git_has_diff(git_dir: str, package: Package) -> bool:
+def git_has_diff(options: Options, git_dir: str, package: Package) -> bool:
     run(["git", "-C", git_dir, "add", package.filename], stdout=None)
     diff = run(["git", "-C", git_dir, "diff", "--staged"])
+
+    if not options.commit:
+        run(["git", "-C", git_dir, "reset"], stdout=None)
+
     return len(diff.stdout) > 0
 
 
@@ -205,7 +209,7 @@ def main() -> None:
     if not git_dir:
         git_dir = find_git_root(options.import_path)
 
-    changes_detected = not git_dir or git_has_diff(git_dir, package)
+    changes_detected = not git_dir or git_has_diff(options, git_dir, package)
 
     if not changes_detected:
         print("No changes detected, skipping remaining steps")
