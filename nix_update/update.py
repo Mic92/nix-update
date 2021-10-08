@@ -257,6 +257,11 @@ def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> Non
     replace_hash(filename, current_hash, target_hash)
 
 
+def update_yarn_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "offlineCache")
+    replace_hash(filename, current_hash, target_hash)
+
+
 def update_version(
     package: Package, version: str, preference: VersionPreference, version_regex: str
 ) -> bool:
@@ -361,5 +366,8 @@ def update(opts: Options) -> Package:
 
         if package.npm_deps:
             update_npm_deps_hash(opts, package.filename, package.npm_deps)
+
+        if package.yarn_deps:
+            update_yarn_deps_hash(opts, package.filename, package.yarn_deps)
 
     return package
