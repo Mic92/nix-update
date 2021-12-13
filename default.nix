@@ -24,7 +24,7 @@ python3.pkgs.buildPythonApplication rec {
     echo -e "\x1b[32m## run flake8\x1b[0m"
     flake8 nix_update
     echo -e "\x1b[32m## run mypy\x1b[0m"
-    mypy --strict nix_update tests
+    mypy --no-warn-unused-ignores --strict nix_update tests
   '';
   makeWrapperArgs = [
     "--prefix PATH" ":" (lib.makeBinPath [ nixUnstable nix-prefetch nixpkgs-fmt nixpkgs-review ])
