@@ -59,7 +59,7 @@ def eval_expression(import_path: str, attr: str) -> str:
         builtins.unsafeGetAttrPos "src" pkg;
     in {{
       name = pkg.name;
-      old_version = (builtins.parseDrvName pkg.name).version;
+      old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
       inherit raw_version_position;
       filename = position.file;
       line = position.line;

@@ -125,7 +125,17 @@ def update_version(
                     "Could not find a url in the derivations src attribute"
                 )
         version
-        new_version = fetch_latest_version(package.url, preference, version_regex)
+        if preference != VersionPreference.BRANCH:
+            branch = None
+        elif version == "branch":
+            # fallback
+            branch = "master"
+        else:
+            assert version.startswith("branch=")
+            branch = version[7:]
+        new_version = fetch_latest_version(
+            package.url, preference, version_regex, branch
+        )
     package.new_version = new_version
     position = package.version_position
     if new_version.number == package.old_version and position:

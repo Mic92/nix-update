@@ -1,9 +1,10 @@
+from functools import partial
 from urllib.parse import urlparse, ParseResult
 from typing import List, Callable, Optional
 import re
 
 from ..errors import VersionError
-from .github import fetch_github_versions
+from .github import fetch_github_versions, fetch_github_snapshots
 from .gitlab import fetch_gitlab_versions
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
@@ -29,6 +30,10 @@ fetchers: List[Callable[[ParseResult], List[Version]]] = [
     fetch_sourcehut_versions,
 ]
 
+branch_snapshots_fetchers: List[Callable[[ParseResult, str], List[Version]]] = [
+    fetch_github_snapshots,
+]
+
 
 def extract_version(version: Version, version_regex: str) -> Optional[Version]:
     pattern = re.compile(version_regex)
@@ -48,13 +53,19 @@ def is_unstable(version: Version, extracted: str) -> bool:
 
 
 def fetch_latest_version(
-    url_str: str, preference: VersionPreference, version_regex: str
-) -> str:
+    url_str: str,
+    preference: VersionPreference,
+    version_regex: str,
+    branch: Optional[str] = None,
+) -> Version:
     url = urlparse(url_str)
 
     unstable: List[str] = []
     filtered: List[str] = []
-    for fetcher in fetchers:
+    used_fetchers = fetchers
+    if preference == VersionPreference.BRANCH:
+        used_fetchers = [partial(f, branch=branch) for f in branch_snapshots_fetchers]
+    for fetcher in used_fetchers:
         versions = fetcher(url)
         if versions == []:
             continue
