@@ -65,7 +65,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       line = position.line;
       urls = pkg.src.urls or null;
       url = pkg.src.url or null;
-      rev = pkg.src.url.rev or null;
+      rev = pkg.src.rev or null;
       hash = pkg.src.outputHash or null;
       mod_sha256 = pkg.modSha256 or null;
       vendor_sha256 = pkg.vendorSha256 or null;
