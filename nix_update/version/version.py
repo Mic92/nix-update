@@ -8,6 +8,7 @@ from typing import Optional
 class Version:
     number: str
     prerelease: Optional[bool] = None
+    rev: Optional[str] = None
 
 
 class VersionPreference(Enum):

@@ -4,7 +4,7 @@ from typing import List, Optional, Dict, Any
 
 from .errors import UpdateError
 from .options import Options
-from .version.version import VersionPreference
+from .version.version import Version, VersionPreference
 from .utils import run
 
 
@@ -33,7 +33,7 @@ class Package:
 
     raw_version_position: InitVar[Optional[Dict[str, Any]]]
 
-    new_version: Optional[str] = None
+    new_version: Optional[Version] = None
     version_position: Optional[Position] = field(init=False)
 
     def __post_init__(self, raw_version_position: Optional[Dict[str, Any]]) -> None:

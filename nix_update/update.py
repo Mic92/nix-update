@@ -8,14 +8,14 @@ from .eval import Package, eval_attr
 from .options import Options
 from .utils import info, run
 from .version import fetch_latest_version
-from .version.version import VersionPreference
+from .version.version import Version, VersionPreference
 from .git import old_version_from_git
 
 
 def replace_version(package: Package) -> bool:
+    assert package.new_version is not None
     old_version = package.old_version
-    new_version = package.new_version
-    assert new_version is not None
+    new_version = package.new_version.number
     if new_version.startswith("v"):
         new_version = new_version[1:]
 
@@ -23,6 +23,8 @@ def replace_version(package: Package) -> bool:
         info(f"Update {old_version} -> {new_version} in {package.filename}")
         with fileinput.FileInput(package.filename, inplace=True) as f:
             for line in f:
+                if package.new_version.rev:
+                    line = line.replace(package.rev, package.new_version.rev)
                 print(line.replace(old_version, new_version), end="")
     else:
         info(f"Not updating version, already {old_version}")
@@ -113,7 +115,7 @@ def update_version(
     package: Package, version: str, preference: VersionPreference, version_regex: str
 ) -> bool:
     if preference == VersionPreference.FIXED:
-        new_version = version
+        new_version = Version(version)
     else:
         if not package.url:
             if package.urls:
@@ -126,9 +128,9 @@ def update_version(
         new_version = fetch_latest_version(package.url, preference, version_regex)
     package.new_version = new_version
     position = package.version_position
-    if new_version == package.old_version and position:
+    if new_version.number == package.old_version and position:
         recovered_version = old_version_from_git(
-            position.file, position.line, new_version
+            position.file, position.line, new_version.number
         )
         if recovered_version:
             package.old_version = recovered_version

@@ -30,13 +30,13 @@ fetchers: List[Callable[[ParseResult], List[Version]]] = [
 ]
 
 
-def extract_version(version: str, version_regex: str) -> Optional[str]:
+def extract_version(version: Version, version_regex: str) -> Optional[Version]:
     pattern = re.compile(version_regex)
-    match = re.match(pattern, version)
+    match = re.match(pattern, version.number)
     if match is not None:
         group = match.group(1)
         if group is not None:
-            return group
+            return Version(group, prerelease=version.prerelease, rev=version.rev)
     return None
 
 
@@ -60,13 +60,13 @@ def fetch_latest_version(
             continue
         final = []
         for version in versions:
-            extracted = extract_version(version.number, version_regex)
+            extracted = extract_version(version, version_regex)
             if extracted is None:
                 filtered.append(version.number)
             elif preference == VersionPreference.STABLE and is_unstable(
-                version, extracted
+                version, extracted.number
             ):
-                unstable.append(extracted)
+                unstable.append(extracted.number)
             else:
                 final.append(extracted)
         if final != []:
