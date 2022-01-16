@@ -129,7 +129,7 @@ def update_version(
             branch = None
         elif version == "branch":
             # fallback
-            branch = "master"
+            branch = "HEAD"
         else:
             assert version.startswith("branch=")
             branch = version[7:]
