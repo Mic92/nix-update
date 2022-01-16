@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 from .version.version import VersionPreference
 
 
@@ -10,6 +11,7 @@ class Options:
     version_regex: str = "(.*)"
     import_path: str = "./."
     commit: bool = False
+    write_commit_message: Optional[str] = None
     shell: bool = False
     run: bool = False
     build: bool = False

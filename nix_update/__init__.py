@@ -32,6 +32,11 @@ def parse_args() -> Options:
         "--commit", action="store_true", help="Commit the updated package"
     )
     parser.add_argument(
+        "--write-commit-message",
+        metavar="FILE",
+        help="Write commit message to FILE",
+    )
+    parser.add_argument(
         "-vr",
         "--version-regex",
         help="Regex to extract version with, i.e. 'jq-(.*)'",
@@ -54,6 +59,7 @@ def parse_args() -> Options:
         import_path=args.file,
         build=args.build,
         commit=args.commit,
+        write_commit_message=args.write_commit_message,
         run=args.run,
         shell=args.shell,
         version=args.version,
@@ -99,6 +105,11 @@ def git_commit(git_dir: str, attribute: str, package: Package) -> None:
                 ["git", "-C", git_dir, "commit", "--verbose", "--template", f.name],
                 stdout=None,
             )
+
+
+def write_commit_message(path: str, attribute: str, package: Package) -> None:
+    with open(path, "w") as f:
+        f.write(f"{attribute}: {package.old_version} -> {package.new_version}\n")
 
 
 def find_git_root(path: str) -> Optional[str]:
@@ -225,6 +236,9 @@ def main() -> None:
     if options.commit:
         assert git_dir is not None
         git_commit(git_dir, options.attribute, package)
+
+    if options.write_commit_message is not None:
+        write_commit_message(options.write_commit_message, options.attribute, package)
 
 
 if __name__ == "__main__":
