@@ -88,18 +88,27 @@ def git_has_diff(git_dir: str, package: Package) -> bool:
     return len(diff.stdout) > 0
 
 
-def git_commit(git_dir: str, attribute: str, package: Package) -> None:
+def format_commit_message(package: Package) -> str:
+    new_version = package.new_version
+    if (
+        new_version
+        and package.old_version != new_version
+        and new_version.startswith("v")
+    ):
+        new_version = new_version[1:]
+    return f"{package.attribute}: {package.old_version} -> {new_version}"
+
+
+def git_commit(git_dir: str, package: Package) -> None:
+    msg = format_commit_message(package)
     new_version = package.new_version
     if new_version and package.old_version != new_version:
-        if new_version.startswith("v"):
-            new_version = new_version[1:]
-        msg = f"{attribute}: {package.old_version} -> {new_version}"
         run(
             ["git", "-C", git_dir, "commit", "--verbose", "--message", msg], stdout=None
         )
     else:
         with tempfile.NamedTemporaryFile(mode="w") as f:
-            f.write(f"{attribute}: {package.old_version} -> {package.new_version}")
+            f.write(msg)
             f.flush()
             run(
                 ["git", "-C", git_dir, "commit", "--verbose", "--template", f.name],
@@ -107,9 +116,10 @@ def git_commit(git_dir: str, attribute: str, package: Package) -> None:
             )
 
 
-def write_commit_message(path: str, attribute: str, package: Package) -> None:
+def write_commit_message(path: str, package: Package) -> None:
     with open(path, "w") as f:
-        f.write(f"{attribute}: {package.old_version} -> {package.new_version}\n")
+        f.write(format_commit_message(package))
+        f.write("\n")
 
 
 def find_git_root(path: str) -> Optional[str]:
@@ -235,10 +245,10 @@ def main() -> None:
 
     if options.commit:
         assert git_dir is not None
-        git_commit(git_dir, options.attribute, package)
+        git_commit(git_dir, package)
 
     if options.write_commit_message is not None:
-        write_commit_message(options.write_commit_message, options.attribute, package)
+        write_commit_message(options.write_commit_message, package)
 
 
 if __name__ == "__main__":
