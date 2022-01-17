@@ -51,8 +51,9 @@ def fetch_github_snapshots(url: ParseResult, branch: str) -> List[Version]:
     for entry in commits:
         link = entry.find("{http://www.w3.org/2005/Atom}link")
         updated = entry.find("{http://www.w3.org/2005/Atom}updated")
-        if link is None or updated is None or updated.text is None:
-            continue
+        assert (
+            link is not None and updated is not None and updated.text is not None
+        ), "cannot parse ATOM feed"
         url = urlparse(link.attrib["href"])
         commit = url.path.rsplit("/", maxsplit=1)[-1]
         date = updated.text.split("T", maxsplit=1)[0]
