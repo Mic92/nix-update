@@ -5,7 +5,7 @@ import re
 
 from ..errors import VersionError
 from .github import fetch_github_versions, fetch_github_snapshots
-from .gitlab import fetch_gitlab_versions
+from .gitlab import fetch_gitlab_versions, fetch_gitlab_snapshots
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
@@ -32,6 +32,7 @@ fetchers: List[Callable[[ParseResult], List[Version]]] = [
 
 branch_snapshots_fetchers: List[Callable[[ParseResult, str], List[Version]]] = [
     fetch_github_snapshots,
+    fetch_gitlab_snapshots,
 ]
 
 
