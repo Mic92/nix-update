@@ -83,8 +83,7 @@ def nix_shell(options: Options) -> None:
 
 
 def git_has_diff(git_dir: str, package: Package) -> bool:
-    run(["git", "-C", git_dir, "add", package.filename], stdout=None)
-    diff = run(["git", "-C", git_dir, "diff", "--staged"])
+    diff = run(["git", "-C", git_dir, "diff", "--", package.filename])
     return len(diff.stdout) > 0
 
 
@@ -103,6 +102,7 @@ def git_commit(git_dir: str, package: Package) -> None:
     msg = format_commit_message(package)
     new_version = package.new_version
     if new_version and package.old_version != new_version:
+        run(["git", "-C", git_dir, "add", package.filename], stdout=None)
         run(
             ["git", "-C", git_dir, "commit", "--verbose", "--message", msg], stdout=None
         )
