@@ -7,7 +7,7 @@ with pkgs;
 python3.pkgs.buildPythonApplication rec {
   name = "nix-update";
   inherit src;
-  buildInputs = [ makeWrapper ];
+  buildInputs = [ makeWrapper python3 ];
   checkInputs = [
     python3.pkgs.pytest
     python3.pkgs.black
