@@ -7,7 +7,7 @@ with pkgs;
 python3.pkgs.buildPythonApplication rec {
   name = "nix-update";
   inherit src;
-  buildInputs = [ makeWrapper ];
+  buildInputs = [ makeWrapper python3 ];
   checkInputs = [
     python3.pkgs.pytest
     python3.pkgs.black
@@ -15,7 +15,7 @@ python3.pkgs.buildPythonApplication rec {
     glibcLocales
     mypy
     # technically not a test input, but we need it for development in PATH
-    nixUnstable
+    pkgs.nixVersions.nix_2_4 or nix_2_4
     nix-prefetch
   ];
   checkPhase = ''
@@ -27,7 +27,7 @@ python3.pkgs.buildPythonApplication rec {
     mypy --no-warn-unused-ignores --strict nix_update tests
   '';
   makeWrapperArgs = [
-    "--prefix PATH" ":" (lib.makeBinPath [ nixUnstable nix-prefetch nixpkgs-fmt nixpkgs-review ])
+    "--prefix PATH" ":" (lib.makeBinPath [ pkgs.nixVersions.nix_2_4 or nix_2_4 nix-prefetch nixpkgs-fmt nixpkgs-review ])
   ];
   shellHook = ''
     # workaround because `python setup.py develop` breaks for me
