@@ -48,7 +48,7 @@ def to_sri(hashstr: str) -> str:
 
     cmd = [
         "nix",
-        "--experimental-features",
+        "--extra-experimental-features",
         "nix-command",
         "hash",
         "to-sri",

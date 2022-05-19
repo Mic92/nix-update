@@ -153,7 +153,7 @@ def validate_git_dir(import_path: str) -> str:
 
 
 def nix_run(options: Options) -> None:
-    cmd = ["nix", "shell", "--experimental-features", "nix-command"]
+    cmd = ["nix", "shell", "--extra-experimental-features", "nix-command"]
     run(
         cmd + ["-f", options.import_path, options.attribute],
         stdout=None,
@@ -165,7 +165,7 @@ def nix_build(options: Options) -> None:
     cmd = [
         "nix",
         "build",
-        "--experimental-features",
+        "--extra-experimental-features",
         "nix-command",
         "-f",
         options.import_path,

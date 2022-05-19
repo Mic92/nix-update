@@ -81,7 +81,7 @@ def eval_attr(opts: Options) -> Package:
         "eval",
         "--json",
         "--impure",
-        "--experimental-features",
+        "--extra-experimental-features",
         "nix-command",
         "--expr",
         expr,
