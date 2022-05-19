@@ -139,7 +139,7 @@ def validate_git_dir(import_path: str) -> str:
     if os.path.isdir(import_path):
         git_dir = find_git_root(import_path)
     else:
-        git_dir = find_git_root(os.path.basename(import_path))
+        git_dir = find_git_root(os.path.dirname(import_path))
 
     if git_dir is None:
         die(f"Could not find a git repository relative to {import_path}")
