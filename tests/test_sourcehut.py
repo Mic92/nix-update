@@ -15,7 +15,7 @@ def test_update(helpers: conftest.Helpers) -> None:
                 "nix",
                 "eval",
                 "--raw",
-                "--experimental-features",
+                "--extra-experimental-features",
                 "nix-command",
                 "-f",
                 path,
