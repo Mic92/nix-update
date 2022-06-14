@@ -53,6 +53,12 @@ def parse_args() -> Options:
     parser.add_argument(
         "--version", nargs="?", help="Version to update to", default="stable"
     )
+    parser.add_argument(
+        "--override-filename",
+        nargs="?",
+        help="Set filename where nix-update will update version/hash",
+        default=None,
+    )
     parser.add_argument("attribute", help="Attribute name within the file evaluated")
     args = parser.parse_args()
     return Options(
@@ -69,6 +75,7 @@ def parse_args() -> Options:
         version_regex=args.version_regex,
         review=args.review,
         format=args.format,
+        override_filename=args.override_filename,
     )
 
 

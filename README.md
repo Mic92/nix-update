@@ -91,6 +91,13 @@ a regex can be used
 $ nix-update jq --version-regex 'jq-(.*)'
 ```
 
+By default `nix-update` will locate the file that needs to be patched using the `src` attribute of a derivation.
+In some cases this heurestic is wrong. One can override the behavior like that:
+
+``` console
+$ nix-update hello --override-filename pkgs/applications/misc/hello/default.nix
+```
+
 With the `--shell`, `--build`, `--test` and `--run` flags the update can be
 tested. Additionally, the `--review` flag can be used to
 initiate a run of [nixpkgs-review](https://github.com/Mic92/nixpkgs-review), which will ensure all
