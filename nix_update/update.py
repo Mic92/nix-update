@@ -122,7 +122,6 @@ def update_version(
                 raise UpdateError(
                     "Could not find a url in the derivations src attribute"
                 )
-        version
         new_version = fetch_latest_version(package.url, preference, version_regex)
     package.new_version = new_version
     position = package.version_position
