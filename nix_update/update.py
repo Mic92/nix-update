@@ -91,12 +91,6 @@ def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_mod256_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"{{ sha256 }}: (import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.go-modules.overrideAttrs (_: {{ modSha256 = sha256; }})"
-    target_hash = nix_prefetch([expr])
-    replace_hash(filename, current_hash, target_hash)
-
-
 def update_go_vendor_hash(opts: Options, filename: str, current_hash: str) -> None:
     expr = f"{{ sha256 }}: (import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.go-modules.overrideAttrs (_: {{ vendorSha256 = sha256; }})"
     target_hash = nix_prefetch([expr])
@@ -152,9 +146,6 @@ def update(opts: Options) -> Package:
     if update_hash or not package.hash:
         if package.vendor_sha256:
             update_go_vendor_hash(opts, package.filename, package.vendor_sha256)
-        # legacy go module checksums
-        elif package.mod_sha256:
-            update_mod256_hash(opts, package.filename, package.mod_sha256)
 
         if package.cargo_sha256:
             update_cargo_sha256_hash(opts, package.filename, package.cargo_sha256)

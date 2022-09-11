@@ -26,7 +26,6 @@ class Package:
     url: Optional[str]
     rev: str
     hash: Optional[str]
-    mod_sha256: Optional[str]
     vendor_sha256: Optional[str]
     cargo_sha256: Optional[str]
     tests: List[str]
@@ -67,7 +66,6 @@ def eval_expression(import_path: str, attr: str) -> str:
       url = pkg.src.url or null;
       rev = pkg.src.rev or null;
       hash = pkg.src.outputHash or null;
-      mod_sha256 = pkg.modSha256 or null;
       vendor_sha256 = pkg.vendorSha256 or null;
       cargo_sha256 = pkg.cargoHash or pkg.cargoSha256 or null;
       tests = builtins.attrNames (pkg.passthru.tests or {{}});
