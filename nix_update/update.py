@@ -97,7 +97,7 @@ def update_go_vendor_hash(opts: Options, filename: str, current_hash: str) -> No
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_cargo_sha256_hash(opts: Options, filename: str, current_hash: str) -> None:
+def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     expr = f"{{ sha256 }}: (import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.cargoDeps.overrideAttrs (_: {{ inherit sha256; }})"
     target_hash = nix_prefetch([expr])
     replace_hash(filename, current_hash, target_hash)
@@ -147,7 +147,7 @@ def update(opts: Options) -> Package:
         if package.vendor_sha256:
             update_go_vendor_hash(opts, package.filename, package.vendor_sha256)
 
-        if package.cargo_sha256:
-            update_cargo_sha256_hash(opts, package.filename, package.cargo_sha256)
+        if package.cargo_deps:
+            update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
 
     return package
