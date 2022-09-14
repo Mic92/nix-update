@@ -10,7 +10,7 @@ designed to work with nixpkgs but also other package sets.
     -   gitlab.com or other instances that uses fetchFromGitLab
     -   pypi
     -   rubygems.org
--   update buildRustPackage's cargoSha256
+-   update buildRustPackage's cargoHash/cargoSha256
 -   update buildGoModule's vendorSha256/modSha256
 -   build and run the resulting package (see `--build`,
     `--run` or `--shell`
