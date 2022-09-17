@@ -11,7 +11,7 @@ designed to work with nixpkgs but also other package sets.
     -   pypi
     -   rubygems.org
 -   update buildRustPackage's cargoHash/cargoSha256
--   update buildGoModule's vendorSha256
+-   update buildGoModule's vendorHash/vendorSha256
 -   build and run the resulting package (see `--build`,
     `--run` or `--shell`
 -   commit updated files (see `--commit` flag)
