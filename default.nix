@@ -16,7 +16,6 @@ python3.pkgs.buildPythonApplication rec {
     mypy
     # technically not a test input, but we need it for development in PATH
     pkgs.nixVersions.stable or nix_2_4
-    nix-prefetch
   ];
   checkPhase = ''
     echo -e "\x1b[32m## run black\x1b[0m"
