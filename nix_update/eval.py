@@ -29,6 +29,7 @@ class Package:
     vendor_hash: Optional[str]
     vendor_sha256: Optional[str]
     cargo_deps: Optional[str]
+    npm_deps: Optional[str]
     tests: List[str]
 
     raw_version_position: InitVar[Optional[Dict[str, Any]]]
@@ -70,6 +71,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       vendor_hash = pkg.vendorHash or null;
       vendor_sha256 = pkg.vendorSha256 or null;
       cargo_deps = pkg.cargoHash or pkg.cargoSha256 or null;
+      npm_deps = pkg.npmDepsHash or null;
       tests = builtins.attrNames (pkg.passthru.tests or {{}});
     }})"""
 

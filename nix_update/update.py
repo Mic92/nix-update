@@ -120,6 +120,12 @@ def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> N
     replace_hash(filename, current_hash, target_hash)
 
 
+def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.npmDeps"
+    target_hash = nix_prefetch(expr)
+    replace_hash(filename, current_hash, target_hash)
+
+
 def update_version(
     package: Package, version: str, preference: VersionPreference, version_regex: str
 ) -> bool:
@@ -169,5 +175,8 @@ def update(opts: Options) -> Package:
 
         if package.cargo_deps:
             update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
+
+        if package.npm_deps:
+            update_npm_deps_hash(opts, package.filename, package.npm_deps)
 
     return package
