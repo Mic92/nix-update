@@ -26,6 +26,7 @@ def run(
     command: List[str],
     cwd: Optional[Union[Path, str]] = None,
     stdout: Union[None, int, IO[Any]] = subprocess.PIPE,
+    stderr: Union[None, int, IO[Any]] = subprocess.PIPE,
     check: bool = True,
     extra_env: Dict[str, str] = {},
 ) -> "subprocess.CompletedProcess[str]":
@@ -33,5 +34,5 @@ def run(
     env = os.environ.copy()
     env.update(extra_env)
     return subprocess.run(
-        command, cwd=cwd, check=check, text=True, stdout=stdout, env=env
+        command, cwd=cwd, check=check, text=True, stdout=stdout, stderr=stderr, env=env
     )
