@@ -215,7 +215,7 @@ def nixpkgs_fmt(package: Package, git_dir: Optional[str]) -> None:
         run(["git", "-C", git_dir, "add", package.filename], stdout=None)
 
 
-def main(args: list[str] = sys.argv) -> None:
+def main(args: list[str] = sys.argv[1:]) -> None:
     options = parse_args(args)
     if not os.path.exists(options.import_path):
         die(f"path {options.import_path} does not exist")
