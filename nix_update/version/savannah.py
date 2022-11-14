@@ -1,13 +1,12 @@
 import re
 import urllib.request
+import xml.etree.ElementTree as ET
 from typing import List, Optional
 from urllib.parse import ParseResult, urljoin, urlparse
-import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 
-from .version import Version
 from ..utils import info
-
+from .version import Version
 
 filename_regex = re.compile(r"-(\d+(?:\.\d+)*(?:-[^-.]+)?)\.tar\.[^.]+$")
 

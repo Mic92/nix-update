@@ -1,6 +1,6 @@
-from urllib.parse import urlparse, ParseResult
-from typing import List, Callable, Optional
 import re
+from typing import Callable, List, Optional
+from urllib.parse import ParseResult, urlparse
 
 from ..errors import VersionError
 from .crate import fetch_crate_versions
@@ -10,7 +10,7 @@ from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
 from .sourcehut import fetch_sourcehut_versions
-from .version import VersionPreference, Version
+from .version import Version, VersionPreference
 
 # def find_repology_release(attr) -> str:
 #    resp = urllib.request.urlopen(f"https://repology.org/api/v1/projects/{attr}/")

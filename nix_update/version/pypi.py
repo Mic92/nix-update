@@ -3,8 +3,8 @@ import urllib.request
 from typing import List
 from urllib.parse import ParseResult
 
-from .version import Version
 from ..utils import info
+from .version import Version
 
 
 def fetch_pypi_versions(url: ParseResult) -> List[Version]:

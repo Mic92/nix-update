@@ -4,11 +4,11 @@ import sys
 import tempfile
 from typing import NoReturn, Optional
 
-from .version.version import VersionPreference
 from .eval import Package, eval_attr
 from .options import Options
 from .update import update
 from .utils import run
+from .version.version import VersionPreference
 
 
 def die(msg: str) -> NoReturn:

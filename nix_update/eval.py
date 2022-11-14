@@ -1,11 +1,11 @@
 import json
-from dataclasses import dataclass, InitVar, field
-from typing import List, Optional, Dict, Any
+from dataclasses import InitVar, dataclass, field
+from typing import Any, Dict, List, Optional
 
 from .errors import UpdateError
 from .options import Options
-from .version.version import VersionPreference
 from .utils import run
+from .version.version import VersionPreference
 
 
 @dataclass

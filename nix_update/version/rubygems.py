@@ -1,12 +1,11 @@
+import json
 import urllib.request
 from typing import List
 from urllib.parse import ParseResult
-import json
 
-from .version import Version
 from ..errors import VersionError
-
 from ..utils import info
+from .version import Version
 
 
 def fetch_rubygem_versions(url: ParseResult) -> List[Version]:
