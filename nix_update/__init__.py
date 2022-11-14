@@ -17,7 +17,7 @@ def die(msg: str) -> NoReturn:
 
 
 def parse_args(args: list[str]) -> Options:
-    parser = argparse.ArgumentParser(prog=args[0])
+    parser = argparse.ArgumentParser()
     help = "File to import rather than default.nix. Examples, ./release.nix"
     parser.add_argument("-f", "--file", default="./.", help=help)
     parser.add_argument("--build", action="store_true", help="build the package")
@@ -215,10 +215,10 @@ def nixpkgs_fmt(package: Package, git_dir: Optional[str]) -> None:
         run(["git", "-C", git_dir, "add", package.filename], stdout=None)
 
 
-def main(args: list[str] = sys.argv) -> None:
+def main(args: list[str] = sys.argv[1:]) -> None:
     options = parse_args(args)
     if not os.path.exists(options.import_path):
-        die(f"path {options.import_path} does not exists")
+        die(f"path {options.import_path} does not exist")
 
     git_dir = None
     if options.commit or options.review:
