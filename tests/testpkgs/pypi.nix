@@ -16,4 +16,6 @@ buildPythonPackage rec {
   ];
 
   pytestFlagsArray = [ "mpd/tests.py" ];
+
+  meta.changelog = "https://github.com/Mic92/python-mpd2/blob/${version}/doc/changes.rst";
 }
