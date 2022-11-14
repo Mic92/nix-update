@@ -17,7 +17,7 @@ def die(msg: str) -> NoReturn:
 
 
 def parse_args(args: list[str]) -> Options:
-    parser = argparse.ArgumentParser(prog=args[0])
+    parser = argparse.ArgumentParser()
     help = "File to import rather than default.nix. Examples, ./release.nix"
     parser.add_argument("-f", "--file", default="./.", help=help)
     parser.add_argument("--build", action="store_true", help="build the package")
