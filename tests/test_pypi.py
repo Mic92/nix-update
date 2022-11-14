@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
+import subprocess
+
+import conftest
 
 from nix_update import main
-import subprocess
-import conftest
 
 
 def test_main(helpers: conftest.Helpers) -> None:

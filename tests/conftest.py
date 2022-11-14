@@ -1,15 +1,13 @@
-#!/usr/bin/env python3
-
-import subprocess
-import pytest
-import sys
 import os
-from pathlib import Path
-from typing import Type, Iterator
 import shutil
+import subprocess
+import sys
 import tempfile
 from contextlib import contextmanager
+from pathlib import Path
+from typing import Iterator, Type
 
+import pytest
 
 TEST_ROOT = Path(__file__).parent.resolve()
 sys.path.append(str(TEST_ROOT.parent))

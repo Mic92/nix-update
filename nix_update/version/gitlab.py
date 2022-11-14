@@ -4,9 +4,9 @@ import urllib.request
 from typing import List
 from urllib.parse import ParseResult
 
-from .version import Version
 from ..errors import VersionError
 from ..utils import info
+from .version import Version
 
 GITLAB_API = re.compile(
     r"http(s)?://(?P<domain>[^/]+)/api/v4/projects/(?P<project_id>[^/]*)/repository/archive.tar.gz\?sha=(?P<version>.+)"

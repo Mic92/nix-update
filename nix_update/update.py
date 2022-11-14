@@ -1,15 +1,15 @@
 import fileinput
-from typing import Optional, Dict
 import subprocess
 import tempfile
+from typing import Dict, Optional
 
 from .errors import UpdateError
 from .eval import Package, eval_attr
+from .git import old_version_from_git
 from .options import Options
 from .utils import info, run
 from .version import fetch_latest_version
 from .version.version import VersionPreference
-from .git import old_version_from_git
 
 
 def replace_version(package: Package) -> bool:

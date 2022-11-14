@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import IO, Any, Callable, List, Optional, Union, Dict
+from typing import IO, Any, Callable, Dict, List, Optional, Union
 
 HAS_TTY = sys.stdout.isatty()
 ROOT = Path(os.path.dirname(os.path.realpath(__file__)))

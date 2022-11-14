@@ -1,8 +1,6 @@
-#!/usr/bin/env python3
-
+import re
 import subprocess
 from typing import Optional
-import re
 
 
 def old_version_from_diff(
