@@ -3,6 +3,7 @@ from typing import List, Callable, Optional
 import re
 
 from ..errors import VersionError
+from .crate import fetch_crate_versions
 from .github import fetch_github_versions
 from .gitlab import fetch_gitlab_versions
 from .pypi import fetch_pypi_versions
@@ -21,6 +22,7 @@ from .version import VersionPreference, Version
 #    return None
 
 fetchers: List[Callable[[ParseResult], List[Version]]] = [
+    fetch_crate_versions,
     fetch_pypi_versions,
     fetch_github_versions,
     fetch_gitlab_versions,

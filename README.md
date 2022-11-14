@@ -6,6 +6,7 @@ designed to work with nixpkgs but also other package sets.
 ## Features
 
 -   automatically figure out the latest version of packages from:
+    -   crates.io
     -   github.com
     -   gitlab.com or other instances that uses fetchFromGitLab
     -   pypi
