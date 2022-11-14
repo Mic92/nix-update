@@ -218,7 +218,7 @@ def nixpkgs_fmt(package: Package, git_dir: Optional[str]) -> None:
 def main(args: list[str] = sys.argv) -> None:
     options = parse_args(args)
     if not os.path.exists(options.import_path):
-        die(f"path {options.import_path} does not exists")
+        die(f"path {options.import_path} does not exist")
 
     git_dir = None
     if options.commit or options.review:
