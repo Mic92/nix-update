@@ -26,7 +26,7 @@ python3.pkgs.buildPythonApplication rec {
     mypy --no-warn-unused-ignores --strict nix_update tests
   '';
   makeWrapperArgs = [
-    "--prefix PATH" ":" (lib.makeBinPath [ pkgs.nixVersions.stable or nix_2_4 nix-prefetch nixpkgs-fmt nixpkgs-review ])
+    "--prefix PATH" ":" (lib.makeBinPath [ pkgs.nixVersions.stable or nix_2_4 nixpkgs-fmt nixpkgs-review ])
   ];
   shellHook = ''
     # workaround because `python setup.py develop` breaks for me

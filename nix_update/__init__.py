@@ -5,7 +5,7 @@ import tempfile
 from typing import NoReturn, Optional
 
 from .version.version import VersionPreference
-from .eval import Package
+from .eval import Package, eval_attr
 from .options import Options
 from .update import update
 from .utils import run
@@ -16,8 +16,8 @@ def die(msg: str) -> NoReturn:
     sys.exit(1)
 
 
-def parse_args() -> Options:
-    parser = argparse.ArgumentParser()
+def parse_args(args: list[str]) -> Options:
+    parser = argparse.ArgumentParser(prog=args[0])
     help = "File to import rather than default.nix. Examples, ./release.nix"
     parser.add_argument("-f", "--file", default="./.", help=help)
     parser.add_argument("--build", action="store_true", help="build the package")
@@ -60,22 +60,22 @@ def parse_args() -> Options:
         default=None,
     )
     parser.add_argument("attribute", help="Attribute name within the file evaluated")
-    args = parser.parse_args()
+    a = parser.parse_args(args)
     return Options(
-        import_path=args.file,
-        build=args.build,
-        commit=args.commit,
-        write_commit_message=args.write_commit_message,
-        run=args.run,
-        shell=args.shell,
-        version=args.version,
-        version_preference=VersionPreference.from_str(args.version),
-        attribute=args.attribute,
-        test=args.test,
-        version_regex=args.version_regex,
-        review=args.review,
-        format=args.format,
-        override_filename=args.override_filename,
+        import_path=a.file,
+        build=a.build,
+        commit=a.commit,
+        write_commit_message=a.write_commit_message,
+        run=a.run,
+        shell=a.shell,
+        version=a.version,
+        version_preference=VersionPreference.from_str(a.version),
+        attribute=a.attribute,
+        test=a.test,
+        version_regex=a.version_regex,
+        review=a.review,
+        format=a.format,
+        override_filename=a.override_filename,
     )
 
 
@@ -102,14 +102,17 @@ def format_commit_message(package: Package) -> str:
         and new_version.startswith("v")
     ):
         new_version = new_version[1:]
-    return f"{package.attribute}: {package.old_version} -> {new_version}"
+    msg = f"{package.attribute}: {package.old_version} -> {new_version}"
+    if package.changelog:
+        msg += f"\n\nChangelog: {package.changelog}"
+    return msg
 
 
 def git_commit(git_dir: str, package: Package) -> None:
     msg = format_commit_message(package)
     new_version = package.new_version
+    run(["git", "-C", git_dir, "add", package.filename], stdout=None)
     if new_version and package.old_version != new_version:
-        run(["git", "-C", git_dir, "add", package.filename], stdout=None)
         run(
             ["git", "-C", git_dir, "commit", "--verbose", "--message", msg], stdout=None
         )
@@ -212,8 +215,8 @@ def nixpkgs_fmt(package: Package, git_dir: Optional[str]) -> None:
         run(["git", "-C", git_dir, "add", package.filename], stdout=None)
 
 
-def main() -> None:
-    options = parse_args()
+def main(args: list[str] = sys.argv) -> None:
+    options = parse_args(args)
     if not os.path.exists(options.import_path):
         die(f"path {options.import_path} does not exists")
 
@@ -252,6 +255,9 @@ def main() -> None:
 
     if options.commit:
         assert git_dir is not None
+        if package.changelog:
+            # If we have a changelog we will re-eval the package in case it has changed
+            package.changelog = eval_attr(options).changelog
         git_commit(git_dir, package)
 
     if options.write_commit_message is not None:

@@ -24,6 +24,7 @@ class Package:
     line: int
     urls: Optional[List[str]]
     url: Optional[str]
+    changelog: Optional[str]
     rev: str
     hash: Optional[str]
     vendor_hash: Optional[str]
@@ -73,6 +74,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       cargo_deps = pkg.cargoHash or pkg.cargoSha256 or null;
       npm_deps = pkg.npmDepsHash or null;
       tests = builtins.attrNames (pkg.passthru.tests or {{}});
+      changelog = pkg.meta.changelog or null;
     }})"""
 
 
