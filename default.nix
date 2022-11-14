@@ -12,6 +12,7 @@ python3.pkgs.buildPythonApplication rec {
     python3.pkgs.pytest
     python3.pkgs.black
     python3.pkgs.flake8
+    python3.pkgs.isort
     glibcLocales
     mypy
     # technically not a test input, but we need it for development in PATH
@@ -24,6 +25,9 @@ python3.pkgs.buildPythonApplication rec {
     flake8 nix_update
     echo -e "\x1b[32m## run mypy\x1b[0m"
     mypy --no-warn-unused-ignores --strict nix_update tests
+
+    echo -e "\x1b[32m## run isort\x1b[0m"
+    isort . --check-only
   '';
   makeWrapperArgs = [
     "--prefix PATH" ":" (lib.makeBinPath [ pkgs.nixVersions.stable or nix_2_4 nixpkgs-fmt nixpkgs-review ])
