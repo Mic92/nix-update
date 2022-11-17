@@ -81,6 +81,7 @@ def nix_prefetch(expr: str) -> str:
                 f'let src = {expr}; in (src.overrideAttrs or (f: src // f src)) (_: {{ outputHash = ""; outputHashAlgo = "sha256"; }})',
             ],
             extra_env=extra_env,
+            stderr=subprocess.PIPE,
             check=False,
         )
         stderr = res.stderr.strip()

@@ -181,11 +181,7 @@ def nix_build(options: Options) -> None:
         options.import_path,
         options.attribute,
     ]
-    run(
-        cmd,
-        stdout=None,
-        check=True,
-    )
+    run(cmd, stdout=None)
 
 
 def nix_test(package: Package) -> None:
@@ -197,7 +193,7 @@ def nix_test(package: Package) -> None:
         tests.append("-A")
         tests.append(f"{package.attribute}.tests.{t}")
     cmd = ["nix-build"] + tests
-    run(cmd, check=True)
+    run(cmd, stdout=None)
 
 
 def nixpkgs_review() -> None:
@@ -205,12 +201,12 @@ def nixpkgs_review() -> None:
         "nixpkgs-review",
         "wip",
     ]
-    run(cmd, check=True)
+    run(cmd, stdout=None)
 
 
 def nixpkgs_fmt(package: Package, git_dir: Optional[str]) -> None:
     cmd = ["nixpkgs-fmt", package.filename]
-    run(cmd, check=True)
+    run(cmd, stdout=None)
     if git_dir is not None:
         run(["git", "-C", git_dir, "add", package.filename], stdout=None)
 
