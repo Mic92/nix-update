@@ -54,7 +54,7 @@ def to_sri(hashstr: str) -> str:
         "to-sri",
         f"{prefix}{hashstr}",
     ]
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, check=True, text=True)
+    proc = run(cmd)
     return proc.stdout.rstrip("\n")
 
 
