@@ -26,7 +26,7 @@ def run(
     command: List[str],
     cwd: Optional[Union[Path, str]] = None,
     stdout: Union[None, int, IO[Any]] = subprocess.PIPE,
-    stderr: Union[None, int, IO[Any]] = subprocess.PIPE,
+    stderr: Union[None, int, IO[Any]] = None,
     check: bool = True,
     extra_env: Dict[str, str] = {},
 ) -> "subprocess.CompletedProcess[str]":

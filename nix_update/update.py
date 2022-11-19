@@ -54,7 +54,7 @@ def to_sri(hashstr: str) -> str:
         "to-sri",
         f"{prefix}{hashstr}",
     ]
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, check=True, text=True)
+    proc = run(cmd)
     return proc.stdout.rstrip("\n")
 
 
@@ -81,6 +81,7 @@ def nix_prefetch(expr: str) -> str:
                 f'let src = {expr}; in (src.overrideAttrs or (f: src // f src)) (_: {{ outputHash = ""; outputHashAlgo = "sha256"; }})',
             ],
             extra_env=extra_env,
+            stderr=subprocess.PIPE,
             check=False,
         )
         stderr = res.stderr.strip()
