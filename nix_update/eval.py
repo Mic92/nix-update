@@ -72,7 +72,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       vendor_hash = pkg.vendorHash or null;
       vendor_sha256 = pkg.vendorSha256 or null;
       cargo_deps = (pkg.cargoDeps or null).outputHash or null;
-      npm_deps = pkg.npmDepsHash or null;
+      npm_deps = (pkg.npmDeps or null).outputHash or null;
       tests = builtins.attrNames (pkg.passthru.tests or {{}});
       changelog = pkg.meta.changelog or null;
     }})"""

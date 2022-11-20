@@ -13,7 +13,7 @@ designed to work with nixpkgs but also other package sets.
     -   rubygems.org
 -   update buildRustPackage's cargoHash/cargoSha256 and cargoSetupHook's cargoDeps
 -   update buildGoModule's vendorHash/vendorSha256
--   update buildNpmPackage's npmDepsHash
+-   update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
 -   build and run the resulting package (see `--build`,
     `--run` or `--shell`
 -   commit updated files (see `--commit` flag)
