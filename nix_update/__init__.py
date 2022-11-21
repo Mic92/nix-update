@@ -4,11 +4,11 @@ import sys
 import tempfile
 from typing import NoReturn, Optional
 
-from .version.version import VersionPreference
-from .eval import Package
+from .eval import Package, eval_attr
 from .options import Options
 from .update import update
 from .utils import run
+from .version.version import VersionPreference
 
 
 def die(msg: str) -> NoReturn:
@@ -16,7 +16,7 @@ def die(msg: str) -> NoReturn:
     sys.exit(1)
 
 
-def parse_args() -> Options:
+def parse_args(args: list[str]) -> Options:
     parser = argparse.ArgumentParser()
     help = "File to import rather than default.nix. Examples, ./release.nix"
     parser.add_argument("-f", "--file", default="./.", help=help)
@@ -53,22 +53,29 @@ def parse_args() -> Options:
     parser.add_argument(
         "--version", nargs="?", help="Version to update to", default="stable"
     )
+    parser.add_argument(
+        "--override-filename",
+        nargs="?",
+        help="Set filename where nix-update will update version/hash",
+        default=None,
+    )
     parser.add_argument("attribute", help="Attribute name within the file evaluated")
-    args = parser.parse_args()
+    a = parser.parse_args(args)
     return Options(
-        import_path=args.file,
-        build=args.build,
-        commit=args.commit,
-        write_commit_message=args.write_commit_message,
-        run=args.run,
-        shell=args.shell,
-        version=args.version,
-        version_preference=VersionPreference.from_str(args.version),
-        attribute=args.attribute,
-        test=args.test,
-        version_regex=args.version_regex,
-        review=args.review,
-        format=args.format,
+        import_path=a.file,
+        build=a.build,
+        commit=a.commit,
+        write_commit_message=a.write_commit_message,
+        run=a.run,
+        shell=a.shell,
+        version=a.version,
+        version_preference=VersionPreference.from_str(a.version),
+        attribute=a.attribute,
+        test=a.test,
+        version_regex=a.version_regex,
+        review=a.review,
+        format=a.format,
+        override_filename=a.override_filename,
     )
 
 
@@ -83,8 +90,7 @@ def nix_shell(options: Options) -> None:
 
 
 def git_has_diff(git_dir: str, package: Package) -> bool:
-    run(["git", "-C", git_dir, "add", package.filename], stdout=None)
-    diff = run(["git", "-C", git_dir, "diff", "--staged"])
+    diff = run(["git", "-C", git_dir, "diff", "--", package.filename])
     return len(diff.stdout) > 0
 
 
@@ -96,12 +102,16 @@ def format_commit_message(package: Package) -> str:
         and new_version.startswith("v")
     ):
         new_version = new_version[1:]
-    return f"{package.attribute}: {package.old_version} -> {new_version}"
+    msg = f"{package.attribute}: {package.old_version} -> {new_version}"
+    if package.changelog:
+        msg += f"\n\nChangelog: {package.changelog}"
+    return msg
 
 
 def git_commit(git_dir: str, package: Package) -> None:
     msg = format_commit_message(package)
     new_version = package.new_version
+    run(["git", "-C", git_dir, "add", package.filename], stdout=None)
     if new_version and package.old_version != new_version.number:
         run(
             ["git", "-C", git_dir, "commit", "--verbose", "--message", msg], stdout=None
@@ -139,7 +149,7 @@ def validate_git_dir(import_path: str) -> str:
     if os.path.isdir(import_path):
         git_dir = find_git_root(import_path)
     else:
-        git_dir = find_git_root(os.path.basename(import_path))
+        git_dir = find_git_root(os.path.dirname(import_path))
 
     if git_dir is None:
         die(f"Could not find a git repository relative to {import_path}")
@@ -153,7 +163,7 @@ def validate_git_dir(import_path: str) -> str:
 
 
 def nix_run(options: Options) -> None:
-    cmd = ["nix", "shell", "--experimental-features", "nix-command"]
+    cmd = ["nix", "shell", "--extra-experimental-features", "nix-command"]
     run(
         cmd + ["-f", options.import_path, options.attribute],
         stdout=None,
@@ -165,17 +175,13 @@ def nix_build(options: Options) -> None:
     cmd = [
         "nix",
         "build",
-        "--experimental-features",
+        "--extra-experimental-features",
         "nix-command",
         "-f",
         options.import_path,
         options.attribute,
     ]
-    run(
-        cmd,
-        stdout=None,
-        check=True,
-    )
+    run(cmd, stdout=None)
 
 
 def nix_test(package: Package) -> None:
@@ -187,7 +193,7 @@ def nix_test(package: Package) -> None:
         tests.append("-A")
         tests.append(f"{package.attribute}.tests.{t}")
     cmd = ["nix-build"] + tests
-    run(cmd, check=True)
+    run(cmd, stdout=None)
 
 
 def nixpkgs_review() -> None:
@@ -195,20 +201,20 @@ def nixpkgs_review() -> None:
         "nixpkgs-review",
         "wip",
     ]
-    run(cmd, check=True)
+    run(cmd, stdout=None)
 
 
 def nixpkgs_fmt(package: Package, git_dir: Optional[str]) -> None:
     cmd = ["nixpkgs-fmt", package.filename]
-    run(cmd, check=True)
+    run(cmd, stdout=None)
     if git_dir is not None:
         run(["git", "-C", git_dir, "add", package.filename], stdout=None)
 
 
-def main() -> None:
-    options = parse_args()
+def main(args: list[str] = sys.argv[1:]) -> None:
+    options = parse_args(args)
     if not os.path.exists(options.import_path):
-        die(f"path {options.import_path} does not exists")
+        die(f"path {options.import_path} does not exist")
 
     git_dir = None
     if options.commit or options.review:
@@ -245,6 +251,9 @@ def main() -> None:
 
     if options.commit:
         assert git_dir is not None
+        if package.changelog:
+            # If we have a changelog we will re-eval the package in case it has changed
+            package.changelog = eval_attr(options).changelog
         git_commit(git_dir, package)
 
     if options.write_commit_message is not None:

@@ -1,12 +1,12 @@
 import urllib.request
 import xml.etree.ElementTree as ET
-from xml.etree.ElementTree import Element
 from typing import List
 from urllib.parse import ParseResult, urlparse
+from xml.etree.ElementTree import Element
 
-from .version import Version
 from ..errors import VersionError
 from ..utils import info
+from .version import Version
 
 
 def version_from_entry(entry: Element) -> Version:

@@ -1,8 +1,7 @@
-#!/usr/bin/env python3
-
-import subprocess
-from typing import Optional
 import re
+from typing import Optional
+
+from .utils import run
 
 
 def old_version_from_diff(
@@ -39,10 +38,8 @@ def old_version_from_diff(
 def old_version_from_git(
     filename: str, linenumber: int, new_version: str
 ) -> Optional[str]:
-    proc = subprocess.run(
+    proc = run(
         ["git", "diff", "--color=never", "--word-diff=porcelain", "--", filename],
-        text=True,
-        stdout=subprocess.PIPE,
     )
     assert proc.stdout is not None
     if len(proc.stdout) == 0:

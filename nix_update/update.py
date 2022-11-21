@@ -1,15 +1,16 @@
 import fileinput
-from typing import List, Optional, Dict
 import subprocess
 import tempfile
+from typing import Dict, Optional
 
 from .errors import UpdateError
 from .eval import Package, eval_attr
+from .git import old_version_from_git
 from .options import Options
 from .utils import info, run
 from .version import fetch_latest_version
-from .version.version import Version, VersionPreference
 from .git import old_version_from_git
+from .version.version import Version, VersionPreference
 
 
 def replace_version(package: Package) -> bool:
@@ -50,13 +51,13 @@ def to_sri(hashstr: str) -> str:
 
     cmd = [
         "nix",
-        "--experimental-features",
+        "--extra-experimental-features",
         "nix-command",
         "hash",
         "to-sri",
         f"{prefix}{hashstr}",
     ]
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, check=True, text=True)
+    proc = run(cmd)
     return proc.stdout.rstrip("\n")
 
 
@@ -69,18 +70,34 @@ def replace_hash(filename: str, current: str, target: str) -> None:
                 print(line, end="")
 
 
-def nix_prefetch(cmd: List[str]) -> str:
+def nix_prefetch(expr: str) -> str:
     extra_env: Dict[str, str] = {}
     tempdir: Optional[tempfile.TemporaryDirectory[str]] = None
     if extra_env.get("XDG_RUNTIME_DIR") is None:
         tempdir = tempfile.TemporaryDirectory()
         extra_env["XDG_RUNTIME_DIR"] = tempdir.name
     try:
-        res = run(["nix-prefetch"] + cmd, extra_env=extra_env)
+        res = run(
+            [
+                "nix-build",
+                "--expr",
+                f'let src = {expr}; in (src.overrideAttrs or (f: src // f src)) (_: {{ outputHash = ""; outputHashAlgo = "sha256"; }})',
+            ],
+            extra_env=extra_env,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+        stderr = res.stderr.strip()
+        got = ""
+        for line in stderr.split("\n"):
+            line = line.strip()
+            if line.startswith("got:"):
+                got = line.split("got:")[1].strip()
+                break
     finally:
         if tempdir:
             tempdir.cleanup()
-    return res.stdout.strip()
+    return got
 
 
 def disable_check_meta(opts: Options) -> str:
@@ -88,26 +105,28 @@ def disable_check_meta(opts: Options) -> str:
 
 
 def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}"
-    target_hash = nix_prefetch([expr])
+    expr = (
+        f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.src"
+    )
+    target_hash = nix_prefetch(expr)
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_mod256_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"{{ sha256 }}: (import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.go-modules.overrideAttrs (_: {{ modSha256 = sha256; }})"
-    target_hash = nix_prefetch([expr])
+def update_go_modules_hash(opts: Options, filename: str, current_hash: str) -> None:
+    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.go-modules"
+    target_hash = nix_prefetch(expr)
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_go_vendor_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"{{ sha256 }}: (import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.go-modules.overrideAttrs (_: {{ vendorSha256 = sha256; }})"
-    target_hash = nix_prefetch([expr])
+def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.cargoDeps"
+    target_hash = nix_prefetch(expr)
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_cargo_sha256_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"{{ sha256 }}: (import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.cargoDeps.overrideAttrs (_: {{ inherit sha256; }})"
-    target_hash = nix_prefetch([expr])
+def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.npmDeps"
+    target_hash = nix_prefetch(expr)
     replace_hash(filename, current_hash, target_hash)
 
 
@@ -163,13 +182,16 @@ def update(opts: Options) -> Package:
 
     # if no package.hash was provided we just update the other hashes unconditionally
     if update_hash or not package.hash:
-        if package.vendor_sha256:
-            update_go_vendor_hash(opts, package.filename, package.vendor_sha256)
-        # legacy go module checksums
-        elif package.mod_sha256:
-            update_mod256_hash(opts, package.filename, package.mod_sha256)
+        if package.vendor_hash and package.vendor_sha256 == "_unset":
+            update_go_modules_hash(opts, package.filename, package.vendor_hash)
 
-        if package.cargo_sha256:
-            update_cargo_sha256_hash(opts, package.filename, package.cargo_sha256)
+        if package.vendor_sha256 and package.vendor_hash == "_unset":
+            update_go_modules_hash(opts, package.filename, package.vendor_sha256)
+
+        if package.cargo_deps:
+            update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
+
+        if package.npm_deps:
+            update_npm_deps_hash(opts, package.filename, package.npm_deps)
 
     return package

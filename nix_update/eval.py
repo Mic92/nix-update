@@ -1,11 +1,11 @@
 import json
-from dataclasses import dataclass, InitVar, field
-from typing import List, Optional, Dict, Any
+from dataclasses import InitVar, dataclass, field
+from typing import Any, Dict, List, Optional
 
 from .errors import UpdateError
 from .options import Options
-from .version.version import Version, VersionPreference
 from .utils import run
+from .version.version import Version, VersionPreference
 
 
 @dataclass
@@ -24,11 +24,13 @@ class Package:
     line: int
     urls: Optional[List[str]]
     url: Optional[str]
+    changelog: Optional[str]
     rev: str
     hash: Optional[str]
-    mod_sha256: Optional[str]
+    vendor_hash: Optional[str]
     vendor_sha256: Optional[str]
-    cargo_sha256: Optional[str]
+    cargo_deps: Optional[str]
+    npm_deps: Optional[str]
     tests: List[str]
 
     raw_version_position: InitVar[Optional[Dict[str, Any]]]
@@ -67,10 +69,12 @@ def eval_expression(import_path: str, attr: str) -> str:
       url = pkg.src.url or null;
       rev = pkg.src.rev or null;
       hash = pkg.src.outputHash or null;
-      mod_sha256 = pkg.modSha256 or null;
+      vendor_hash = pkg.vendorHash or null;
       vendor_sha256 = pkg.vendorSha256 or null;
-      cargo_sha256 = pkg.cargoHash or pkg.cargoSha256 or null;
+      cargo_deps = (pkg.cargoDeps or null).outputHash or null;
+      npm_deps = (pkg.npmDeps or null).outputHash or null;
       tests = builtins.attrNames (pkg.passthru.tests or {{}});
+      changelog = pkg.meta.changelog or null;
     }})"""
 
 
@@ -81,7 +85,7 @@ def eval_attr(opts: Options) -> Package:
         "eval",
         "--json",
         "--impure",
-        "--experimental-features",
+        "--extra-experimental-features",
         "nix-command",
         "--expr",
         expr,
@@ -89,6 +93,8 @@ def eval_attr(opts: Options) -> Package:
     res = run(cmd)
     out = json.loads(res.stdout)
     package = Package(attribute=opts.attribute, **out)
+    if opts.override_filename is not None:
+        package.filename = opts.override_filename
     if opts.version_preference != VersionPreference.SKIP and package.old_version == "":
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"

@@ -8,7 +8,7 @@ from nix_update.update import update
 
 def test_update(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs() as path:
-        opts = Options(attribute="sourcehut", import_path=str(path))
+        opts = Options(attribute="crate", import_path=str(path))
         update(opts)
         version = subprocess.run(
             [
@@ -19,9 +19,9 @@ def test_update(helpers: conftest.Helpers) -> None:
                 "nix-command",
                 "-f",
                 path,
-                "sourcehut.version",
+                "crate.version",
             ],
             text=True,
             stdout=subprocess.PIPE,
         )
-        assert version.stdout.strip() >= "0.3.6"
+        assert version.stdout.strip() >= "8.5.2"

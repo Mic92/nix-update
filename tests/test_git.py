@@ -1,8 +1,8 @@
-#!/usr/bin/env python3
-
 from pathlib import Path
-from nix_update.git import old_version_from_diff
+
 import conftest
+
+from nix_update.git import old_version_from_diff
 
 TEST_ROOT = Path(__file__).parent.resolve()
 

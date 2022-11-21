@@ -1,13 +1,13 @@
-#!/usr/bin/env python3
-
-import pytest
-import sys
-from pathlib import Path
-from typing import Type, Iterator
+import os
 import shutil
+import subprocess
+import sys
 import tempfile
 from contextlib import contextmanager
+from pathlib import Path
+from typing import Iterator, Type
 
+import pytest
 
 TEST_ROOT = Path(__file__).parent.resolve()
 sys.path.append(str(TEST_ROOT.parent))
@@ -20,11 +20,23 @@ class Helpers:
 
     @staticmethod
     @contextmanager
-    def testpkgs() -> Iterator[Path]:
+    def testpkgs(init_git: bool = False) -> Iterator[Path]:
         with tempfile.TemporaryDirectory() as tmpdirname:
             shutil.copytree(
                 Helpers.root().joinpath("testpkgs"), tmpdirname, dirs_exist_ok=True
             )
+            if init_git:
+                os.environ["GIT_AUTHOR_NAME"] = "nix-update"
+                os.environ["GIT_AUTHOR_EMAIL"] = "nix-update@example.com"
+                os.environ["GIT_COMMITTER_NAME"] = "nix-update"
+                os.environ["GIT_COMMITTER_EMAIL"] = "nix-update@example.com"
+
+                subprocess.run(["git", "-C", tmpdirname, "init"], check=True)
+                subprocess.run(["git", "-C", tmpdirname, "add", "--all"], check=True)
+                subprocess.run(
+                    ["git", "-C", tmpdirname, "commit", "-m", "first commit"],
+                    check=True,
+                )
             yield Path(tmpdirname)
 
 

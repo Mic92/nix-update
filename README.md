@@ -6,12 +6,14 @@ designed to work with nixpkgs but also other package sets.
 ## Features
 
 -   automatically figure out the latest version of packages from:
+    -   crates.io
     -   github.com
     -   gitlab.com or other instances that uses fetchFromGitLab
     -   pypi
     -   rubygems.org
--   update buildRustPackage's cargoSha256
--   update buildGoModule's vendorSha256/modSha256
+-   update buildRustPackage's cargoHash/cargoSha256 and cargoSetupHook's cargoDeps
+-   update buildGoModule's vendorHash/vendorSha256
+-   update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
 -   build and run the resulting package (see `--build`,
     `--run` or `--shell`
 -   commit updated files (see `--commit` flag)
@@ -89,6 +91,13 @@ a regex can be used
 
 ```console
 $ nix-update jq --version-regex 'jq-(.*)'
+```
+
+By default `nix-update` will locate the file that needs to be patched using the `src` attribute of a derivation.
+In some cases this heurestic is wrong. One can override the behavior like that:
+
+``` console
+$ nix-update hello --override-filename pkgs/applications/misc/hello/default.nix
 ```
 
 With the `--shell`, `--build`, `--test` and `--run` flags the update can be

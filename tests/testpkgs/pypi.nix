@@ -6,7 +6,7 @@ buildPythonPackage rec {
 
   src = fetchPypi {
     inherit pname version;
-    sha256 = "0000000000000000000000000000000000000000000000000000";
+    sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 
   checkInputs = [
@@ -16,4 +16,6 @@ buildPythonPackage rec {
   ];
 
   pytestFlagsArray = [ "mpd/tests.py" ];
+
+  meta.changelog = "https://github.com/Mic92/python-mpd2/blob/${version}/doc/changes.rst";
 }
