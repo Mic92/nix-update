@@ -5,8 +5,8 @@ from urllib.parse import ParseResult, urlparse
 
 from ..errors import VersionError
 from .crate import fetch_crate_versions
-from .github import fetch_github_versions, fetch_github_snapshots
-from .gitlab import fetch_gitlab_versions, fetch_gitlab_snapshots
+from .github import fetch_github_snapshots, fetch_github_versions
+from .gitlab import fetch_gitlab_snapshots, fetch_gitlab_versions
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions

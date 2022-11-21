@@ -3,10 +3,10 @@ import unittest.mock
 from pathlib import Path
 from typing import BinaryIO
 
+import conftest
+
 from nix_update.version import fetch_latest_version
 from nix_update.version.version import VersionPreference
-
-import conftest
 
 TEST_ROOT = Path(__file__).parent.resolve()
 
