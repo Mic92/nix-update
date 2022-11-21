@@ -9,7 +9,6 @@ from .git import old_version_from_git
 from .options import Options
 from .utils import info, run
 from .version import fetch_latest_version
-from .git import old_version_from_git
 from .version.version import Version, VersionPreference
 
 
