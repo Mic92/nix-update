@@ -95,7 +95,7 @@ def git_has_diff(git_dir: str, package: Package) -> bool:
 
 
 def format_commit_message(package: Package) -> str:
-    new_version = package.new_version
+    new_version = getattr(package.new_version, "number", None)
     if (
         new_version
         and package.old_version != new_version
@@ -112,7 +112,7 @@ def git_commit(git_dir: str, package: Package) -> None:
     msg = format_commit_message(package)
     new_version = package.new_version
     run(["git", "-C", git_dir, "add", package.filename], stdout=None)
-    if new_version and package.old_version != new_version:
+    if new_version and package.old_version != new_version.number:
         run(
             ["git", "-C", git_dir, "commit", "--verbose", "--message", msg], stdout=None
         )

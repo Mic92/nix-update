@@ -7,6 +7,7 @@ from typing import Optional
 class Version:
     number: str
     prerelease: Optional[bool] = None
+    rev: Optional[str] = None
 
 
 class VersionPreference(Enum):
@@ -14,6 +15,7 @@ class VersionPreference(Enum):
     UNSTABLE = auto()
     FIXED = auto()
     SKIP = auto()
+    BRANCH = auto()
 
     @staticmethod
     def from_str(version: str) -> "VersionPreference":
@@ -24,4 +26,6 @@ class VersionPreference(Enum):
             return VersionPreference.UNSTABLE
         elif version == "skip":
             return VersionPreference.SKIP
+        elif version == "branch" or version.startswith("branch="):
+            return VersionPreference.BRANCH
         return VersionPreference.FIXED

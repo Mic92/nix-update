@@ -1,11 +1,12 @@
 import re
+from functools import partial
 from typing import Callable, List, Optional
 from urllib.parse import ParseResult, urlparse
 
 from ..errors import VersionError
 from .crate import fetch_crate_versions
-from .github import fetch_github_versions
-from .gitlab import fetch_gitlab_versions
+from .github import fetch_github_snapshots, fetch_github_versions
+from .gitlab import fetch_gitlab_snapshots, fetch_gitlab_versions
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
@@ -31,14 +32,19 @@ fetchers: List[Callable[[ParseResult], List[Version]]] = [
     fetch_sourcehut_versions,
 ]
 
+branch_snapshots_fetchers: List[Callable[[ParseResult, str], List[Version]]] = [
+    fetch_github_snapshots,
+    fetch_gitlab_snapshots,
+]
 
-def extract_version(version: str, version_regex: str) -> Optional[str]:
+
+def extract_version(version: Version, version_regex: str) -> Optional[Version]:
     pattern = re.compile(version_regex)
-    match = re.match(pattern, version)
+    match = re.match(pattern, version.number)
     if match is not None:
         group = match.group(1)
         if group is not None:
-            return group
+            return Version(group, prerelease=version.prerelease, rev=version.rev)
     return None
 
 
@@ -50,25 +56,31 @@ def is_unstable(version: Version, extracted: str) -> bool:
 
 
 def fetch_latest_version(
-    url_str: str, preference: VersionPreference, version_regex: str
-) -> str:
+    url_str: str,
+    preference: VersionPreference,
+    version_regex: str,
+    branch: Optional[str] = None,
+) -> Version:
     url = urlparse(url_str)
 
     unstable: List[str] = []
     filtered: List[str] = []
-    for fetcher in fetchers:
+    used_fetchers = fetchers
+    if preference == VersionPreference.BRANCH:
+        used_fetchers = [partial(f, branch=branch) for f in branch_snapshots_fetchers]
+    for fetcher in used_fetchers:
         versions = fetcher(url)
         if versions == []:
             continue
         final = []
         for version in versions:
-            extracted = extract_version(version.number, version_regex)
+            extracted = extract_version(version, version_regex)
             if extracted is None:
                 filtered.append(version.number)
             elif preference == VersionPreference.STABLE and is_unstable(
-                version, extracted
+                version, extracted.number
             ):
-                unstable.append(extracted)
+                unstable.append(extracted.number)
             else:
                 final.append(extracted)
         if final != []:

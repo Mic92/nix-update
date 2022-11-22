@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 from .errors import UpdateError
 from .options import Options
 from .utils import run
-from .version.version import VersionPreference
+from .version.version import Version, VersionPreference
 
 
 @dataclass
@@ -35,7 +35,7 @@ class Package:
 
     raw_version_position: InitVar[Optional[Dict[str, Any]]]
 
-    new_version: Optional[str] = None
+    new_version: Optional[Version] = None
     version_position: Optional[Position] = field(init=False)
 
     def __post_init__(self, raw_version_position: Optional[Dict[str, Any]]) -> None:
@@ -61,7 +61,7 @@ def eval_expression(import_path: str, attr: str) -> str:
         builtins.unsafeGetAttrPos "src" pkg;
     in {{
       name = pkg.name;
-      old_version = (builtins.parseDrvName pkg.name).version;
+      old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
       inherit raw_version_position;
       filename = position.file;
       line = position.line;

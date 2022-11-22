@@ -1,8 +1,9 @@
 import json
 import re
 import urllib.request
+from datetime import datetime
 from typing import List
-from urllib.parse import ParseResult
+from urllib.parse import ParseResult, quote_plus
 
 from ..errors import VersionError
 from ..utils import info
@@ -39,3 +40,20 @@ def fetch_gitlab_versions(url: ParseResult) -> List[Version]:
     if releases == []:
         return tags
     return releases
+
+
+def fetch_gitlab_snapshots(url: ParseResult, branch: str) -> List[Version]:
+    match = GITLAB_API.match(url.geturl())
+    if not match:
+        return []
+    domain = match.group("domain")
+    project_id = match.group("project_id")
+    gitlab_url = f"https://{domain}/api/v4/projects/{project_id}/repository/commits?ref_name={quote_plus(branch)}"
+    info(f"fetch {gitlab_url}")
+    resp = urllib.request.urlopen(gitlab_url)
+    commits = json.load(resp)
+    for commit in commits:
+        date = datetime.strptime(commit["committed_date"], "%Y-%m-%dT%H:%M:%S.000%z")
+        date -= date.utcoffset()  # type: ignore[operator]
+        return [Version(date.strftime("unstable-%Y-%m-%d"), rev=commit["id"])]
+    return []
