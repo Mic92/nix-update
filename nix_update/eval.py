@@ -27,6 +27,7 @@ class Package:
     changelog: Optional[str]
     rev: str
     hash: Optional[str]
+    output_hash: Optional[str]
     vendor_hash: Optional[str]
     vendor_sha256: Optional[str]
     cargo_deps: Optional[str]
@@ -69,6 +70,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       url = pkg.src.url or null;
       rev = pkg.src.rev or null;
       hash = pkg.src.outputHash or null;
+      output_hash = pkg.outputHash or null;
       vendor_hash = pkg.vendorHash or null;
       vendor_sha256 = pkg.vendorSha256 or null;
       cargo_deps = (pkg.cargoDeps or null).outputHash or null;

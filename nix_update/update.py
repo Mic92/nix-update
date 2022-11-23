@@ -80,7 +80,14 @@ def nix_prefetch(expr: str) -> str:
             [
                 "nix-build",
                 "--expr",
-                f'let src = {expr}; in (src.overrideAttrs or (f: src // f src)) (_: {{ outputHash = ""; outputHashAlgo = "sha256"; }})',
+                f"""
+                    let src = {expr}; in
+                        (src.overrideAttrs or (f: src // f src))
+                        (_: {{
+                            outputHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+                            outputHashAlgo = "sha256";
+                        }})
+                """,
             ],
             extra_env=extra_env,
             stderr=subprocess.PIPE,
@@ -96,6 +103,10 @@ def nix_prefetch(expr: str) -> str:
     finally:
         if tempdir:
             tempdir.cleanup()
+
+    if got == "":
+        raise UpdateError(f"Could not parse nix-prefetch output:\n{stderr}")
+
     return got
 
 
@@ -107,6 +118,12 @@ def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
     expr = (
         f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.src"
     )
+    target_hash = nix_prefetch(expr)
+    replace_hash(filename, current_hash, target_hash)
+
+
+def update_output_hash(opts: Options, filename: str, current_hash: str) -> None:
+    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}"
     target_hash = nix_prefetch(expr)
     replace_hash(filename, current_hash, target_hash)
 
@@ -181,6 +198,9 @@ def update(opts: Options) -> Package:
 
     # if no package.hash was provided we just update the other hashes unconditionally
     if update_hash or not package.hash:
+        if package.output_hash:
+            update_output_hash(opts, package.filename, package.output_hash)
+
         if package.vendor_hash and package.vendor_sha256 == "_unset":
             update_go_modules_hash(opts, package.filename, package.vendor_hash)
 
