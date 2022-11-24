@@ -142,7 +142,6 @@ def update_version(
                 raise UpdateError(
                     "Could not find a url in the derivations src attribute"
                 )
-        version
         if preference != VersionPreference.BRANCH:
             branch = None
         elif version == "branch":
