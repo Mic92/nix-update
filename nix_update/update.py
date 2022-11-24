@@ -9,6 +9,7 @@ from .git import old_version_from_git
 from .options import Options
 from .utils import info, run
 from .version import fetch_latest_version
+from .version.gitlab import GITLAB_API
 from .version.version import Version, VersionPreference
 
 
@@ -135,13 +136,8 @@ def update_version(
     if preference == VersionPreference.FIXED:
         new_version = Version(version)
     else:
-        if not package.url:
-            if package.urls:
-                package.url = package.urls[0]
-            else:
-                raise UpdateError(
-                    "Could not find a url in the derivations src attribute"
-                )
+        if not package.parsed_url:
+            raise UpdateError("Could not find a url in the derivations src attribute")
         if preference != VersionPreference.BRANCH:
             branch = None
         elif version == "branch":
@@ -151,7 +147,7 @@ def update_version(
             assert version.startswith("branch=")
             branch = version[7:]
         new_version = fetch_latest_version(
-            package.url, preference, version_regex, branch
+            package.parsed_url, preference, version_regex, branch
         )
     package.new_version = new_version
     position = package.version_position
@@ -162,6 +158,14 @@ def update_version(
         if recovered_version:
             package.old_version = recovered_version
             return False
+
+    if package.parsed_url:
+        if package.parsed_url.netloc == "github.com":
+            _, owner, repo, *_ = package.parsed_url.path.split("/")
+            package.diff_url = f"https://github.com/{owner}/{repo}/compare/{package.rev}...{new_version.rev or new_version.number}"
+        elif GITLAB_API.match(package.parsed_url.geturl()) and package.src_homepage:
+            package.diff_url = f"{package.src_homepage}-/compare/{package.rev}...{new_version.rev or new_version.number}"
+
     return replace_version(package)
 
 
