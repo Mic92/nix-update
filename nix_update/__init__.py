@@ -177,6 +177,7 @@ def nix_build(options: Options) -> None:
         "build",
         "--extra-experimental-features",
         "nix-command",
+        "-L",
         "-f",
         options.import_path,
         options.attribute,
