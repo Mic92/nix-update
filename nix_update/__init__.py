@@ -103,6 +103,8 @@ def format_commit_message(package: Package) -> str:
     ):
         new_version = new_version[1:]
     msg = f"{package.attribute}: {package.old_version} -> {new_version}"
+    if package.diff_url:
+        msg += f"\n\nDiff: {package.diff_url}"
     if package.changelog:
         msg += f"\n\nChangelog: {package.changelog}"
     return msg

@@ -1,7 +1,7 @@
 import re
 from functools import partial
 from typing import Callable, List, Optional
-from urllib.parse import ParseResult, urlparse
+from urllib.parse import ParseResult
 
 from ..errors import VersionError
 from .crate import fetch_crate_versions
@@ -56,13 +56,11 @@ def is_unstable(version: Version, extracted: str) -> bool:
 
 
 def fetch_latest_version(
-    url_str: str,
+    url: ParseResult,
     preference: VersionPreference,
     version_regex: str,
     branch: Optional[str] = None,
 ) -> Version:
-    url = urlparse(url_str)
-
     unstable: List[str] = []
     filtered: List[str] = []
     used_fetchers = fetchers

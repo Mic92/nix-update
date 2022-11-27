@@ -2,6 +2,7 @@
 import unittest.mock
 from pathlib import Path
 from typing import BinaryIO
+from urllib.parse import urlparse
 
 import conftest
 
@@ -19,7 +20,7 @@ def test_branch(helpers: conftest.Helpers) -> None:
     with unittest.mock.patch("urllib.request.urlopen", fake_urlopen):
         assert (
             fetch_latest_version(
-                "https://github.com/Mic92/nix-update",
+                urlparse("https://github.com/Mic92/nix-update"),
                 VersionPreference.BRANCH,
                 "(.*)",
                 "master",

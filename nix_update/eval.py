@@ -1,6 +1,7 @@
 import json
 from dataclasses import InitVar, dataclass, field
 from typing import Any, Dict, List, Optional
+from urllib.parse import ParseResult, urlparse
 
 from .errors import UpdateError
 from .options import Options
@@ -24,6 +25,7 @@ class Package:
     line: int
     urls: Optional[List[str]]
     url: Optional[str]
+    src_homepage: Optional[str]
     changelog: Optional[str]
     rev: str
     hash: Optional[str]
@@ -35,10 +37,15 @@ class Package:
 
     raw_version_position: InitVar[Optional[Dict[str, Any]]]
 
+    parsed_url: Optional[ParseResult] = None
     new_version: Optional[Version] = None
     version_position: Optional[Position] = field(init=False)
+    diff_url: Optional[str] = None
 
     def __post_init__(self, raw_version_position: Optional[Dict[str, Any]]) -> None:
+        url = self.url or (self.urls[0] if self.urls else None)
+        if url:
+            self.parsed_url = urlparse(url)
         if raw_version_position is None:
             self.version_position = None
         else:
@@ -74,6 +81,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       cargo_deps = (pkg.cargoDeps or null).outputHash or null;
       npm_deps = (pkg.npmDeps or null).outputHash or null;
       tests = builtins.attrNames (pkg.passthru.tests or {{}});
+      src_homepage = pkg.src.meta.homepage or null;
       changelog = pkg.meta.changelog or null;
     }})"""
 
