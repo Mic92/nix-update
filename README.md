@@ -17,6 +17,7 @@ designed to work with nixpkgs but also other package sets.
 -   build and run the resulting package (see `--build`,
     `--run` or `--shell`
 -   commit updated files (see `--commit` flag)
+-   run update scripts (`passthru.updateScript`, see `--use-update-script` flag)
 -   run package tests (see `--test` flag)
 
 ## Installation
