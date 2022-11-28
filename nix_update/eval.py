@@ -34,6 +34,7 @@ class Package:
     cargo_deps: Optional[str]
     npm_deps: Optional[str]
     tests: List[str]
+    has_update_script: bool
 
     raw_version_position: InitVar[Optional[Dict[str, Any]]]
 
@@ -81,6 +82,7 @@ def eval_expression(import_path: str, attr: str) -> str:
       cargo_deps = (pkg.cargoDeps or null).outputHash or null;
       npm_deps = (pkg.npmDeps or null).outputHash or null;
       tests = builtins.attrNames (pkg.passthru.tests or {{}});
+      has_update_script = pkg.passthru.updateScript or null != null;
       src_homepage = pkg.src.meta.homepage or null;
       changelog = pkg.meta.changelog or null;
     }})"""
