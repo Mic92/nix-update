@@ -13,6 +13,7 @@ class Options:
     import_path: str = "./."
     override_filename: Optional[str] = None
     commit: bool = False
+    use_update_script: bool = False
     write_commit_message: Optional[str] = None
     shell: bool = False
     run: bool = False

@@ -32,6 +32,12 @@ def parse_args(args: list[str]) -> Options:
         "--commit", action="store_true", help="Commit the updated package"
     )
     parser.add_argument(
+        "-u",
+        "--use-update-script",
+        action="store_true",
+        help="Use passthru.updateScript instead if possible",
+    )
+    parser.add_argument(
         "--write-commit-message",
         metavar="FILE",
         help="Write commit message to FILE",
@@ -65,6 +71,7 @@ def parse_args(args: list[str]) -> Options:
         import_path=a.file,
         build=a.build,
         commit=a.commit,
+        use_update_script=a.use_update_script,
         write_commit_message=a.write_commit_message,
         run=a.run,
         shell=a.shell,

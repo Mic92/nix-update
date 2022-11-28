@@ -1,6 +1,7 @@
 import fileinput
 import subprocess
 import tempfile
+from os import path
 from typing import Dict, Optional
 
 from .errors import UpdateError
@@ -171,6 +172,23 @@ def update_version(
 
 def update(opts: Options) -> Package:
     package = eval_attr(opts)
+
+    if package.has_update_script and opts.use_update_script:
+        run(
+            [
+                "nix-shell",
+                path.join(opts.import_path, "maintainers/scripts/update.nix"),
+                "--argstr",
+                "package",
+                opts.attribute,
+            ],
+            stdout=None,
+        )
+
+        new_package = eval_attr(opts)
+        package.new_version = Version(new_package.old_version, rev=new_package.rev)
+
+        return package
 
     update_hash = True
 
