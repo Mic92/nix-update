@@ -139,8 +139,12 @@ def update_version(
     else:
         if not package.parsed_url:
             raise UpdateError("Could not find a url in the derivations src attribute")
+
+        version_prefix = ""
         if preference != VersionPreference.BRANCH:
             branch = None
+            if package.rev and package.rev.endswith(package.old_version):
+                version_prefix = package.rev.removesuffix(package.old_version)
         elif version == "branch":
             # fallback
             branch = "HEAD"
@@ -148,7 +152,12 @@ def update_version(
             assert version.startswith("branch=")
             branch = version[7:]
         new_version = fetch_latest_version(
-            package.parsed_url, preference, version_regex, branch
+            package.parsed_url,
+            preference,
+            version_regex,
+            branch,
+            package.rev,
+            version_prefix,
         )
     package.new_version = new_version
     position = package.version_position

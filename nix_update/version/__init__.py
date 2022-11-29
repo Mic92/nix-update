@@ -60,6 +60,8 @@ def fetch_latest_version(
     preference: VersionPreference,
     version_regex: str,
     branch: Optional[str] = None,
+    old_rev: Optional[str] = None,
+    version_prefix: str = "",
 ) -> Version:
     unstable: List[str] = []
     filtered: List[str] = []
@@ -82,6 +84,23 @@ def fetch_latest_version(
             else:
                 final.append(extracted)
         if final != []:
+            if version_prefix != "":
+                ver = next(
+                    (
+                        Version(
+                            version.number.removeprefix(version_prefix),
+                            prerelease=version.prerelease,
+                            rev=version.number,
+                        )
+                        for version in final
+                        if version.number.startswith(version_prefix)
+                    ),
+                    None,
+                )
+
+                if ver is not None and ver.rev != old_rev:
+                    return ver
+
             return final[0]
 
     if filtered:
