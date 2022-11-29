@@ -44,7 +44,12 @@ def extract_version(version: Version, version_regex: str) -> Optional[Version]:
     if match is not None:
         group = match.group(1)
         if group is not None:
-            return Version(group, prerelease=version.prerelease, rev=version.rev)
+            return Version(
+                group,
+                prerelease=version.prerelease,
+                rev=version.rev
+                or (None if version.number == group else version.number),
+            )
     return None
 
 
@@ -90,7 +95,7 @@ def fetch_latest_version(
                         Version(
                             version.number.removeprefix(version_prefix),
                             prerelease=version.prerelease,
-                            rev=version.number,
+                            rev=version.rev or version.number,
                         )
                         for version in final
                         if version.number.startswith(version_prefix)
