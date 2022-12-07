@@ -8,7 +8,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: cachix/install-nix-action@v18
+      with:
+        nix_path: nixpkgs=channel:nixos-unstable
     - name: build
-      run: NIX_PATH=nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz nix-build
+      run: nix build
     - name: Run tests
-      run: NIX_PATH=nixpkgs=https://github.com/NixOS/nixpkgs/archive/nixpkgs-unstable.tar.gz nix-shell --command "py.test -s ."
+      run: nix develop -c pytest -s .
