@@ -53,43 +53,59 @@ class Package:
             self.version_position = Position(**raw_version_position)
 
 
-def eval_expression(import_path: str, attr: str) -> str:
-    return f"""(
-    let
-      inputs = (if (builtins.hasAttr "overlays" (builtins.functionArgs (import {import_path}))) then {{ overlays = []; }} else {{ }});
-    in
-    with import {import_path} inputs;
-    let
-      pkg = {attr};
-      raw_version_position = builtins.unsafeGetAttrPos "version" pkg;
+def eval_expression(import_path: str, attr: str, flake: bool) -> str:
+    let_bindings = (
+        f"""inherit (builtins) currentSystem getFlake stringLength substring;
+  flake = getFlake "{import_path}";
+  pkg = flake.packages.${{currentSystem}}.{attr} or flake.{attr};
+  inherit (flake) outPath;
+  outPathLen = stringLength outPath;
+  sanitizePosition = {{ file, ... }}@pos:
+    assert substring 0 outPathLen file == outPath;
+    pos // {{ file = "{import_path}" + substring outPathLen (stringLength file - outPathLen) file; }};"""
+        if flake
+        else f"""
+  inputs = if (builtins.functionArgs (import {import_path})) ? overlays then {{ overlays = [ ]; }} else {{ }};
+  pkg = (import {import_path} inputs).{attr};
+  sanitizePosition = x: x;"""
+    )
 
-      position = if pkg ? isRubyGem then
-        raw_version_position
-      else
-        builtins.unsafeGetAttrPos "src" pkg;
-    in {{
-      name = pkg.name;
-      old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
-      inherit raw_version_position;
-      filename = position.file;
-      line = position.line;
-      urls = pkg.src.urls or null;
-      url = pkg.src.url or null;
-      rev = pkg.src.rev or null;
-      hash = pkg.src.outputHash or null;
-      vendor_hash = pkg.vendorHash or null;
-      vendor_sha256 = pkg.vendorSha256 or null;
-      cargo_deps = (pkg.cargoDeps or null).outputHash or null;
-      npm_deps = (pkg.npmDeps or null).outputHash or null;
-      tests = builtins.attrNames (pkg.passthru.tests or {{}});
-      has_update_script = pkg.passthru.updateScript or null != null;
-      src_homepage = pkg.src.meta.homepage or null;
-      changelog = pkg.meta.changelog or null;
-    }})"""
+    has_update_script = (
+        "false" if flake else "pkg.passthru.updateScript or null != null"
+    )
+
+    return f"""
+let
+  {let_bindings}
+  raw_version_position = sanitizePosition (builtins.unsafeGetAttrPos "version" pkg);
+
+  position = if pkg ? isRubyGem then
+    raw_version_position
+  else
+    sanitizePosition (builtins.unsafeGetAttrPos "src" pkg);
+in {{
+  name = pkg.name;
+  old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
+  inherit raw_version_position;
+  filename = position.file;
+  line = position.line;
+  urls = pkg.src.urls or null;
+  url = pkg.src.url or null;
+  rev = pkg.src.rev or null;
+  hash = pkg.src.outputHash or null;
+  vendor_hash = pkg.vendorHash or null;
+  vendor_sha256 = pkg.vendorSha256 or null;
+  cargo_deps = pkg.cargoDeps.outputHash or null;
+  npm_deps = pkg.npmDeps.outputHash or null;
+  tests = builtins.attrNames (pkg.passthru.tests or {{}});
+  has_update_script = {has_update_script};
+  src_homepage = pkg.src.meta.homepage or null;
+  changelog = pkg.meta.changelog or null;
+}}"""
 
 
 def eval_attr(opts: Options) -> Package:
-    expr = eval_expression(opts.import_path, opts.attribute)
+    expr = eval_expression(opts.import_path, opts.attribute, opts.flake)
     cmd = [
         "nix",
         "eval",
