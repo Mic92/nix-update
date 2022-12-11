@@ -188,25 +188,12 @@ def validate_git_dir(import_path: str) -> str:
 
 
 def nix_run(options: Options) -> None:
-    cmd = (
-        [
-            "nix",
-            "shell",
-            "--extra-experimental-features",
-            "flakes nix-command",
-            f"{options.import_path}#{options.attribute}",
-        ]
-        if options.flake
-        else [
-            "nix",
-            "shell",
-            "--extra-experimental-features",
-            "nix-command",
-            "-f",
-            options.import_path,
-            options.attribute,
-        ]
-    )
+    cmd = ["nix", "shell", "--extra-experimental-features", "flakes nix-command", "-L"]
+
+    if options.flake:
+        cmd.append(f"{options.import_path}#{options.attribute}")
+    else:
+        cmd.extend(["-f", options.import_path, options.attribute])
     run(
         cmd,
         stdout=None,
@@ -215,26 +202,11 @@ def nix_run(options: Options) -> None:
 
 
 def nix_build(options: Options) -> None:
-    cmd = (
-        [
-            "nix",
-            "shell",
-            "--extra-experimental-features",
-            "flakes nix-command",
-            f"{options.import_path}#{options.attribute}",
-        ]
-        if options.flake
-        else [
-            "nix",
-            "build",
-            "--extra-experimental-features",
-            "nix-command",
-            "-L",
-            "-f",
-            options.import_path,
-            options.attribute,
-        ]
-    )
+    cmd = ["nix", "build", "--extra-experimental-features", "flakes nix-command", "-L"]
+    if options.flake:
+        cmd.append(f"{options.import_path}#{options.attribute}")
+    else:
+        cmd.extend(["-f", options.import_path, options.attribute])
     run(cmd, stdout=None)
 
 
