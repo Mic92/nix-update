@@ -105,29 +105,31 @@ def disable_check_meta(opts: Options) -> str:
     return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
 
 
-def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = (
-        f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.src"
+def get_attr(opts: Options, attr: str) -> str:
+    return (
+        f'let flake = builtins.getFlake "{opts.import_path}"; in (flake.packages.${{builtins.currentSystem}}.{opts.attribute} or flake.{opts.attribute}).{attr}'
+        if opts.flake
+        else f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.{attr}"
     )
-    target_hash = nix_prefetch(expr)
+
+
+def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(get_attr(opts, "src"))
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_go_modules_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.go-modules"
-    target_hash = nix_prefetch(expr)
+    target_hash = nix_prefetch(get_attr(opts, "go-modules"))
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.cargoDeps"
-    target_hash = nix_prefetch(expr)
+    target_hash = nix_prefetch(get_attr(opts, "cargoDeps"))
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
-    expr = f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.npmDeps"
-    target_hash = nix_prefetch(expr)
+    target_hash = nix_prefetch(get_attr(opts, "npmDeps"))
     replace_hash(filename, current_hash, target_hash)
 
 

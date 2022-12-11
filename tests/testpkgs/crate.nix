@@ -1,4 +1,4 @@
-{ rustPlatform, fetchCrate }:
+{ rustPlatform, fetchCrate, hello }:
 
 rustPlatform.buildRustPackage rec {
   pname = "fd-find";
@@ -6,8 +6,13 @@ rustPlatform.buildRustPackage rec {
 
   src = fetchCrate {
     inherit pname version;
-    sha256 = "";
+    sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 
-  cargoSha256 = "";
+  cargoSha256 = "sha256-BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=";
+
+  passthru.tests = {
+    foo = hello;
+    bar = hello;
+  };
 }
