@@ -37,15 +37,15 @@ def replace_version(package: Package) -> bool:
 def to_sri(hashstr: str) -> str:
     if "-" in hashstr:
         return hashstr
-    l = len(hashstr)
-    if l == 32:
+    length = len(hashstr)
+    if length == 32:
         prefix = "md5:"
-    elif l == 40:
+    elif length == 40:
         # could be also base32 == 32, but we ignore this case and hope no one is using it
         prefix = "sha1:"
-    elif l == 64 or l == 52:
+    elif length == 64 or length == 52:
         prefix = "sha256:"
-    elif l == 103 or l == 128:
+    elif length == 103 or length == 128:
         prefix = "sha512:"
     else:
         return hashstr
