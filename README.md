@@ -70,6 +70,16 @@ nixpkgs or your own repository). Than run `nix-update` as follows
 $ nix-update attribute [--version version]
 ```
 
+If your package is defined in a flake use the `--flake` flag instead:
+
+```console
+$ nix-update attribute --flake [--version version]
+```
+
+`nix-update` will than try to update either the
+`packages.{currentSystem}.{attribute}` or `{attribute}` output attribute of the
+given flake.
+
 This example will fetch the latest github release:
 
 ```console
@@ -87,6 +97,8 @@ To only update sources hashes without updating the version:
 ```console
 $ nix-update --version=skip nixpkgs-review
 ```
+
+Setting `--version` to `branch` instead, will look for the latest commit.
 
 To extract version information from versions with prefixes or suffixes,
 a regex can be used
