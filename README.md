@@ -73,7 +73,7 @@ $ nix-update attribute [--version version]
 If your package is defined in a flake use the `--flake` flag instead:
 
 ```console
-$ nix-update --flake=attribute [--version version]
+$ nix-update attribute --flake [--version version]
 ```
 
 `nix-update` will than try to update either the
