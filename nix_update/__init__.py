@@ -68,7 +68,15 @@ def parse_args(args: list[str]) -> Options:
         help="Set filename where nix-update will update version/hash",
         default=None,
     )
-    parser.add_argument("attribute", help="Attribute name within the file evaluated")
+
+    default_attribute = os.getenv("UPDATE_NIX_ATTR_PATH")
+    parser.add_argument(
+        "attribute",
+        default=default_attribute,
+        nargs="?" if default_attribute else None,  # type: ignore
+        help="Attribute name within the file evaluated",
+    )
+
     a = parser.parse_args(args)
     return Options(
         import_path=os.path.realpath(a.file),
