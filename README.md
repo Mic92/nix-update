@@ -162,15 +162,16 @@ Update 1.4.6 -> 1.5.0-M1 in sbt
 
 ## Development setup
 
-First clone the repo to your preferred location (in the following, we assume `~/git`):
+First clone the repo to your preferred location (in the following, we assume `~/` - your home):
 
 ```console
-$ git clone https://github.com/Mic92/nix-update/ ~/git/nix-update
+$ git clone https://github.com/Mic92/nix-update/ ~/nix-update
 ```
 
 Than enter the dev shell:
 
 ```console
+$ cd ~/nix-update
 $ nix develop
 ```
 
