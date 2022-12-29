@@ -160,6 +160,32 @@ $ nix-update sbt --version=unstable
 Update 1.4.6 -> 1.5.0-M1 in sbt
 ```
 
+## Development setup
+
+First clone the repo to your preferred location (in the following, we assume `~/git`):
+
+```console
+$ git clone https://github.com/Mic92/nix-update/ ~/git/nix-update
+```
+
+Than enter the dev shell:
+
+```console
+$ nix develop
+```
+
+Change to the repository that contains the nix files you want to update, i.e. nixpkgs:
+
+```console
+$ cd nixpkgs
+```
+
+Now you can run `nix-update` just by specifying the full path to its executable wrapper:
+
+```console
+$ ~/git/nix-update/bin/nix-update --commit hello
+```
+
 ## TODO
 
 -   create pull requests
