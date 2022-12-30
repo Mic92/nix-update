@@ -81,7 +81,9 @@ let
 
   position = if pkg ? isRubyGem then
     raw_version_position
-  else
+  else if pkg ? isPhpExtension then
+    raw_version_position
+   else
     sanitizePosition (builtins.unsafeGetAttrPos "src" pkg);
 in {{
   name = pkg.name;
