@@ -1,5 +1,7 @@
-{ stdenv, fetchFromGitHub }:
-
+{
+  stdenv,
+  fetchFromGitHub,
+}:
 stdenv.mkDerivation rec {
   pname = "fd";
   version = "8.0.0";

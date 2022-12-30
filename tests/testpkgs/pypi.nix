@@ -1,5 +1,10 @@
-{ buildPythonPackage, fetchPypi, twisted, mock, pytestCheckHook }:
-
+{
+  buildPythonPackage,
+  fetchPypi,
+  twisted,
+  mock,
+  pytestCheckHook,
+}:
 buildPythonPackage rec {
   pname = "python-mpd2";
   version = "2.0.0";
@@ -15,7 +20,7 @@ buildPythonPackage rec {
     mock
   ];
 
-  pytestFlagsArray = [ "mpd/tests.py" ];
+  pytestFlagsArray = ["mpd/tests.py"];
 
   meta.changelog = "https://github.com/Mic92/python-mpd2/blob/${version}/doc/changes.rst";
 }

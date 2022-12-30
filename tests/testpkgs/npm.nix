@@ -1,8 +1,8 @@
-{ lib
-, fetchFromGitHub
-, buildNpmPackage
+{
+  lib,
+  fetchFromGitHub,
+  buildNpmPackage,
 }:
-
 buildNpmPackage rec {
   pname = "jellyfin-web";
   version = "10.8.6";

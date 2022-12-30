@@ -1,5 +1,12 @@
-{ buildGoModule, fetchFromSourcehut, lib, jq, installShellFiles, makeWrapper, scdoc }:
-
+{
+  buildGoModule,
+  fetchFromSourcehut,
+  lib,
+  jq,
+  installShellFiles,
+  makeWrapper,
+  scdoc,
+}:
 buildGoModule rec {
   pname = "ijq";
   version = "0.3.5";
@@ -13,9 +20,9 @@ buildGoModule rec {
 
   vendorSha256 = "sha256-7UuQXnQdlUMC0ZIgHydQ5bZMB5XrE7dhx5+1NI+zFkM=";
 
-  nativeBuildInputs = [ installShellFiles makeWrapper scdoc ];
+  nativeBuildInputs = [installShellFiles makeWrapper scdoc];
 
-  ldflags = [ "-s" "-w" "-X main.Version=${version}" ];
+  ldflags = ["-s" "-w" "-X main.Version=${version}"];
 
   postBuild = ''
     scdoc < ijq.1.scd > ijq.1
@@ -24,6 +31,6 @@ buildGoModule rec {
 
   postInstall = ''
     wrapProgram "$out/bin/ijq" \
-          --prefix PATH : "${lib.makeBinPath [ jq ]}"
+          --prefix PATH : "${lib.makeBinPath [jq]}"
   '';
 }

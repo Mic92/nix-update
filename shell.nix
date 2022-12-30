@@ -1,9 +1,7 @@
-{ pkgs ? import <nixpkgs> { } }:
-
+{pkgs ? import <nixpkgs> {}}:
 with pkgs;
-
-mkShellNoCC {
-  buildInputs = [
-    (import ./. { }).passthru.env
-  ];
-}
+  mkShellNoCC {
+    buildInputs = [
+      (import ./. {}).passthru.env
+    ];
+  }

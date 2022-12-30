@@ -1,5 +1,7 @@
-{ stdenv, fetchFromGitLab }:
-
+{
+  stdenv,
+  fetchFromGitLab,
+}:
 stdenv.mkDerivation rec {
   pname = "phosh";
   version = "0.20.0";

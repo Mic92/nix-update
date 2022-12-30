@@ -1,5 +1,4 @@
-{ pkgs ? import <nixpkgs> {} }:
-{
+{pkgs ? import <nixpkgs> {}}: {
   crate = pkgs.callPackage ./crate.nix {};
   github = pkgs.callPackage ./github.nix {};
   gitlab = pkgs.callPackage ./gitlab.nix {};

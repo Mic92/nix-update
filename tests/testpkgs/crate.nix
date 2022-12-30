@@ -1,5 +1,8 @@
-{ rustPlatform, fetchCrate, hello }:
-
+{
+  rustPlatform,
+  fetchCrate,
+  hello,
+}:
 rustPlatform.buildRustPackage rec {
   pname = "fd-find";
   version = "8.0.0";
