@@ -6,7 +6,7 @@
 
   outputs = { self, nixpkgs, flake-utils }:
     flake-utils.lib.eachDefaultSystem (system: {
-      formatter = nixpkgs.legacyPackages.${system}.alejandra;
+      formatter = nixpkgs.legacyPackages.${system}.nixpkgs-fmt;
 
       packages = {
         default = self.packages.${system}.nix-update;
