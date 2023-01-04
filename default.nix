@@ -21,7 +21,7 @@ python3.pkgs.buildPythonApplication rec {
     echo -e "\x1b[32m## run black\x1b[0m"
     LC_ALL=en_US.utf-8 black --check . bin/nix-update
     echo -e "\x1b[32m## run ruff\x1b[0m"
-    ruff . bin/nix-update
+    ruff .
     echo -e "\x1b[32m## run mypy\x1b[0m"
     mypy --no-warn-unused-ignores --strict nix_update tests
   '';
