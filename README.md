@@ -20,6 +20,7 @@ designed to work with nixpkgs but also other package sets.
 -   commit updated files (see `--commit` flag)
 -   run update scripts (`passthru.updateScript`, see `--use-update-script` flag)
 -   run package tests (see `--test` flag)
+-   specify the system to use (see `--system` flag)
 
 ## Installation
 
