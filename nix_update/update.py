@@ -71,7 +71,13 @@ def replace_hash(filename: str, current: str, target: str) -> None:
                 print(line, end="")
 
 
-def nix_prefetch(expr: str) -> str:
+def nix_prefetch(opts: Options, attr: str) -> str:
+    expr = (
+        f'let flake = builtins.getFlake "{opts.import_path}"; in (flake.packages.${{builtins.currentSystem}}.{opts.attribute} or flake.{opts.attribute}).{attr}'
+        if opts.flake
+        else f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.{attr}"
+    )
+
     extra_env: Dict[str, str] = {}
     tempdir: Optional[tempfile.TemporaryDirectory[str]] = None
     if extra_env.get("XDG_RUNTIME_DIR") is None:
@@ -83,7 +89,8 @@ def nix_prefetch(expr: str) -> str:
                 "nix-build",
                 "--expr",
                 f'let src = {expr}; in (src.overrideAttrs or (f: src // f src)) (_: {{ outputHash = ""; outputHashAlgo = "sha256"; }})',
-            ],
+            ]
+            + opts.system_flags,
             extra_env=extra_env,
             stderr=subprocess.PIPE,
             check=False,
@@ -105,31 +112,23 @@ def disable_check_meta(opts: Options) -> str:
     return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
 
 
-def get_attr(opts: Options, attr: str) -> str:
-    return (
-        f'let flake = builtins.getFlake "{opts.import_path}"; in (flake.packages.${{builtins.currentSystem}}.{opts.attribute} or flake.{opts.attribute}).{attr}'
-        if opts.flake
-        else f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.{attr}"
-    )
-
-
 def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
-    target_hash = nix_prefetch(get_attr(opts, "src"))
+    target_hash = nix_prefetch(opts, "src")
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_go_modules_hash(opts: Options, filename: str, current_hash: str) -> None:
-    target_hash = nix_prefetch(get_attr(opts, "go-modules"))
+    target_hash = nix_prefetch(opts, "go-modules")
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
-    target_hash = nix_prefetch(get_attr(opts, "cargoDeps"))
+    target_hash = nix_prefetch(opts, "cargoDeps")
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
-    target_hash = nix_prefetch(get_attr(opts, "npmDeps"))
+    target_hash = nix_prefetch(opts, "npmDeps")
     replace_hash(filename, current_hash, target_hash)
 
 

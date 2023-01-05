@@ -117,7 +117,7 @@ def eval_attr(opts: Options) -> Package:
         "nix-command",
         "--expr",
         expr,
-    ]
+    ] + opts.system_flags
     res = run(cmd)
     out = json.loads(res.stdout)
     package = Package(attribute=opts.attribute, **out)
