@@ -1,5 +1,6 @@
 import json
 from dataclasses import InitVar, dataclass, field
+from textwrap import dedent, indent
 from typing import Any, Dict, List, Optional
 from urllib.parse import ParseResult, urlparse
 
@@ -58,23 +59,25 @@ def eval_expression(
 ) -> str:
     system = f'"{system}"' if system else "builtins.currentSystem"
 
-    let_bindings = (
-        f"""inherit (builtins) getFlake stringLength substring;
-  currentSystem = {system};
-  flake = getFlake "{import_path}";
-  pkg = flake.packages.${{currentSystem}}.{attr} or flake.{attr};
-  inherit (flake) outPath;
-  outPathLen = stringLength outPath;
-  sanitizePosition = {{ file, ... }}@pos:
-    assert substring 0 outPathLen file == outPath;
-    pos // {{ file = "{import_path}" + substring outPathLen (stringLength file - outPathLen) file; }};"""
-        if flake
-        else f"""
-  inputs = if (builtins.functionArgs (import {import_path})) ? overlays then {{ overlays = [ ]; }} else {{ }};
-  system = if (builtins.functionArgs (import {import_path})) ? system then {{ system = {system}; }} else {{ }};
-  pkg = (import {import_path} (inputs // system)).{attr};
-  sanitizePosition = x: x;"""
-    )
+    if flake:
+        let_bindings = f"""
+          inherit (builtins) getFlake stringLength substring;
+          currentSystem = {system};
+          flake = getFlake "{import_path}";
+          pkg = flake.packages.${{currentSystem}}.{attr} or flake.{attr};
+          inherit (flake) outPath;
+          outPathLen = stringLength outPath;
+          sanitizePosition = {{ file, ... }}@pos:
+            assert substring 0 outPathLen file == outPath;
+            pos // {{ file = "{import_path}" + substring outPathLen (stringLength file - outPathLen) file; }};
+        """
+    else:
+        let_bindings = f"""
+          inputs = if (builtins.functionArgs (import {import_path})) ? overlays then {{ overlays = [ ]; }} else {{ }};
+          system = if (builtins.functionArgs (import {import_path})) ? system then {{ system = {system}; }} else {{ }};
+          pkg = (import {import_path} (inputs // system)).{attr};
+          sanitizePosition = x: x;
+        """
 
     has_update_script = (
         "false" if flake else "pkg.passthru.updateScript or null != null"
@@ -82,7 +85,7 @@ def eval_expression(
 
     return f"""
 let
-  {let_bindings}
+  {indent(dedent(let_bindings), "  ")}
   raw_version_position = sanitizePosition (builtins.unsafeGetAttrPos "version" pkg);
 
   position = if pkg ? isRubyGem then
