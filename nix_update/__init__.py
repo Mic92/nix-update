@@ -100,6 +100,7 @@ def parse_args(args: list[str]) -> Options:
         review=a.review,
         format=a.format,
         override_filename=a.override_filename,
+        system=a.system,
         system_flags=["--system", a.system] if a.system else [],
     )
 

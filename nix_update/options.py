@@ -23,4 +23,5 @@ class Options:
     test: bool = False
     review: bool = False
     format: bool = False
+    system: Optional[str] = None
     system_flags: List[str] = field(default_factory=list)

@@ -53,9 +53,14 @@ class Package:
             self.version_position = Position(**raw_version_position)
 
 
-def eval_expression(import_path: str, attr: str, flake: bool) -> str:
+def eval_expression(
+    import_path: str, attr: str, flake: bool, system: Optional[str]
+) -> str:
+    system = f'"{system}"' if system else "builtins.currentSystem"
+
     let_bindings = (
-        f"""inherit (builtins) currentSystem getFlake stringLength substring;
+        f"""inherit (builtins) getFlake stringLength substring;
+  currentSystem = {system};
   flake = getFlake "{import_path}";
   pkg = flake.packages.${{currentSystem}}.{attr} or flake.{attr};
   inherit (flake) outPath;
@@ -66,7 +71,8 @@ def eval_expression(import_path: str, attr: str, flake: bool) -> str:
         if flake
         else f"""
   inputs = if (builtins.functionArgs (import {import_path})) ? overlays then {{ overlays = [ ]; }} else {{ }};
-  pkg = (import {import_path} inputs).{attr};
+  system = if (builtins.functionArgs (import {import_path})) ? system then {{ system = {system}; }} else {{ }};
+  pkg = (import {import_path} (inputs // system)).{attr};
   sanitizePosition = x: x;"""
     )
 
@@ -107,7 +113,7 @@ in {{
 
 
 def eval_attr(opts: Options) -> Package:
-    expr = eval_expression(opts.import_path, opts.attribute, opts.flake)
+    expr = eval_expression(opts.import_path, opts.attribute, opts.flake, opts.system)
     cmd = [
         "nix",
         "eval",
