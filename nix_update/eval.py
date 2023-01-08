@@ -73,9 +73,11 @@ def eval_expression(
         """
     else:
         let_bindings = f"""
-          inputs = if (builtins.functionArgs (import {import_path})) ? overlays then {{ overlays = [ ]; }} else {{ }};
-          system = if (builtins.functionArgs (import {import_path})) ? system then {{ system = {system}; }} else {{ }};
-          pkg = (import {import_path} (inputs // system)).{attr};
+          pkgs = import {import_path};
+          args =  builtins.functionArgs pkgs;
+          inputs = (if args ? system then {{ system = {system}; }} else {{}}) //
+                   (if args ? overlays then {{ overlays = [ ]; }} else {{}});
+          pkg = (pkgs inputs).{attr};
           sanitizePosition = x: x;
         """
 
