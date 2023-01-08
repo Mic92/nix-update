@@ -1,6 +1,6 @@
 import os
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import List, Optional
 
 from .version.version import VersionPreference
 
@@ -23,3 +23,5 @@ class Options:
     test: bool = False
     review: bool = False
     format: bool = False
+    system: Optional[str] = None
+    extra_flags: List[str] = field(default_factory=list)

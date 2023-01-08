@@ -54,22 +54,30 @@ class Package:
             self.version_position = Position(**raw_version_position)
 
 
-def eval_expression(import_path: str, attr: str, flake: bool) -> str:
+def eval_expression(
+    import_path: str, attr: str, flake: bool, system: Optional[str]
+) -> str:
+    system = f'"{system}"' if system else "builtins.currentSystem"
+
     if flake:
         let_bindings = f"""
-          inherit (builtins) currentSystem getFlake stringLength substring;
+          inherit (builtins) getFlake stringLength substring;
+          currentSystem = {system};
           flake = getFlake "{import_path}";
           pkg = flake.packages.${{currentSystem}}.{attr} or flake.{attr};
           inherit (flake) outPath;
           outPathLen = stringLength outPath;
           sanitizePosition = {{ file, ... }}@pos:
-          assert substring 0 outPathLen file == outPath;
-          pos // {{ file = "{import_path}" + substring outPathLen (stringLength file - outPathLen) file; }};
+            assert substring 0 outPathLen file == outPath;
+            pos // {{ file = "{import_path}" + substring outPathLen (stringLength file - outPathLen) file; }};
         """
     else:
         let_bindings = f"""
-          inputs = if (builtins.functionArgs (import {import_path})) ? overlays then {{ overlays = [ ]; }} else {{ }};
-          pkg = (import {import_path} inputs).{attr};
+          pkgs = import {import_path};
+          args =  builtins.functionArgs pkgs;
+          inputs = (if args ? system then {{ system = {system}; }} else {{}}) //
+                   (if args ? overlays then {{ overlays = [ ]; }} else {{}});
+          pkg = (pkgs inputs).{attr};
           sanitizePosition = x: x;
         """
 
@@ -110,17 +118,15 @@ in {{
 
 
 def eval_attr(opts: Options) -> Package:
-    expr = eval_expression(opts.import_path, opts.attribute, opts.flake)
+    expr = eval_expression(opts.import_path, opts.attribute, opts.flake, opts.system)
     cmd = [
         "nix",
         "eval",
         "--json",
         "--impure",
-        "--extra-experimental-features",
-        "nix-command",
         "--expr",
         expr,
-    ]
+    ] + opts.extra_flags
     res = run(cmd)
     out = json.loads(res.stdout)
     package = Package(attribute=opts.attribute, **out)
