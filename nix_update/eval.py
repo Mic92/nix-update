@@ -119,11 +119,9 @@ def eval_attr(opts: Options) -> Package:
         "eval",
         "--json",
         "--impure",
-        "--extra-experimental-features",
-        "nix-command",
         "--expr",
         expr,
-    ] + opts.system_flags
+    ] + opts.extra_flags
     res = run(cmd)
     out = json.loads(res.stdout)
     package = Package(attribute=opts.attribute, **out)

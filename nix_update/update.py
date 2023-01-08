@@ -90,7 +90,7 @@ def nix_prefetch(opts: Options, attr: str) -> str:
                 "--expr",
                 f'let src = {expr}; in (src.overrideAttrs or (f: src // f src)) (_: {{ outputHash = ""; outputHashAlgo = "sha256"; }})',
             ]
-            + opts.system_flags,
+            + opts.extra_flags,
             extra_env=extra_env,
             stderr=subprocess.PIPE,
             check=False,

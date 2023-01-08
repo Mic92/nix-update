@@ -101,7 +101,8 @@ def parse_args(args: list[str]) -> Options:
         format=a.format,
         override_filename=a.override_filename,
         system=a.system,
-        system_flags=["--system", a.system] if a.system else [],
+        extra_flags=(["--system", a.system] if a.system else [])
+        + ["--extra-experimental-features", "flakes nix-command"],
     )
 
 
@@ -112,10 +113,8 @@ def nix_shell(options: Options) -> None:
                 "nix",
                 "shell",
                 f"{options.import_path}#{options.attribute}",
-                "--extra-experimental-features",
-                "flakes nix-command",
             ]
-            + options.system_flags,
+            + options.extra_flags,
             stdout=None,
             check=False,
         )
@@ -125,7 +124,7 @@ def nix_shell(options: Options) -> None:
             path = os.path.join(d, "default.nix")
             with open(path, "w") as f:
                 f.write(expr)
-            run(["nix-shell", path] + options.system_flags, stdout=None, check=False)
+            run(["nix-shell", path] + options.extra_flags, stdout=None, check=False)
 
 
 def git_has_diff(git_dir: str, package: Package) -> bool:
@@ -207,10 +206,8 @@ def nix_run(options: Options) -> None:
     cmd = [
         "nix",
         "shell",
-        "--extra-experimental-features",
-        "flakes nix-command",
         "-L",
-    ] + options.system_flags
+    ] + options.extra_flags
 
     if options.flake:
         cmd.append(f"{options.import_path}#{options.attribute}")
@@ -227,10 +224,8 @@ def nix_build(options: Options) -> None:
     cmd = [
         "nix",
         "build",
-        "--extra-experimental-features",
-        "flakes nix-command",
         "-L",
-    ] + options.system_flags
+    ] + options.extra_flags
     if options.flake:
         cmd.append(f"{options.import_path}#{options.attribute}")
     else:
@@ -246,13 +241,11 @@ def nix_test(opts: Options, package: Package) -> None:
         cmd = [
             "nix",
             "build",
-            "--experimental-features",
-            "flakes nix-command",
-        ] + opts.system_flags
+        ] + opts.extra_flags
         for t in package.tests:
             cmd.append(f"{opts.import_path}#{package.attribute}.tests.{t}")
     else:
-        cmd = ["nix-build"] + opts.system_flags
+        cmd = ["nix-build"] + opts.extra_flags
         for t in package.tests:
             cmd.append("-A")
             cmd.append(f"{package.attribute}.tests.{t}")
