@@ -123,5 +123,5 @@ def fetch_latest_version(
         )
 
     raise VersionError(
-        "Please specify the version. We can only get the latest version from github/gitlab/pypi/rubygems projects right now"
+        "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/notabug/pypi/savannah/sourcehut/rubygems projects right now"
     )
