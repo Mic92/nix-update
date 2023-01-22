@@ -8,7 +8,7 @@ on:
       - staging # for bors
       - trying # for bors
 jobs:
-  lockfile:
+  format-check:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
