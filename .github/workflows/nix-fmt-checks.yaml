@@ -2,7 +2,11 @@ name: Nix formatter checks
 
 on:
   pull_request:
-
+  push:
+    branches:
+      - master
+      - staging # for bors
+      - trying # for bors
 jobs:
   lockfile:
     runs-on: ubuntu-latest
