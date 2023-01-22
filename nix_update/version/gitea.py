@@ -1,0 +1,34 @@
+import json
+from typing import List
+from urllib.parse import ParseResult
+from urllib.request import urlopen
+
+from .version import Version
+
+
+def fetch_gitea_versions(url: ParseResult) -> List[Version]:
+    if url.netloc not in ["codeberg.org", "gitea.com", "notabug.org"]:
+        return []
+
+    _, owner, repo, *_ = url.path.split("/")
+    tags_url = f"https://{url.netloc}/api/v1/repos/{owner}/{repo}/tags"
+    resp = urlopen(tags_url)
+    tags = json.loads(resp.read())
+    return [Version(tag["name"]) for tag in tags]
+
+
+def fetch_gitea_snapshots(url: ParseResult, branch: str) -> List[Version]:
+    if url.netloc not in ["codeberg.org", "gitea.com", "notabug.org"]:
+        return []
+
+    _, owner, repo, *_ = url.path.split("/")
+    commits_url = f"https://{url.netloc}/api/v1/repos/{owner}/{repo}/commits?sha={branch}&limit=1stat=false"
+    resp = urlopen(commits_url)
+    commits = json.loads(resp.read())
+
+    commit = next(iter(commits), None)
+    if commit is None:
+        return []
+
+    date = commit["commit"]["committer"]["date"][:10]
+    return [Version(f"unstable-{date}", rev=commit["sha"])]

@@ -174,6 +174,9 @@ def update_version(
         if package.parsed_url.netloc == "github.com":
             _, owner, repo, *_ = package.parsed_url.path.split("/")
             package.diff_url = f"https://github.com/{owner}/{repo}/compare/{package.rev}...{new_version.rev or new_version.number}"
+        elif package.parsed_url.netloc in ["codeberg.org", "gitea.com", "notabug.org"]:
+            _, owner, repo, *_ = package.parsed_url.path.split("/")
+            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/compare/{package.rev}...{new_version.rev or new_version.number}"
         elif GITLAB_API.match(package.parsed_url.geturl()) and package.src_homepage:
             package.diff_url = f"{package.src_homepage}-/compare/{package.rev}...{new_version.rev or new_version.number}"
 

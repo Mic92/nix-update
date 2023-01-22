@@ -1,6 +1,7 @@
 { pkgs ? import <nixpkgs> { } }:
 {
   crate = pkgs.callPackage ./crate.nix { };
+  gitea = pkgs.callPackage ./gitea.nix { };
   github = pkgs.callPackage ./github.nix { };
   gitlab = pkgs.callPackage ./gitlab.nix { };
   pypi = pkgs.python3.pkgs.callPackage ./pypi.nix { };
