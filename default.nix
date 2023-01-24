@@ -8,7 +8,7 @@ python3.pkgs.buildPythonApplication rec {
   name = "nix-update";
   inherit src;
   buildInputs = [ makeWrapper ];
-  checkInputs = [
+  nativeCheckInputs = [
     python3.pkgs.pytest
     python3.pkgs.black
     ruff
