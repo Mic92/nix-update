@@ -14,6 +14,7 @@ class Options:
     version_regex: str = "(.*)"
     import_path: str = os.getcwd()
     override_filename: Optional[str] = None
+    url: Optional[str] = None
     commit: bool = False
     use_update_script: bool = False
     write_commit_message: Optional[str] = None

@@ -118,6 +118,18 @@ In some cases this heurestic is wrong. One can override the behavior like that:
 $ nix-update hello --override-filename pkgs/applications/misc/hello/default.nix
 ```
 
+The `nix-update` command checks for new releases of a package using the `src`
+attribute. However, in some cases a package may use a non-standard release URL
+that is not supported by `nix-update`, but still has a repository with release
+information. For example, the Signal Desktop package in Nixpkgs fetches updates
+from https://updates.signal.org/, but also publishes release information on its
+GitHub page. In such cases, use the `--url` parameter to direct nix-update to
+the correct repository:
+
+``` console
+nix-update --url https://github.com/signalapp/Signal-Desktop --override-filename pkgs/applications/networking/instant-messengers/signal-desktop/default.nix   signal-desktop 
+```
+
 With the `--shell`, `--build`, `--test` and `--run` flags the update can be
 tested. Additionally, the `--review` flag can be used to
 initiate a run of [nixpkgs-review](https://github.com/Mic92/nixpkgs-review), which will ensure all
