@@ -132,6 +132,8 @@ def eval_attr(opts: Options) -> Package:
     package = Package(attribute=opts.attribute, **out)
     if opts.override_filename is not None:
         package.filename = opts.override_filename
+    if opts.url is not None:
+        package.parsed_url = urlparse(opts.url)
     if opts.version_preference != VersionPreference.SKIP and package.old_version == "":
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"

@@ -41,6 +41,10 @@ def parse_args(args: list[str]) -> Options:
         help="Use passthru.updateScript instead if possible",
     )
     parser.add_argument(
+        "--url",
+        help="URL to the repository to check for a release instead of using the URL in the src attribute of the package",
+    )
+    parser.add_argument(
         "--write-commit-message",
         metavar="FILE",
         help="Write commit message to FILE",
@@ -89,6 +93,7 @@ def parse_args(args: list[str]) -> Options:
         build=a.build,
         commit=a.commit,
         use_update_script=a.use_update_script,
+        url=a.url,
         write_commit_message=a.write_commit_message,
         run=a.run,
         shell=a.shell,
