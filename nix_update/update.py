@@ -105,7 +105,11 @@ def nix_prefetch(opts: Options, attr: str) -> str:
     finally:
         if tempdir:
             tempdir.cleanup()
-    return got
+
+    if got == "":
+        raise UpdateError(f"empty hash when trying to update {opts.attribute}.{attr}")
+    else:
+        return got
 
 
 def disable_check_meta(opts: Options) -> str:
