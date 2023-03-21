@@ -1,6 +1,7 @@
 { pkgs ? import <nixpkgs> { } }:
 {
   cargoLockExpand = pkgs.callPackage ./cargo-lock-expand { };
+  cargoLockUpdate = pkgs.callPackage ./cargo-lock-update { };
   crate = pkgs.callPackage ./crate.nix { };
   gitea = pkgs.callPackage ./gitea.nix { };
   github = pkgs.callPackage ./github.nix { };
