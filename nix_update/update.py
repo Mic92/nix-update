@@ -1,8 +1,14 @@
 import fileinput
+import json
+import re
+import shutil
 import subprocess
 import tempfile
+import tomllib
+from concurrent.futures import ThreadPoolExecutor
 from os import path
-from typing import Dict, Optional
+from pathlib import Path
+from typing import Dict, Optional, Tuple
 
 from .errors import UpdateError
 from .eval import Package, eval_attr
@@ -71,12 +77,16 @@ def replace_hash(filename: str, current: str, target: str) -> None:
                 print(line, end="")
 
 
-def nix_prefetch(opts: Options, attr: str) -> str:
-    expr = (
-        f'let flake = builtins.getFlake "{opts.import_path}"; in (flake.packages.${{builtins.currentSystem}}.{opts.attribute} or flake.{opts.attribute}).{attr}'
+def get_package(opts: Options) -> str:
+    return (
+        f'(let flake = builtins.getFlake "{opts.import_path}"; in flake.packages.${{builtins.currentSystem}}.{opts.attribute} or flake.{opts.attribute})'
         if opts.flake
-        else f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}.{attr}"
+        else f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}"
     )
+
+
+def nix_prefetch(opts: Options, attr: str) -> str:
+    expr = f"{get_package(opts)}.{attr}"
 
     extra_env: Dict[str, str] = {}
     tempdir: Optional[tempfile.TemporaryDirectory[str]] = None
@@ -116,6 +126,12 @@ def disable_check_meta(opts: Options) -> str:
     return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
 
 
+def git_prefetch(x: Tuple[str, Tuple[str, str]]) -> Tuple[str, str]:
+    key, (url, rev) = x
+    res = run(["nix-prefetch-git", url, rev, "--fetch-submodules"])
+    return key, to_sri(json.loads(res.stdout)["sha256"])
+
+
 def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "src")
     replace_hash(filename, current_hash, target_hash)
@@ -129,6 +145,81 @@ def update_go_modules_hash(opts: Options, filename: str, current_hash: str) -> N
 def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "cargoDeps")
     replace_hash(filename, current_hash, target_hash)
+
+
+def update_cargo_lock(opts: Options, filename: str, dst: str) -> None:
+    res = run(
+        [
+            "nix",
+            "build",
+            "--impure",
+            "--print-out-paths",
+            "--expr",
+            f'{get_package(opts)}.overrideAttrs (_: {{ prePatch = "cp -r . $out; exit"; outputs = [ "out" ]; }})',
+        ]
+        + opts.extra_flags,
+    )
+    src = Path(res.stdout.strip()) / "Cargo.lock"
+    if not src.is_file():
+        return
+
+    shutil.copyfile(src, dst)
+    hashes = {}
+    with open(dst, "rb") as f:
+        lock = tomllib.load(f)
+        regex = re.compile(r"git\+([^?]+)(\?(rev|tag|branch)=.*)?#(.*)")
+        git_deps = {}
+        for pkg in lock["package"]:
+            if source := pkg.get("source"):
+                if match := regex.fullmatch(source):
+                    git_deps[f"{pkg['name']}-{pkg['version']}"] = match[1], match[4]
+
+        for k, v in ThreadPoolExecutor().map(git_prefetch, git_deps.items()):
+            hashes[k] = v
+
+    with fileinput.FileInput(filename, inplace=True) as f:
+        short = re.compile(r"(\s*)cargoLock\.lockFile\s*=\s*(.+)\s*;\s*")
+        expanded = re.compile(r"(\s*)lockFile\s*=\s*(.+)\s*;\s*")
+
+        for line in f:
+            if match := short.fullmatch(line):
+                indent = match[1]
+                path = match[2]
+                print(f"{indent}cargoLock = {{")
+                print(f"{indent}  lockFile = {path};")
+                print_hashes(hashes, f"{indent}  ")
+                print(f"{indent}}};")
+                for line in f:
+                    print(line, end="")
+                return
+            elif match := expanded.fullmatch(line):
+                indent = match[1]
+                path = match[2]
+                print(line, end="")
+                print_hashes(hashes, indent)
+                brace = 0
+                for line in f:
+                    for c in line:
+                        if c == "{":
+                            brace -= 1
+                        if c == "}":
+                            brace += 1
+                        if brace == 1:
+                            print(line, end="")
+                            for line in f:
+                                print(line, end="")
+                            return
+            else:
+                print(line, end="")
+
+
+def print_hashes(hashes: Dict[str, str], indent: str) -> None:
+    if not hashes:
+        return
+    print(f"{indent}outputHashes = {{")
+    for k, v in hashes.items():
+        print(f'{indent}  "{k}" = "{v}";')
+    print(f"{indent}}};")
 
 
 def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
@@ -227,6 +318,9 @@ def update(opts: Options) -> Package:
 
         if package.cargo_deps:
             update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
+
+        if package.cargo_lock:
+            update_cargo_lock(opts, package.filename, package.cargo_lock)
 
         if package.npm_deps:
             update_npm_deps_hash(opts, package.filename, package.npm_deps)

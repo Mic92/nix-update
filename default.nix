@@ -4,13 +4,13 @@
 
 
 with pkgs;
-python3.pkgs.buildPythonApplication rec {
+python311.pkgs.buildPythonApplication rec {
   name = "nix-update";
   inherit src;
   buildInputs = [ makeWrapper ];
   nativeCheckInputs = [
-    python3.pkgs.pytest
-    python3.pkgs.black
+    python311.pkgs.pytest
+    python311.pkgs.black
     ruff
     glibcLocales
     mypy
@@ -28,7 +28,7 @@ python3.pkgs.buildPythonApplication rec {
   makeWrapperArgs = [
     "--prefix PATH"
     ":"
-    (lib.makeBinPath [ pkgs.nixVersions.stable or nix_2_4 nixpkgs-fmt nixpkgs-review ])
+    (lib.makeBinPath [ pkgs.nixVersions.stable or nix_2_4 nixpkgs-fmt nixpkgs-review nix-prefetch-git ])
   ];
   shellHook = ''
     # workaround because `python setup.py develop` breaks for me
