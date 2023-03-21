@@ -127,7 +127,7 @@ def disable_check_meta(opts: Options) -> str:
 
 
 def git_prefetch(x: Tuple[str, Tuple[str, str]]) -> Tuple[str, str]:
-    key, (url, rev) = x
+    rev, (key, url) = x
     res = run(["nix-prefetch-git", url, rev, "--fetch-submodules"])
     return key, to_sri(json.loads(res.stdout)["sha256"])
 
@@ -172,7 +172,9 @@ def update_cargo_lock(opts: Options, filename: str, dst: str) -> None:
         for pkg in lock["package"]:
             if source := pkg.get("source"):
                 if match := regex.fullmatch(source):
-                    git_deps[f"{pkg['name']}-{pkg['version']}"] = match[1], match[4]
+                    rev = match[4]
+                    if rev not in git_deps:
+                        git_deps[rev] = f"{pkg['name']}-{pkg['version']}", match[1]
 
         for k, v in ThreadPoolExecutor().map(git_prefetch, git_deps.items()):
             hashes[k] = v
