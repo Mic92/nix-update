@@ -27,7 +27,7 @@ def replace_version(package: Package) -> bool:
             for line in f:
                 if package.new_version.rev:
                     line = line.replace(package.rev, package.new_version.rev)
-                print(line.replace(old_version, new_version), end="")
+                print(line.replace(f'"{old_version}"', f'"{new_version}"'), end="")
     else:
         info(f"Not updating version, already {old_version}")
 
