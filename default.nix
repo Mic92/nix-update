@@ -14,8 +14,9 @@ python311.pkgs.buildPythonApplication rec {
     ruff
     glibcLocales
     mypy
-    # technically not a test input, but we need it for development in PATH
+    # technically not test inputs, but we need it for development in PATH
     pkgs.nixVersions.stable or nix_2_4
+    nix-prefetch-git
   ];
   checkPhase = ''
     echo -e "\x1b[32m## run black\x1b[0m"
