@@ -4,18 +4,19 @@
 
 
 with pkgs;
-python3.pkgs.buildPythonApplication rec {
+python311.pkgs.buildPythonApplication rec {
   name = "nix-update";
   inherit src;
   buildInputs = [ makeWrapper ];
   nativeCheckInputs = [
-    python3.pkgs.pytest
-    python3.pkgs.black
+    python311.pkgs.pytest
+    python311.pkgs.black
     ruff
     glibcLocales
     mypy
-    # technically not a test input, but we need it for development in PATH
+    # technically not test inputs, but we need it for development in PATH
     pkgs.nixVersions.stable or nix_2_4
+    nix-prefetch-git
   ];
   checkPhase = ''
     echo -e "\x1b[32m## run black\x1b[0m"
@@ -28,7 +29,7 @@ python3.pkgs.buildPythonApplication rec {
   makeWrapperArgs = [
     "--prefix PATH"
     ":"
-    (lib.makeBinPath [ pkgs.nixVersions.stable or nix_2_4 nixpkgs-fmt nixpkgs-review ])
+    (lib.makeBinPath [ pkgs.nixVersions.stable or nix_2_4 nixpkgs-fmt nixpkgs-review nix-prefetch-git ])
   ];
   shellHook = ''
     # workaround because `python setup.py develop` breaks for me
