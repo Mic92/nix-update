@@ -3,6 +3,7 @@ import json
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
@@ -90,6 +91,7 @@ def nix_prefetch(opts: Options, attr: str) -> str:
 
     extra_env: Dict[str, str] = {}
     tempdir: Optional[tempfile.TemporaryDirectory[str]] = None
+    stderr = ""
     if extra_env.get("XDG_RUNTIME_DIR") is None:
         tempdir = tempfile.TemporaryDirectory()
         extra_env["XDG_RUNTIME_DIR"] = tempdir.name
@@ -117,7 +119,10 @@ def nix_prefetch(opts: Options, attr: str) -> str:
             tempdir.cleanup()
 
     if got == "":
-        raise UpdateError(f"empty hash when trying to update {opts.attribute}.{attr}")
+        print(stderr, file=sys.stderr)
+        raise UpdateError(
+            f"failed to retrieve hash when trying to update {opts.attribute}.{attr}"
+        )
     else:
         return got
 
