@@ -9,10 +9,10 @@ import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from os import path
 from pathlib import Path
-from typing import Dict, Literal, Optional, Tuple
+from typing import Dict, Literal, Optional, Tuple, Union
 
 from .errors import UpdateError
-from .eval import Package, eval_attr
+from .eval import CargoLockInSource, CargoLockInStore, NoCargoLock, Package, eval_attr
 from .git import old_version_from_git
 from .options import Options
 from .utils import info, run
@@ -152,7 +152,7 @@ def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> N
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_cargo_lock(opts: Options, filename: str, dst: str | Literal[False]) -> None:
+def update_cargo_lock(opts: Options, filename: str, dst: Union[CargoLockInSource, CargoLockInStore]) -> None:
     res = run(
         [
             "nix",
@@ -178,8 +178,8 @@ def update_cargo_lock(opts: Options, filename: str, dst: str | Literal[False]) -
         return
 
     with open(src, "rb") as f:
-        if dst:
-            with open(dst, "wb") as fdst:
+        if isinstance(dst, CargoLockInSource):
+            with open(dst.path, "wb") as fdst:
                 shutil.copyfileobj(f, fdst)
                 f.seek(0)
 
@@ -339,7 +339,9 @@ def update(opts: Options) -> Package:
         if package.cargo_deps:
             update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
 
-        if package.cargo_lock is not None:
+        if isinstance(package.cargo_lock, CargoLockInSource) or isinstance(
+            package.cargo_lock, CargoLockInStore
+        ):
             update_cargo_lock(opts, package.filename, package.cargo_lock)
 
         if package.npm_deps:
