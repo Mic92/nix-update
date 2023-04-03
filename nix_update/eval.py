@@ -1,7 +1,8 @@
 import json
+import os
 from dataclasses import InitVar, dataclass, field
 from textwrap import dedent, indent
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 from urllib.parse import ParseResult, urlparse
 
 from .errors import UpdateError
@@ -33,7 +34,7 @@ class Package:
     vendor_hash: Optional[str]
     vendor_sha256: Optional[str]
     cargo_deps: Optional[str]
-    cargo_lock: Optional[str]
+    cargo_lock: Optional[str | Literal[False]]
     npm_deps: Optional[str]
     tests: List[str]
     has_update_script: bool
@@ -112,7 +113,13 @@ in {{
   cargo_deps = pkg.cargoDeps.outputHash or null;
   cargo_lock =
     if pkg ? cargoDeps.lockFile then
-      (sanitizePosition {{ file = pkg.cargoDeps.lockFile; }}).file
+      let
+        inherit (pkg.cargoDeps) lockFile;
+        res = builtins.tryEval (sanitizePosition {{
+          file = lockFile;
+        }});
+      in
+      if res.success then res.value.file else false
     else
       null;
   npm_deps = pkg.npmDeps.outputHash or null;
@@ -144,5 +151,9 @@ def eval_attr(opts: Options) -> Package:
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"
         )
+    if package.cargo_lock and not os.path.realpath(package.cargo_lock).startswith(
+        opts.import_path
+    ):
+        package.cargo_lock = False
 
     return package

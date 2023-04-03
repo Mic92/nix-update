@@ -9,7 +9,7 @@ import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from os import path
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Literal, Optional, Tuple
 
 from .errors import UpdateError
 from .eval import Package, eval_attr
@@ -152,7 +152,7 @@ def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> N
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_cargo_lock(opts: Options, filename: str, dst: str) -> None:
+def update_cargo_lock(opts: Options, filename: str, dst: str | Literal[False]) -> None:
     res = run(
         [
             "nix",
@@ -160,17 +160,30 @@ def update_cargo_lock(opts: Options, filename: str, dst: str) -> None:
             "--impure",
             "--print-out-paths",
             "--expr",
-            f'{get_package(opts)}.overrideAttrs (_: {{ prePatch = "cp -r . $out; exit"; outputs = [ "out" ]; }})',
+            f"""
+{get_package(opts)}.overrideAttrs (_: {{
+  cargoDeps = null;
+  postUnpack = ''
+    cp -r "$sourceRoot/Cargo.lock" $out
+    exit
+  '';
+  outputs = [ "out" ];
+}})
+""",
         ]
         + opts.extra_flags,
     )
-    src = Path(res.stdout.strip()) / "Cargo.lock"
+    src = Path(res.stdout.strip())
     if not src.is_file():
         return
 
-    shutil.copyfile(src, dst)
-    hashes = {}
-    with open(dst, "rb") as f:
+    with open(src, "rb") as f:
+        if dst:
+            with open(dst, "wb") as fdst:
+                shutil.copyfileobj(f, fdst)
+                f.seek(0)
+
+        hashes = {}
         lock = tomllib.load(f)
         regex = re.compile(r"git\+([^?]+)(\?(rev|tag|branch)=.*)?#(.*)")
         git_deps = {}
@@ -326,7 +339,7 @@ def update(opts: Options) -> Package:
         if package.cargo_deps:
             update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
 
-        if package.cargo_lock:
+        if package.cargo_lock is not None:
             update_cargo_lock(opts, package.filename, package.cargo_lock)
 
         if package.npm_deps:
