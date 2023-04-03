@@ -4,7 +4,7 @@ import sys
 import tempfile
 from typing import NoReturn, Optional
 
-from .eval import Package, eval_attr, CargoLockInSource
+from .eval import CargoLockInSource, Package, eval_attr
 from .options import Options
 from .update import update
 from .utils import run

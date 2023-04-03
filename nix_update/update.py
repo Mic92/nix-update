@@ -9,10 +9,10 @@ import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from os import path
 from pathlib import Path
-from typing import Dict, Literal, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 from .errors import UpdateError
-from .eval import CargoLockInSource, CargoLockInStore, NoCargoLock, Package, eval_attr
+from .eval import CargoLockInSource, CargoLockInStore, Package, eval_attr
 from .git import old_version_from_git
 from .options import Options
 from .utils import info, run
