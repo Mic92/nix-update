@@ -2,7 +2,7 @@ import json
 import os
 from dataclasses import InitVar, dataclass, field
 from textwrap import dedent, indent
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional
 from urllib.parse import ParseResult, urlparse
 
 from .errors import UpdateError
@@ -57,7 +57,7 @@ class Package:
     has_update_script: bool
 
     raw_version_position: InitVar[Optional[Dict[str, Any]]]
-    raw_cargo_lock: InitVar[Union[Literal[False], str, None]]
+    raw_cargo_lock: InitVar[Literal[False] | str | None]
 
     parsed_url: Optional[ParseResult] = None
     new_version: Optional[Version] = None
@@ -69,7 +69,7 @@ class Package:
         self,
         import_path: str,
         raw_version_position: Optional[Dict[str, Any]],
-        raw_cargo_lock: Union[Literal[False], str, None],
+        raw_cargo_lock: Literal[False] | str | None,
     ) -> None:
         url = self.url or (self.urls[0] if self.urls else None)
         if url:

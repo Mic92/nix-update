@@ -9,7 +9,7 @@ import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from os import path
 from pathlib import Path
-from typing import Dict, Literal, Optional, Tuple, Union
+from typing import Dict, Literal, Optional, Tuple
 
 from .errors import UpdateError
 from .eval import CargoLockInSource, CargoLockInStore, NoCargoLock, Package, eval_attr
@@ -152,7 +152,9 @@ def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> N
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_cargo_lock(opts: Options, filename: str, dst: Union[CargoLockInSource, CargoLockInStore]) -> None:
+def update_cargo_lock(
+    opts: Options, filename: str, dst: CargoLockInSource | CargoLockInStore
+) -> None:
     res = run(
         [
             "nix",

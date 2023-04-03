@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import IO, Any, Callable, Dict, List, Optional, Union
+from typing import IO, Any, Callable, Dict, List, Optional
 
 HAS_TTY = sys.stdout.isatty()
 ROOT = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -24,9 +24,9 @@ info = color_text(32)
 
 def run(
     command: List[str],
-    cwd: Optional[Union[Path, str]] = None,
-    stdout: Union[None, int, IO[Any]] = subprocess.PIPE,
-    stderr: Union[None, int, IO[Any]] = None,
+    cwd: Optional[Path | str] = None,
+    stdout: None | int | IO[Any] = subprocess.PIPE,
+    stderr: None | int | IO[Any] = None,
     check: bool = True,
     extra_env: Dict[str, str] = {},
 ) -> "subprocess.CompletedProcess[str]":
