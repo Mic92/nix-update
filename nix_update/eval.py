@@ -1,7 +1,8 @@
 import json
+import os
 from dataclasses import InitVar, dataclass, field
 from textwrap import dedent, indent
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Literal, Optional
 from urllib.parse import ParseResult, urlparse
 
 from .errors import UpdateError
@@ -17,9 +18,27 @@ class Position:
     column: int
 
 
+class CargoLock:
+    pass
+
+
+class NoCargoLock(CargoLock):
+    pass
+
+
+class CargoLockInSource(CargoLock):
+    def __init__(self, path: str) -> None:
+        self.path = path
+
+
+class CargoLockInStore(CargoLock):
+    pass
+
+
 @dataclass
 class Package:
     attribute: str
+    import_path: InitVar[str]
     name: str
     old_version: str
     filename: str
@@ -33,19 +52,25 @@ class Package:
     vendor_hash: Optional[str]
     vendor_sha256: Optional[str]
     cargo_deps: Optional[str]
-    cargo_lock: Optional[str]
     npm_deps: Optional[str]
     tests: List[str]
     has_update_script: bool
 
     raw_version_position: InitVar[Optional[Dict[str, Any]]]
+    raw_cargo_lock: InitVar[Literal[False] | str | None]
 
     parsed_url: Optional[ParseResult] = None
     new_version: Optional[Version] = None
     version_position: Optional[Position] = field(init=False)
+    cargo_lock: CargoLock = field(init=False)
     diff_url: Optional[str] = None
 
-    def __post_init__(self, raw_version_position: Optional[Dict[str, Any]]) -> None:
+    def __post_init__(
+        self,
+        import_path: str,
+        raw_version_position: Optional[Dict[str, Any]],
+        raw_cargo_lock: Literal[False] | str | None,
+    ) -> None:
         url = self.url or (self.urls[0] if self.urls else None)
         if url:
             self.parsed_url = urlparse(url)
@@ -53,6 +78,15 @@ class Package:
             self.version_position = None
         else:
             self.version_position = Position(**raw_version_position)
+            raw_cargo_lock
+        if raw_cargo_lock is None:
+            self.cargo_lock = NoCargoLock()
+        elif raw_cargo_lock is False:
+            self.cargo_lock = CargoLockInStore()
+        elif not os.path.realpath(raw_cargo_lock).startswith(import_path):
+            self.cargo_lock = CargoLockInStore()
+        else:
+            self.cargo_lock = CargoLockInSource(raw_cargo_lock)
 
 
 def eval_expression(
@@ -110,9 +144,15 @@ in {{
   vendor_hash = pkg.vendorHash or null;
   vendor_sha256 = pkg.vendorSha256 or null;
   cargo_deps = pkg.cargoDeps.outputHash or null;
-  cargo_lock =
+  raw_cargo_lock =
     if pkg ? cargoDeps.lockFile then
-      (sanitizePosition {{ file = pkg.cargoDeps.lockFile; }}).file
+      let
+        inherit (pkg.cargoDeps) lockFile;
+        res = builtins.tryEval (sanitizePosition {{
+          file = lockFile;
+        }});
+      in
+      if res.success then res.value.file else false
     else
       null;
   npm_deps = pkg.npmDeps.outputHash or null;
@@ -135,7 +175,7 @@ def eval_attr(opts: Options) -> Package:
     ] + opts.extra_flags
     res = run(cmd)
     out = json.loads(res.stdout)
-    package = Package(attribute=opts.attribute, **out)
+    package = Package(attribute=opts.attribute, import_path=opts.import_path, **out)
     if opts.override_filename is not None:
         package.filename = opts.override_filename
     if opts.url is not None:

@@ -39,8 +39,6 @@ def test_main(helpers: conftest.Helpers) -> None:
             check=True,
         ).stdout.strip()
         print(diff)
-        assert "Cargo.lock" in diff
-        assert '+source = "git+' in diff
         assert (
             "https://github.com/charliermarsh/ruff/compare/v0.0.254...v0.0.255" in diff
         )

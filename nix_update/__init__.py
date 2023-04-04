@@ -4,7 +4,7 @@ import sys
 import tempfile
 from typing import NoReturn, Optional
 
-from .eval import Package, eval_attr
+from .eval import CargoLockInSource, Package, eval_attr
 from .options import Options
 from .update import update
 from .utils import run
@@ -157,8 +157,8 @@ def git_commit(git_dir: str, package: Package) -> None:
     msg = format_commit_message(package)
     new_version = package.new_version
     cmd = ["git", "-C", git_dir, "add", package.filename]
-    if package.cargo_lock:
-        cmd.append(package.cargo_lock)
+    if isinstance(package.cargo_lock, CargoLockInSource):
+        cmd.append(package.cargo_lock.path)
     run(cmd, stdout=None)
     if new_version and package.old_version != new_version.number:
         run(

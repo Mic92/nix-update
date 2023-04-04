@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Dict, Optional, Tuple
 
 from .errors import UpdateError
-from .eval import Package, eval_attr
+from .eval import CargoLockInSource, CargoLockInStore, Package, eval_attr
 from .git import old_version_from_git
 from .options import Options
 from .utils import info, run
@@ -152,7 +152,9 @@ def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> N
     replace_hash(filename, current_hash, target_hash)
 
 
-def update_cargo_lock(opts: Options, filename: str, dst: str) -> None:
+def update_cargo_lock(
+    opts: Options, filename: str, dst: CargoLockInSource | CargoLockInStore
+) -> None:
     res = run(
         [
             "nix",
@@ -160,17 +162,30 @@ def update_cargo_lock(opts: Options, filename: str, dst: str) -> None:
             "--impure",
             "--print-out-paths",
             "--expr",
-            f'{get_package(opts)}.overrideAttrs (_: {{ prePatch = "cp -r . $out; exit"; outputs = [ "out" ]; }})',
+            f"""
+{get_package(opts)}.overrideAttrs (_: {{
+  cargoDeps = null;
+  postUnpack = ''
+    cp -r "$sourceRoot/Cargo.lock" $out
+    exit
+  '';
+  outputs = [ "out" ];
+}})
+""",
         ]
         + opts.extra_flags,
     )
-    src = Path(res.stdout.strip()) / "Cargo.lock"
+    src = Path(res.stdout.strip())
     if not src.is_file():
         return
 
-    shutil.copyfile(src, dst)
-    hashes = {}
-    with open(dst, "rb") as f:
+    with open(src, "rb") as f:
+        if isinstance(dst, CargoLockInSource):
+            with open(dst.path, "wb") as fdst:
+                shutil.copyfileobj(f, fdst)
+                f.seek(0)
+
+        hashes = {}
         lock = tomllib.load(f)
         regex = re.compile(r"git\+([^?]+)(\?(rev|tag|branch)=.*)?#(.*)")
         git_deps = {}
@@ -326,7 +341,9 @@ def update(opts: Options) -> Package:
         if package.cargo_deps:
             update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
 
-        if package.cargo_lock:
+        if isinstance(package.cargo_lock, CargoLockInSource) or isinstance(
+            package.cargo_lock, CargoLockInStore
+        ):
             update_cargo_lock(opts, package.filename, package.cargo_lock)
 
         if package.npm_deps:
