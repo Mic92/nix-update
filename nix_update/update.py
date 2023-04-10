@@ -332,11 +332,8 @@ def update(opts: Options) -> Package:
 
     # if no package.hash was provided we just update the other hashes unconditionally
     if update_hash or not package.hash:
-        if package.vendor_hash and package.vendor_sha256 == "_unset":
-            update_go_modules_hash(opts, package.filename, package.vendor_hash)
-
-        if package.vendor_sha256 and package.vendor_hash == "_unset":
-            update_go_modules_hash(opts, package.filename, package.vendor_sha256)
+        if package.go_modules:
+            update_go_modules_hash(opts, package.filename, package.go_modules)
 
         if package.cargo_deps:
             update_cargo_deps_hash(opts, package.filename, package.cargo_deps)

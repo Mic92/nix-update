@@ -49,8 +49,7 @@ class Package:
     changelog: Optional[str]
     rev: str
     hash: Optional[str]
-    vendor_hash: Optional[str]
-    vendor_sha256: Optional[str]
+    go_modules: Optional[str]
     cargo_deps: Optional[str]
     npm_deps: Optional[str]
     tests: List[str]
@@ -141,8 +140,7 @@ in {{
   url = pkg.src.url or null;
   rev = pkg.src.rev or null;
   hash = pkg.src.outputHash or null;
-  vendor_hash = pkg.vendorHash or null;
-  vendor_sha256 = pkg.vendorSha256 or null;
+  go_modules = pkg.go-modules.outputHash or null;
   cargo_deps = pkg.cargoDeps.outputHash or null;
   raw_cargo_lock =
     if pkg ? cargoDeps.lockFile then
