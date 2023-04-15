@@ -28,7 +28,11 @@ def replace_version(package: Package) -> bool:
     if new_version.startswith("v"):
         new_version = new_version[1:]
 
-    if old_version != new_version:
+    changed = old_version != new_version or (
+        package.new_version.rev is not None and package.new_version.rev != package.rev
+    )
+
+    if changed:
         info(f"Update {old_version} -> {new_version} in {package.filename}")
         with fileinput.FileInput(package.filename, inplace=True) as f:
             for line in f:
@@ -38,7 +42,7 @@ def replace_version(package: Package) -> bool:
     else:
         info(f"Not updating version, already {old_version}")
 
-    return old_version != new_version
+    return changed
 
 
 def to_sri(hashstr: str) -> str:
