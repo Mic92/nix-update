@@ -160,7 +160,10 @@ def git_commit(git_dir: str, package: Package) -> None:
     if isinstance(package.cargo_lock, CargoLockInSource):
         cmd.append(package.cargo_lock.path)
     run(cmd, stdout=None)
-    if new_version and package.old_version != new_version.number:
+    if new_version and (
+        package.old_version != new_version.number
+        or (new_version.rev and new_version.rev != package.rev)
+    ):
         run(
             ["git", "-C", git_dir, "commit", "--verbose", "--message", msg], stdout=None
         )
