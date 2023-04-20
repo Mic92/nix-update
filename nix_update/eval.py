@@ -102,7 +102,8 @@ def eval_expression(
           inherit (flake) outPath;
           outPathLen = stringLength outPath;
           sanitizePosition = {{ file, ... }}@pos:
-            assert substring 0 outPathLen file == outPath;
+            assert substring 0 outPathLen file != outPath
+              -> throw "${{file}} is not in ${{outPath}}";
             pos // {{ file = "{import_path}" + substring outPathLen (stringLength file - outPathLen) file; }};
         """
     else:
