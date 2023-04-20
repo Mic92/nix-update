@@ -77,7 +77,7 @@ class Package:
             self.version_position = None
         else:
             self.version_position = Position(**raw_version_position)
-            raw_cargo_lock
+
         if raw_cargo_lock is None:
             self.cargo_lock = NoCargoLock()
         elif raw_cargo_lock is False:
