@@ -23,5 +23,5 @@ def test_update(helpers: conftest.Helpers) -> None:
             ],
             text=True,
             stdout=subprocess.PIPE,
-        )
-        assert version.stdout.strip() > "10.8.6"
+        ).stdout.strip()
+        assert tuple(map(int, version.split("."))) > (10, 8, 6)

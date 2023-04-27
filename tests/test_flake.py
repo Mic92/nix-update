@@ -21,7 +21,7 @@ def test_main(helpers: conftest.Helpers) -> None:
             text=True,
             stdout=subprocess.PIPE,
         ).stdout.strip()
-        assert version >= "8.5.2"
+        assert tuple(map(int, version.split("."))) >= (8, 5, 2)
         commit = subprocess.run(
             ["git", "-C", path, "log", "-1"],
             text=True,

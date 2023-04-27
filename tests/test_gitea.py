@@ -23,7 +23,7 @@ def test_main(helpers: conftest.Helpers) -> None:
             text=True,
             stdout=subprocess.PIPE,
         ).stdout.strip()
-        assert version >= "30"
+        assert int(version) >= 30
         commit = subprocess.run(
             ["git", "-C", path, "log", "-1"],
             text=True,
