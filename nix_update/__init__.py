@@ -1,5 +1,6 @@
 import argparse
 import os
+import shutil
 import sys
 import tempfile
 from typing import NoReturn, Optional
@@ -231,9 +232,17 @@ def nix_run(options: Options) -> None:
     )
 
 
+def nix_build_tool() -> str:
+    "Return `nom` if found in $PATH"
+    if shutil.which("nom"):
+        return "nom"
+    else:
+        return "nix"
+
+
 def nix_build(options: Options) -> None:
     cmd = [
-        "nix",
+        nix_build_tool(),
         "build",
         "-L",
     ] + options.extra_flags
@@ -248,15 +257,13 @@ def nix_test(opts: Options, package: Package) -> None:
     if not package.tests:
         die(f"Package '{package.name}' does not define any tests")
 
+    cmd = [nix_build_tool(), "build", "-L"] + opts.extra_flags
+
     if opts.flake:
-        cmd = [
-            "nix",
-            "build",
-        ] + opts.extra_flags
         for t in package.tests:
             cmd.append(f"{opts.import_path}#{package.attribute}.tests.{t}")
     else:
-        cmd = ["nix-build"] + opts.extra_flags
+        cmd.extend(["-f", opts.import_path])
         for t in package.tests:
             cmd.append("-A")
             cmd.append(f"{package.attribute}.tests.{t}")
