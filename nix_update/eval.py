@@ -148,7 +148,7 @@ in {{
       let
         inherit (pkg.cargoDeps) lockFile;
         res = builtins.tryEval (sanitizePosition {{
-          file = lockFile;
+          file = toString lockFile;
         }});
       in
       if res.success then res.value.file else false
