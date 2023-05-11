@@ -1,6 +1,9 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
-  ]
+  "extends": ["config:base", ":dependencyDashboard"],
+  "nix": {
+    "enabled": true
+  },
+  "lockFileMaintenance": { "enabled": true }
 }
+
