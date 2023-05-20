@@ -5,25 +5,25 @@ designed to work with nixpkgs but also other package sets.
 
 ## Features
 
--   automatically figure out the latest version of packages from:
-    -   codeberg.org
-    -   crates.io
-    -   gitea.com
-    -   github.com
-    -   gitlab.com or other instances that uses fetchFromGitLab
-    -   notabug.org
-    -   pypi
-    -   rubygems.org
--   update buildRustPackage's cargoHash/cargoSha256 and cargoSetupHook's cargoDeps
--   update buildGoModule's vendorHash/vendorSha256
--   update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
--   update flake outputs (see `--flake`)
--   build and run the resulting package (see `--build`,
-    `--run` or `--shell`
--   commit updated files (see `--commit` flag)
--   run update scripts (`passthru.updateScript`, see `--use-update-script` flag)
--   run package tests (see `--test` flag)
--   specify the system to use (see `--system` flag)
+- automatically figure out the latest version of packages from:
+  - codeberg.org
+  - crates.io
+  - gitea.com
+  - github.com
+  - gitlab.com or other instances that uses fetchFromGitLab
+  - notabug.org
+  - pypi
+  - rubygems.org
+- update buildRustPackage's cargoHash/cargoSha256 and cargoSetupHook's cargoDeps
+- update buildGoModule's vendorHash/vendorSha256
+- update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
+- update flake outputs (see `--flake`)
+- build and run the resulting package (see `--build`,
+  `--run` or `--shell`
+- commit updated files (see `--commit` flag)
+- run update scripts (`passthru.updateScript`, see `--use-update-script` flag)
+- run package tests (see `--test` flag)
+- specify the system to use (see `--system` flag)
 
 ## Installation
 
@@ -114,7 +114,7 @@ $ nix-update jq --version-regex 'jq-(.*)'
 By default `nix-update` will locate the file that needs to be patched using the `src` attribute of a derivation.
 In some cases this heurestic is wrong. One can override the behavior like that:
 
-``` console
+```console
 $ nix-update hello --override-filename pkgs/applications/misc/hello/default.nix
 ```
 
@@ -126,8 +126,8 @@ from https://updates.signal.org/, but also publishes release information on its
 GitHub page. In such cases, use the `--url` parameter to direct nix-update to
 the correct repository:
 
-``` console
-nix-update --url https://github.com/signalapp/Signal-Desktop --override-filename pkgs/applications/networking/instant-messengers/signal-desktop/default.nix   signal-desktop 
+```console
+nix-update --url https://github.com/signalapp/Signal-Desktop --override-filename pkgs/applications/networking/instant-messengers/signal-desktop/default.nix   signal-desktop
 ```
 
 With the `--shell`, `--build`, `--test` and `--run` flags the update can be
@@ -135,7 +135,7 @@ tested. Additionally, the `--review` flag can be used to
 initiate a run of [nixpkgs-review](https://github.com/Mic92/nixpkgs-review), which will ensure all
 dependent packages can be built. In order to ensure consistent
 formatting, the `--format` flag will invoke
-[nixpkgs-fmt](<https://github.com/nix-community/nixpkgs-fmt>).
+[nixpkgs-fmt](https://github.com/nix-community/nixpkgs-fmt).
 
 ```console
 # Also runs nix-build
@@ -205,8 +205,8 @@ $ ~/git/nix-update/bin/nix-update --commit hello
 
 ## TODO
 
--   create pull requests
--   update unstable packages from git to latest master
+- create pull requests
+- update unstable packages from git to latest master
 
 ## Known Bugs
 
@@ -214,18 +214,18 @@ nix-update might not work correctly if a file contain multiple packages
 as it performs naive search and replace to update version numbers. This
 might be a problem if:
 
--   A file contains the same version string for multiple packages.
--   `name` is used instead of `pname` and/or `${version}` is injected into `name`.
+- A file contains the same version string for multiple packages.
+- `name` is used instead of `pname` and/or `${version}` is injected into `name`.
 
 Related discussions:
 
--   <https://github.com/repology/repology-updater/issues/854>
--   <https://github.com/NixOS/nixpkgs/issues/68531#issuecomment-533760929>
+- <https://github.com/repology/repology-updater/issues/854>
+- <https://github.com/NixOS/nixpkgs/issues/68531#issuecomment-533760929>
 
 ## Related projects:
 
--   [nixpkgs-update](https://github.com/ryantm/nixpkgs-update) is
-    optimized for mass-updates in nixpkgs while nix-update is better
-    suited for interactive usage that might require user-intervention
-    i.e. fixing the build and testing the result. nix-update is also not
-    limited to nixpkgs.
+- [nixpkgs-update](https://github.com/ryantm/nixpkgs-update) is
+  optimized for mass-updates in nixpkgs while nix-update is better
+  suited for interactive usage that might require user-intervention
+  i.e. fixing the build and testing the result. nix-update is also not
+  limited to nixpkgs.
