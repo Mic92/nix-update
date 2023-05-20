@@ -206,7 +206,6 @@ $ ~/git/nix-update/bin/nix-update --commit hello
 ## TODO
 
 - create pull requests
-- update unstable packages from git to latest master
 
 ## Known Bugs
 
