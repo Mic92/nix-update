@@ -1,22 +1,20 @@
 { pkgs ? import <nixpkgs> { }
-, src ? ./.
 }:
 
 
-with pkgs;
-python311.pkgs.buildPythonApplication rec {
+pkgs.python311.pkgs.buildPythonApplication {
   name = "nix-update";
-  inherit src;
-  buildInputs = [ makeWrapper ];
+  src = ./.;
+  buildInputs = [ pkgs.makeWrapper ];
   nativeCheckInputs = [
-    python311.pkgs.pytest
-    python311.pkgs.black
-    ruff
-    glibcLocales
-    mypy
+    pkgs.python311.pkgs.pytest
+    pkgs.python311.pkgs.black
+    pkgs.ruff
+    pkgs.glibcLocales
+    pkgs.mypy
     # technically not test inputs, but we need it for development in PATH
-    pkgs.nixVersions.stable or nix_2_4
-    nix-prefetch-git
+    pkgs.nixVersions.stable or pkgs.nix_2_4
+    pkgs.nix-prefetch-git
   ];
   checkPhase = ''
     echo -e "\x1b[32m## run black\x1b[0m"
@@ -29,11 +27,9 @@ python311.pkgs.buildPythonApplication rec {
   makeWrapperArgs = [
     "--prefix PATH"
     ":"
-    (lib.makeBinPath [ pkgs.nixVersions.stable or nix_2_4 nixpkgs-fmt nixpkgs-review nix-prefetch-git ])
+    (pkgs.lib.makeBinPath [ pkgs.nixVersions.stable or pkgs.nix_2_4 pkgs.nixpkgs-fmt pkgs.nixpkgs-review pkgs.nix-prefetch-git ])
   ];
   shellHook = ''
     # workaround because `python setup.py develop` breaks for me
   '';
-
-  passthru.env = buildEnv { inherit name; paths = buildInputs ++ checkInputs; };
 }
