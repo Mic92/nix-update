@@ -1,4 +1,4 @@
-{ inputs, ... }: {
+{ lib, inputs, ... }: {
   imports = [
     inputs.treefmt-nix.flakeModule
   ];
@@ -17,9 +17,9 @@
             "-eucx"
             ''
               # First deadnix
-              ${pkgs.lib.getExe pkgs.deadnix} --edit "$@"
+              ${lib.getExe pkgs.deadnix} --edit "$@"
               # Then nixpkgs-fmt
-              ${pkgs.lib.getExe pkgs.nixpkgs-fmt} "$@"
+              ${lib.getExe pkgs.nixpkgs-fmt} "$@"
             ''
             "--"
           ];
@@ -32,8 +32,8 @@
           options = [
             "-eucx"
             ''
-              ${pkgs.lib.getExe pkgs.ruff} --fix "$@"
-              ${pkgs.lib.getExe pkgs.python3.pkgs.black} "$@"
+              ${lib.getExe pkgs.ruff} --fix "$@"
+              ${lib.getExe pkgs.black} "$@"
             ''
             "--" # this argument is ignored by bash
           ];
