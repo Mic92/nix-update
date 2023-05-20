@@ -1,19 +1,22 @@
 {
   description = "Swiss-knife for updating nix packages.";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system: {
-      formatter = nixpkgs.legacyPackages.${system}.nixpkgs-fmt;
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+  };
 
-      packages = {
-        default = self.packages.${system}.nix-update;
-
-        nix-update = nixpkgs.legacyPackages.${system}.callPackage self {
-          src = self;
-        };
+  outputs = inputs @ { flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } ({ lib, ... }: {
+      imports = [ ./treefmt.nix ];
+      systems = lib.systems.flakeExposed;
+      perSystem = { config, pkgs, ... }: {
+        packages.nix-update = pkgs.callPackage ./. { };
+        packages.default = config.packages.nix-update;
       };
     });
 }
