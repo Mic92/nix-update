@@ -157,23 +157,25 @@ def format_commit_message(package: Package) -> str:
 def git_commit(git_dir: str, package: Package) -> None:
     msg = format_commit_message(package)
     new_version = package.new_version
-    cmd = ["git", "-C", git_dir, "add", package.filename]
+    files_changed = [package.filename]
     if isinstance(package.cargo_lock, CargoLockInSource):
-        cmd.append(package.cargo_lock.path)
-    run(cmd, stdout=None)
+        files_changed.append(package.cargo_lock.path)
     if new_version and (
         package.old_version != new_version.number
         or (new_version.rev and new_version.rev != package.rev)
     ):
         run(
-            ["git", "-C", git_dir, "commit", "--verbose", "--message", msg], stdout=None
+            ["git", "-C", git_dir, "commit", "--verbose", "--message", msg]
+            + files_changed,
+            stdout=None,
         )
     else:
         with tempfile.NamedTemporaryFile(mode="w") as f:
             f.write(msg)
             f.flush()
             run(
-                ["git", "-C", git_dir, "commit", "--verbose", "--template", f.name],
+                ["git", "-C", git_dir, "commit", "--verbose", "--template", f.name]
+                + files_changed,
                 stdout=None,
             )
 
@@ -206,11 +208,6 @@ def validate_git_dir(import_path: str) -> str:
     if git_dir is None:
         die(f"Could not find a git repository relative to {import_path}")
 
-    output = run(["git", "-C", git_dir, "diff", "--staged"])
-    if output.stdout != "":
-        die(
-            f"Please remove staged files before running {sys.argv[0]} with the commit flag"
-        )
     return git_dir
 
 
@@ -278,13 +275,6 @@ def nixpkgs_review() -> None:
     run(cmd, stdout=None)
 
 
-def nixpkgs_fmt(package: Package, git_dir: Optional[str]) -> None:
-    cmd = ["nixpkgs-fmt", package.filename]
-    run(cmd, stdout=None)
-    if git_dir is not None:
-        run(["git", "-C", git_dir, "add", package.filename], stdout=None)
-
-
 def main(args: list[str] = sys.argv[1:]) -> None:
     options = parse_args(args)
     if not os.path.exists(options.import_path):
@@ -324,7 +314,7 @@ def main(args: list[str] = sys.argv[1:]) -> None:
             nixpkgs_review()
 
     if options.format:
-        nixpkgs_fmt(package, git_dir)
+        run(["nixpkgs-fmt", package.filename], stdout=None)
 
     if options.commit:
         assert git_dir is not None
