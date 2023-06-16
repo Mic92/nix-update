@@ -167,10 +167,10 @@ def update_cargo_lock(
             "--print-out-paths",
             "--expr",
             f"""
-{get_package(opts)}.overrideAttrs (_: {{
+{get_package(opts)}.overrideAttrs (old: {{
   cargoDeps = null;
   postUnpack = ''
-    cp -r "$sourceRoot/Cargo.lock" $out
+    cp -r "$sourceRoot/${{old.cargoRoot or "."}}/Cargo.lock" $out
     exit
   '';
   outputs = [ "out" ];
