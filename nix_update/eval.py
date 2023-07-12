@@ -50,6 +50,7 @@ class Package:
     rev: str
     hash: Optional[str]
     go_modules: Optional[str]
+    go_modules_old: Optional[str]
     cargo_deps: Optional[str]
     npm_deps: Optional[str]
     tests: List[str]
@@ -141,7 +142,8 @@ in {{
   url = pkg.src.url or null;
   rev = pkg.src.rev or null;
   hash = pkg.src.outputHash or null;
-  go_modules = pkg.go-modules.outputHash or null;
+  go_modules = pkg.goModules.outputHash or null;
+  go_modules_old = pkg.go-modules.outputHash or null;
   cargo_deps = pkg.cargoDeps.outputHash or null;
   raw_cargo_lock =
     if pkg ? cargoDeps.lockFile then

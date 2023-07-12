@@ -147,6 +147,11 @@ def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
 
 
 def update_go_modules_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "goModules")
+    replace_hash(filename, current_hash, target_hash)
+
+
+def update_go_modules_hash_old(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "go-modules")
     replace_hash(filename, current_hash, target_hash)
 
@@ -343,6 +348,9 @@ def update(opts: Options) -> Package:
     if update_hash or not package.hash:
         if package.go_modules:
             update_go_modules_hash(opts, package.filename, package.go_modules)
+
+        if package.go_modules_old:
+            update_go_modules_hash_old(opts, package.filename, package.go_modules_old)
 
         if package.cargo_deps:
             update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
