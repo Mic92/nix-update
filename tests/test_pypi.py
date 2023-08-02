@@ -31,8 +31,7 @@ def test_main(helpers: conftest.Helpers) -> None:
             check=True,
         ).stdout.strip()
         print(commit)
-        assert version in commit
-        assert "pypi" in commit
+        assert f"pypi: 2.0.0 -> {version}" in commit
         assert (
             f"https://github.com/Mic92/python-mpd2/blob/{version}/doc/changes.rst"
             in commit
