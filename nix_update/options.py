@@ -29,4 +29,4 @@ class Options:
     extra_flags: List[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        self.attribute = json.dumps(self.attribute)
+        self.escaped_attribute = json.dumps(self.attribute)

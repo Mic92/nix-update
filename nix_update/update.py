@@ -84,9 +84,9 @@ def replace_hash(filename: str, current: str, target: str) -> None:
 
 def get_package(opts: Options) -> str:
     return (
-        f'(let flake = builtins.getFlake "{opts.import_path}"; in flake.packages.${{builtins.currentSystem}}.{opts.attribute} or flake.{opts.attribute})'
+        f'(let flake = builtins.getFlake "{opts.import_path}"; in flake.packages.${{builtins.currentSystem}}.{opts.escaped_attribute} or flake.{opts.escaped_attribute})'
         if opts.flake
-        else f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.attribute}"
+        else f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.escaped_attribute}"
     )
 
 

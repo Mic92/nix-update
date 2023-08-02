@@ -29,6 +29,5 @@ def test_main(helpers: conftest.Helpers) -> None:
             check=True,
         ).stdout.strip()
         print(commit)
-        assert version in commit
-        assert "crate" in commit
+        assert f"crate: 8.0.0 -> {version}" in commit
         assert "https://diff.rs/fd-find/8.0.0/" in commit

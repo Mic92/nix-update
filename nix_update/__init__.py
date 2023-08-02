@@ -125,7 +125,7 @@ def nix_shell(options: Options) -> None:
             check=False,
         )
     else:
-        expr = f"with import {options.import_path} {{}}; mkShell {{ buildInputs = [ {options.attribute} ]; }}"
+        expr = f"let pkgs = import {options.import_path} {{}}; in pkgs.mkShell {{ buildInputs = [ pkgs.{options.escaped_attribute} ]; }}"
         with tempfile.TemporaryDirectory() as d:
             path = os.path.join(d, "default.nix")
             with open(path, "w") as f:
