@@ -165,7 +165,9 @@ in {{
 
 
 def eval_attr(opts: Options) -> Package:
-    expr = eval_expression(opts.import_path, opts.attribute, opts.flake, opts.system)
+    expr = eval_expression(
+        opts.import_path, opts.escaped_attribute, opts.flake, opts.system
+    )
     cmd = [
         "nix",
         "eval",
