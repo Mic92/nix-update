@@ -1,3 +1,4 @@
+import json
 import os
 from dataclasses import dataclass, field
 from typing import List, Optional
@@ -26,3 +27,6 @@ class Options:
     format: bool = False
     system: Optional[str] = None
     extra_flags: List[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        self.attribute = json.dumps(self.attribute)
