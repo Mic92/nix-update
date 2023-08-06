@@ -12,7 +12,7 @@ def test_main(helpers: conftest.Helpers) -> None:
                 "--file",
                 str(path),
                 "--commit",
-                "cargoLockUpdate",
+                "cargoLock.update",
                 "--version",
                 "v0.0.255",
             ]
@@ -26,7 +26,7 @@ def test_main(helpers: conftest.Helpers) -> None:
                 "nix-command",
                 "-f",
                 path,
-                "cargoLockUpdate.cargoDeps",
+                "cargoLock.update.cargoDeps",
             ],
             check=True,
             text=True,

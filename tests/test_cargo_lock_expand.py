@@ -8,7 +8,7 @@ from nix_update import main
 def test_main(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
         main(
-            ["--file", str(path), "--commit", "cargoLockExpand", "--version", "v0.3.8"]
+            ["--file", str(path), "--commit", "cargoLock.expand", "--version", "v0.3.8"]
         )
         subprocess.run(
             [
@@ -19,7 +19,7 @@ def test_main(helpers: conftest.Helpers) -> None:
                 "nix-command",
                 "-f",
                 path,
-                "cargoLockExpand.cargoDeps",
+                "cargoLock.expand.cargoDeps",
             ],
             check=True,
             text=True,
@@ -32,6 +32,7 @@ def test_main(helpers: conftest.Helpers) -> None:
             check=True,
         ).stdout.strip()
         print(diff)
+        assert "cargoLock.expand: 0.3.7 -> 0.3.8"
         assert "Cargo.lock" in diff
         assert '+source = "git+' in diff
         assert "outputHashes" in diff
