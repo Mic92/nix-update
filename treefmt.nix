@@ -9,6 +9,7 @@
       projectRootFile = "flake.lock";
 
       programs.prettier.enable = true;
+      programs.mypy.enable = true;
 
       settings.formatter = {
         nix = {
