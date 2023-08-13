@@ -1,6 +1,6 @@
 import re
 from functools import partial
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Protocol
 from urllib.parse import ParseResult
 
 from ..errors import VersionError
@@ -23,6 +23,12 @@ from .version import Version, VersionPreference
 #                return repo["version"]
 #    return None
 
+
+class SnapshotFetcher(Protocol):
+    def __call__(self, url: ParseResult, branch: str) -> List[Version]:
+        ...
+
+
 fetchers: List[Callable[[ParseResult], List[Version]]] = [
     fetch_crate_versions,
     fetch_pypi_versions,
@@ -34,7 +40,7 @@ fetchers: List[Callable[[ParseResult], List[Version]]] = [
     fetch_sourcehut_versions,
 ]
 
-branch_snapshots_fetchers: List[Callable[[ParseResult, str], List[Version]]] = [
+branch_snapshots_fetchers: List[SnapshotFetcher] = [
     fetch_gitea_snapshots,
     fetch_github_snapshots,
     fetch_gitlab_snapshots,
