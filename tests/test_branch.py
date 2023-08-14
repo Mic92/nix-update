@@ -13,10 +13,12 @@ TEST_ROOT = Path(__file__).parent.resolve()
 
 
 def fake_urlopen(url: str) -> BinaryIO:
+    del url
     return open(TEST_ROOT.joinpath("test_branch.atom"), "rb")
 
 
 def test_branch(helpers: conftest.Helpers) -> None:
+    del helpers
     with unittest.mock.patch("urllib.request.urlopen", fake_urlopen):
         assert (
             fetch_latest_version(
