@@ -30,3 +30,4 @@ class Options:
 
     def __post_init__(self) -> None:
         self.escaped_attribute = ".".join(map(json.dumps, self.attribute.split(".")))
+        self.escaped_import_path = json.dumps(self.import_path)

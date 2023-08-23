@@ -84,9 +84,9 @@ def replace_hash(filename: str, current: str, target: str) -> None:
 
 def get_package(opts: Options) -> str:
     return (
-        f'(let flake = builtins.getFlake "{opts.import_path}"; in flake.packages.${{builtins.currentSystem}}.{opts.escaped_attribute} or flake.{opts.escaped_attribute})'
+        f"(let flake = builtins.getFlake {opts.escaped_import_path}; in flake.packages.${{builtins.currentSystem}}.{opts.escaped_attribute} or flake.{opts.escaped_attribute})"
         if opts.flake
-        else f"(import {opts.import_path} {disable_check_meta(opts)}).{opts.escaped_attribute}"
+        else f"(import {opts.escaped_import_path} {disable_check_meta(opts)}).{opts.escaped_attribute}"
     )
 
 
@@ -132,7 +132,7 @@ def nix_prefetch(opts: Options, attr: str) -> str:
 
 
 def disable_check_meta(opts: Options) -> str:
-    return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
+    return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.escaped_import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
 
 
 def git_prefetch(x: Tuple[str, Tuple[str, str]]) -> Tuple[str, str]:
