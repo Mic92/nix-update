@@ -9,7 +9,6 @@ import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from os import path
 from pathlib import Path
-from typing import Dict, Optional, Tuple
 
 from .errors import UpdateError
 from .eval import CargoLockInSource, CargoLockInStore, Package, eval_attr
@@ -93,8 +92,8 @@ def get_package(opts: Options) -> str:
 def nix_prefetch(opts: Options, attr: str) -> str:
     expr = f"{get_package(opts)}.{attr}"
 
-    extra_env: Dict[str, str] = {}
-    tempdir: Optional[tempfile.TemporaryDirectory[str]] = None
+    extra_env: dict[str, str] = {}
+    tempdir: tempfile.TemporaryDirectory[str] | None = None
     stderr = ""
     if extra_env.get("XDG_RUNTIME_DIR") is None:
         tempdir = tempfile.TemporaryDirectory()
@@ -135,7 +134,7 @@ def disable_check_meta(opts: Options) -> str:
     return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.escaped_import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
 
 
-def git_prefetch(x: Tuple[str, Tuple[str, str]]) -> Tuple[str, str]:
+def git_prefetch(x: tuple[str, tuple[str, str]]) -> tuple[str, str]:
     rev, (key, url) = x
     res = run(["nix-prefetch-git", url, rev, "--fetch-submodules"])
     return key, to_sri(json.loads(res.stdout)["sha256"])
@@ -244,7 +243,7 @@ def update_cargo_lock(
                 print(line, end="")
 
 
-def print_hashes(hashes: Dict[str, str], indent: str) -> None:
+def print_hashes(hashes: dict[str, str], indent: str) -> None:
     if not hashes:
         return
     print(f"{indent}outputHashes = {{")

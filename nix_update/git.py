@@ -1,12 +1,9 @@
 import re
-from typing import Optional
 
 from .utils import run
 
 
-def old_version_from_diff(
-    diff: str, linenumber: int, new_version: str
-) -> Optional[str]:
+def old_version_from_diff(diff: str, linenumber: int, new_version: str) -> str | None:
     current_line = 0
     old_str = None
     new_str = None
@@ -37,7 +34,7 @@ def old_version_from_diff(
 
 def old_version_from_git(
     filename: str, linenumber: int, new_version: str
-) -> Optional[str]:
+) -> str | None:
     proc = run(
         ["git", "diff", "--color=never", "--word-diff=porcelain", "--", filename],
     )

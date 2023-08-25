@@ -2,7 +2,7 @@
 target-version = "py311"
 line-length = 88
 
-select = ["E", "F", "I"]
+select = ["E", "F", "I", "U"]
 ignore = [ "E501" ]
 
 [tool.mypy]

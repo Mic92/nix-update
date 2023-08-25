@@ -1,12 +1,11 @@
 import json
-from typing import List
 from urllib.parse import ParseResult
 from urllib.request import urlopen
 
 from .version import Version
 
 
-def fetch_gitea_versions(url: ParseResult) -> List[Version]:
+def fetch_gitea_versions(url: ParseResult) -> list[Version]:
     if url.netloc not in ["codeberg.org", "gitea.com", "notabug.org"]:
         return []
 
@@ -17,7 +16,7 @@ def fetch_gitea_versions(url: ParseResult) -> List[Version]:
     return [Version(tag["name"]) for tag in tags]
 
 
-def fetch_gitea_snapshots(url: ParseResult, branch: str) -> List[Version]:
+def fetch_gitea_snapshots(url: ParseResult, branch: str) -> list[Version]:
     if url.netloc not in ["codeberg.org", "gitea.com", "notabug.org"]:
         return []
 

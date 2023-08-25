@@ -1,6 +1,7 @@
 import re
+from collections.abc import Callable
 from functools import partial
-from typing import Callable, List, Optional, Protocol
+from typing import Protocol
 from urllib.parse import ParseResult
 
 from ..errors import VersionError
@@ -25,11 +26,11 @@ from .version import Version, VersionPreference
 
 
 class SnapshotFetcher(Protocol):
-    def __call__(self, url: ParseResult, branch: str) -> List[Version]:
+    def __call__(self, url: ParseResult, branch: str) -> list[Version]:
         ...
 
 
-fetchers: List[Callable[[ParseResult], List[Version]]] = [
+fetchers: list[Callable[[ParseResult], list[Version]]] = [
     fetch_crate_versions,
     fetch_pypi_versions,
     fetch_gitea_versions,
@@ -40,14 +41,14 @@ fetchers: List[Callable[[ParseResult], List[Version]]] = [
     fetch_sourcehut_versions,
 ]
 
-branch_snapshots_fetchers: List[SnapshotFetcher] = [
+branch_snapshots_fetchers: list[SnapshotFetcher] = [
     fetch_gitea_snapshots,
     fetch_github_snapshots,
     fetch_gitlab_snapshots,
 ]
 
 
-def extract_version(version: Version, version_regex: str) -> Optional[Version]:
+def extract_version(version: Version, version_regex: str) -> Version | None:
     pattern = re.compile(version_regex)
     match = re.match(pattern, version.number)
     if match is not None:
@@ -73,12 +74,12 @@ def fetch_latest_version(
     url: ParseResult,
     preference: VersionPreference,
     version_regex: str,
-    branch: Optional[str] = None,
-    old_rev: Optional[str] = None,
+    branch: str | None = None,
+    old_rev: str | None = None,
     version_prefix: str = "",
 ) -> Version:
-    unstable: List[str] = []
-    filtered: List[str] = []
+    unstable: list[str] = []
+    filtered: list[str] = []
     used_fetchers = fetchers
     if preference == VersionPreference.BRANCH:
         used_fetchers = [partial(f, branch=branch) for f in branch_snapshots_fetchers]

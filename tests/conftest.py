@@ -3,9 +3,9 @@ import shutil
 import subprocess
 import sys
 import tempfile
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterator, Type
 
 import pytest
 
@@ -41,5 +41,5 @@ class Helpers:
 
 
 @pytest.fixture  # type: ignore
-def helpers() -> Type[Helpers]:
+def helpers() -> type[Helpers]:
     return Helpers

@@ -2,7 +2,7 @@ import json
 import os
 from dataclasses import InitVar, dataclass, field
 from textwrap import dedent, indent
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 from urllib.parse import ParseResult, urlparse
 
 from .errors import UpdateError
@@ -43,32 +43,32 @@ class Package:
     old_version: str
     filename: str
     line: int
-    urls: Optional[List[str]]
-    url: Optional[str]
-    src_homepage: Optional[str]
-    changelog: Optional[str]
+    urls: list[str] | None
+    url: str | None
+    src_homepage: str | None
+    changelog: str | None
     rev: str
-    hash: Optional[str]
-    go_modules: Optional[str]
-    go_modules_old: Optional[str]
-    cargo_deps: Optional[str]
-    npm_deps: Optional[str]
-    tests: List[str]
+    hash: str | None
+    go_modules: str | None
+    go_modules_old: str | None
+    cargo_deps: str | None
+    npm_deps: str | None
+    tests: list[str]
     has_update_script: bool
 
-    raw_version_position: InitVar[Optional[Dict[str, Any]]]
+    raw_version_position: InitVar[dict[str, Any] | None]
     raw_cargo_lock: InitVar[Literal[False] | str | None]
 
-    parsed_url: Optional[ParseResult] = None
-    new_version: Optional[Version] = None
-    version_position: Optional[Position] = field(init=False)
+    parsed_url: ParseResult | None = None
+    new_version: Version | None = None
+    version_position: Position | None = field(init=False)
     cargo_lock: CargoLock = field(init=False)
-    diff_url: Optional[str] = None
+    diff_url: str | None = None
 
     def __post_init__(
         self,
         import_path: str,
-        raw_version_position: Optional[Dict[str, Any]],
+        raw_version_position: dict[str, Any] | None,
         raw_cargo_lock: Literal[False] | str | None,
     ) -> None:
         url = self.url or (self.urls[0] if self.urls else None)
@@ -90,7 +90,7 @@ class Package:
 
 
 def eval_expression(
-    escaped_import_path: str, attr: str, flake: bool, system: Optional[str]
+    escaped_import_path: str, attr: str, flake: bool, system: str | None
 ) -> str:
     system = f'"{system}"' if system else "builtins.currentSystem"
 

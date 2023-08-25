@@ -2,7 +2,6 @@ import json
 import re
 import urllib.request
 from datetime import datetime
-from typing import List
 from urllib.parse import ParseResult, quote_plus
 
 from ..errors import VersionError
@@ -14,7 +13,7 @@ GITLAB_API = re.compile(
 )
 
 
-def fetch_gitlab_versions(url: ParseResult) -> List[Version]:
+def fetch_gitlab_versions(url: ParseResult) -> list[Version]:
     match = GITLAB_API.match(url.geturl())
     if not match:
         return []
@@ -42,7 +41,7 @@ def fetch_gitlab_versions(url: ParseResult) -> List[Version]:
     return releases
 
 
-def fetch_gitlab_snapshots(url: ParseResult, branch: str) -> List[Version]:
+def fetch_gitlab_snapshots(url: ParseResult, branch: str) -> list[Version]:
     match = GITLAB_API.match(url.geturl())
     if not match:
         return []
