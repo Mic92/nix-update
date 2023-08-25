@@ -3,7 +3,7 @@ import os
 import shutil
 import sys
 import tempfile
-from typing import NoReturn, Optional
+from typing import NoReturn
 
 from .eval import CargoLockInSource, Package, eval_attr
 from .options import Options
@@ -186,7 +186,7 @@ def write_commit_message(path: str, package: Package) -> None:
         f.write("\n")
 
 
-def find_git_root(path: str) -> Optional[str]:
+def find_git_root(path: str) -> str | None:
     prefix = [path]
     release_nix = [".git"]
     while True:

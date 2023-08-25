@@ -1,8 +1,9 @@
 import os
 import subprocess
 import sys
+from collections.abc import Callable
 from pathlib import Path
-from typing import IO, Any, Callable, Dict, List, Optional
+from typing import IO, Any
 
 HAS_TTY = sys.stdout.isatty()
 ROOT = Path(os.path.dirname(os.path.realpath(__file__)))
@@ -23,12 +24,12 @@ info = color_text(32)
 
 
 def run(
-    command: List[str],
-    cwd: Optional[Path | str] = None,
+    command: list[str],
+    cwd: Path | str | None = None,
     stdout: None | int | IO[Any] = subprocess.PIPE,
     stderr: None | int | IO[Any] = None,
     check: bool = True,
-    extra_env: Dict[str, str] = {},
+    extra_env: dict[str, str] = {},
 ) -> "subprocess.CompletedProcess[str]":
     info("$ " + " ".join(command))
     env = os.environ.copy()

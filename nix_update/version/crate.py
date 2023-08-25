@@ -1,13 +1,12 @@
 import json
 import urllib.request
-from typing import List
 from urllib.parse import ParseResult
 
 from ..utils import info
 from .version import Version
 
 
-def fetch_crate_versions(url: ParseResult) -> List[Version]:
+def fetch_crate_versions(url: ParseResult) -> list[Version]:
     if url.netloc != "crates.io":
         return []
     parts = url.path.split("/")

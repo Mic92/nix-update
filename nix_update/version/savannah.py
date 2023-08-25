@@ -1,7 +1,6 @@
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
-from typing import List, Optional
 from urllib.parse import ParseResult, urljoin, urlparse
 from xml.etree.ElementTree import Element
 
@@ -11,7 +10,7 @@ from .version import Version
 filename_regex = re.compile(r"-(\d+(?:\.\d+)*(?:-[^-.]+)?)\.tar\.[^.]+$")
 
 
-def version_from_link(a: Element, baseurl: str) -> Optional[Version]:
+def version_from_link(a: Element, baseurl: str) -> Version | None:
     try:
         href = a.attrib["href"]
     except KeyError:
@@ -23,7 +22,7 @@ def version_from_link(a: Element, baseurl: str) -> Optional[Version]:
     return Version(m[1])
 
 
-def fetch_savannah_versions(url: ParseResult) -> List[Version]:
+def fetch_savannah_versions(url: ParseResult) -> list[Version]:
     if url.scheme != "mirror" or url.netloc != "savannah":
         return []
     pname = url.path.split("/", 2)[1]

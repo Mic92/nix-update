@@ -1,6 +1,5 @@
 import urllib.request
 import xml.etree.ElementTree as ET
-from typing import List
 from urllib.parse import ParseResult, urlparse
 from xml.etree.ElementTree import Element
 
@@ -18,7 +17,7 @@ def version_from_entry(entry: Element) -> Version:
     return Version(url.path.split("/")[-1])
 
 
-def fetch_sourcehut_versions(url: ParseResult) -> List[Version]:
+def fetch_sourcehut_versions(url: ParseResult) -> list[Version]:
     if url.netloc != "git.sr.ht":
         return []
     parts = url.path.split("/")

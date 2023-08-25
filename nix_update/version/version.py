@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 from enum import Enum, auto
-from typing import Optional
 
 
 @dataclass
 class Version:
     number: str
-    prerelease: Optional[bool] = None
-    rev: Optional[str] = None
+    prerelease: bool | None = None
+    rev: str | None = None
 
 
 class VersionPreference(Enum):

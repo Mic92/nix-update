@@ -1,6 +1,5 @@
 import json
 import urllib.request
-from typing import List
 from urllib.parse import ParseResult
 
 from ..errors import VersionError
@@ -8,7 +7,7 @@ from ..utils import info
 from .version import Version
 
 
-def fetch_rubygem_versions(url: ParseResult) -> List[Version]:
+def fetch_rubygem_versions(url: ParseResult) -> list[Version]:
     if url.netloc != "rubygems.org":
         return []
     parts = url.path.split("/")
@@ -21,7 +20,7 @@ def fetch_rubygem_versions(url: ParseResult) -> List[Version]:
     if len(json_versions) == 0:
         raise VersionError("No versions found")
 
-    versions: List[Version] = []
+    versions: list[Version] = []
     for version in json_versions:
         number = version["number"]
         assert isinstance(number, str)

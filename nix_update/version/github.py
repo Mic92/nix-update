@@ -1,7 +1,6 @@
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
-from typing import List
 from urllib.parse import ParseResult, urlparse
 from xml.etree.ElementTree import Element
 
@@ -21,7 +20,7 @@ def version_from_entry(entry: Element) -> Version:
     return Version(url.path.split("/")[-1])
 
 
-def fetch_github_versions(url: ParseResult) -> List[Version]:
+def fetch_github_versions(url: ParseResult) -> list[Version]:
     if url.netloc != "github.com":
         return []
     parts = url.path.split("/")
@@ -36,7 +35,7 @@ def fetch_github_versions(url: ParseResult) -> List[Version]:
     return [version_from_entry(x) for x in releases]
 
 
-def fetch_github_snapshots(url: ParseResult, branch: str) -> List[Version]:
+def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
     if url.netloc != "github.com":
         return []
     parts = url.path.split("/")
