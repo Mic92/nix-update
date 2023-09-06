@@ -1,7 +1,7 @@
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
-from urllib.parse import ParseResult, urlparse
+from urllib.parse import ParseResult, unquote, urlparse
 from xml.etree.ElementTree import Element
 
 from ..errors import VersionError
@@ -17,7 +17,7 @@ def version_from_entry(entry: Element) -> Version:
     href = link.attrib["href"]
     url = urlparse(href)
     # TODO: set pre-release flag
-    return Version(url.path.split("/")[-1])
+    return Version(unquote(url.path.split("/")[-1]))
 
 
 def fetch_github_versions(url: ParseResult) -> list[Version]:
