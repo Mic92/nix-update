@@ -53,6 +53,7 @@ class Package:
     go_modules_old: str | None
     cargo_deps: str | None
     npm_deps: str | None
+    yarn_deps: str | None
     tests: list[str]
     has_update_script: bool
 
@@ -157,6 +158,7 @@ in {{
     else
       null;
   npm_deps = pkg.npmDeps.outputHash or null;
+  yarn_deps = pkg.offlineCache.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or {{}});
   has_update_script = {has_update_script};
   src_homepage = pkg.src.meta.homepage or null;
