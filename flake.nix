@@ -14,9 +14,16 @@
     flake-parts.lib.mkFlake { inherit inputs; } ({ lib, ... }: {
       imports = [ ./treefmt.nix ];
       systems = lib.systems.flakeExposed;
-      perSystem = { config, pkgs, ... }: {
+      perSystem = { config, pkgs, self', ... }: {
         packages.nix-update = pkgs.callPackage ./. { };
         packages.default = config.packages.nix-update;
+
+        checks =
+          let
+            packages = lib.mapAttrs' (n: lib.nameValuePair "package-${n}") self'.packages;
+            devShells = lib.mapAttrs' (n: lib.nameValuePair "devShell-${n}") self'.devShells;
+          in
+          packages // devShells;
       };
     });
 }
