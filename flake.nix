@@ -13,7 +13,14 @@
   outputs = inputs @ { flake-parts, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } ({ lib, ... }: {
       imports = [ ./treefmt.nix ];
-      systems = lib.systems.flakeExposed;
+      systems = [
+        "aarch64-linux"
+        "x86_64-linux"
+        "riscv64-linux"
+
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
       perSystem = { config, pkgs, self', ... }: {
         packages.nix-update = pkgs.callPackage ./. { };
         packages.default = config.packages.nix-update;
