@@ -12,7 +12,7 @@ pkgs.python311.pkgs.buildPythonApplication {
   nativeCheckInputs = [
     pkgs.python311.pkgs.pytest
     # technically not test inputs, but we need it for development in PATH
-    pkgs.nixVersions.stable or pkgs.nix_2_4
+    pkgs.nixVersions.stable
     pkgs.nix-prefetch-git
   ];
   checkPhase = ''
