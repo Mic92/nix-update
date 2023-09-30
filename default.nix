@@ -3,13 +3,16 @@
 
 
 pkgs.python311.pkgs.buildPythonApplication {
-  name = "nix-update";
+  pname = "nix-update";
+  version = "0.19.3";
   src = ./.;
+  format = "pyproject";
   buildInputs = [ pkgs.makeWrapper ];
+  nativeBuildInputs = [ pkgs.python311.pkgs.setuptools ];
   nativeCheckInputs = [
     pkgs.python311.pkgs.pytest
     # technically not test inputs, but we need it for development in PATH
-    pkgs.nixVersions.stable or pkgs.nix_2_4
+    pkgs.nixVersions.stable
     pkgs.nix-prefetch-git
   ];
   checkPhase = ''
