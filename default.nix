@@ -4,7 +4,7 @@
 
 pkgs.python311.pkgs.buildPythonApplication {
   pname = "nix-update";
-  version = "0.19.3";
+  version = "1.0.0";
   src = ./.;
   format = "pyproject";
   buildInputs = [ pkgs.makeWrapper ];
