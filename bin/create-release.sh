@@ -28,7 +28,7 @@ if [[ "$unpushed_commits" != "" ]]; then
   echo -e "\nThere are unpushed changes, exiting:\n$unpushed_commits" >&2
   exit 1
 fi
-sed -i -e "s!^version = \".*\"\$!version = \"${version}\"!" pyproject.toml default.nix
+sed -i -e "s!version = \".*\"\$!version = \"${version}\"!" pyproject.toml default.nix
 git add pyproject.toml default.nix
 nix flake check -vL
 nix develop -c pytest -s .
