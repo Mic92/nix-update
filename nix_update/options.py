@@ -8,6 +8,7 @@ from .version.version import VersionPreference
 @dataclass
 class Options:
     attribute: str
+    source_attribute: str = "src"
     flake: bool = False
     version: str = "stable"
     version_preference: VersionPreference = VersionPreference.STABLE
@@ -29,4 +30,7 @@ class Options:
 
     def __post_init__(self) -> None:
         self.escaped_attribute = ".".join(map(json.dumps, self.attribute.split(".")))
+        self.escaped_source_attribute = ".".join(
+            map(json.dumps, self.source_attribute.split("."))
+        )
         self.escaped_import_path = json.dumps(self.import_path)

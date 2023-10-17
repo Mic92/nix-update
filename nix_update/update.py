@@ -141,7 +141,7 @@ def git_prefetch(x: tuple[str, tuple[str, str]]) -> tuple[str, str]:
 
 
 def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
-    target_hash = nix_prefetch(opts, "src")
+    target_hash = nix_prefetch(opts, opts.source_attribute)
     replace_hash(filename, current_hash, target_hash)
 
 
