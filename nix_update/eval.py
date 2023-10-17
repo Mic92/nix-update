@@ -1,6 +1,7 @@
 import json
 import os
 from dataclasses import InitVar, dataclass, field
+from pprint import pprint
 from textwrap import dedent, indent
 from typing import Any, Literal
 from urllib.parse import ParseResult, urlparse
@@ -195,6 +196,7 @@ def eval_attr(opts: Options) -> Package:
     res = run(cmd)
     out = json.loads(res.stdout)
     package = Package(attribute=opts.attribute, import_path=opts.import_path, **out)
+    pprint(package)
     if opts.override_filename is not None:
         package.filename = opts.override_filename
     if opts.url is not None:
