@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from enum import Enum, auto
+from enum import StrEnum, auto
 
 
 @dataclass
@@ -9,7 +9,7 @@ class Version:
     rev: str | None = None
 
 
-class VersionPreference(Enum):
+class VersionPreference(StrEnum):
     STABLE = auto()
     UNSTABLE = auto()
     FIXED = auto()
