@@ -159,6 +159,10 @@ def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> N
     target_hash = nix_prefetch(opts, "cargoDeps")
     replace_hash(filename, current_hash, target_hash)
 
+def update_dart_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "dartDeps")
+    replace_hash(filename, current_hash, target_hash)
+
 
 def update_cargo_lock(
     opts: Options, filename: str, dst: CargoLockInSource | CargoLockInStore
@@ -363,6 +367,9 @@ def update(opts: Options) -> Package:
             package.cargo_lock, CargoLockInStore
         ):
             update_cargo_lock(opts, package.filename, package.cargo_lock)
+
+        if package.dart_deps:
+            update_dart_deps_hash(opts, package.filename, package.dart_deps)
 
         if package.npm_deps:
             update_npm_deps_hash(opts, package.filename, package.npm_deps)

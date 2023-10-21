@@ -16,6 +16,7 @@ designed to work with nixpkgs but also other package sets.
   - rubygems.org
 - update buildRustPackage's cargoHash/cargoSha256 and cargoSetupHook's cargoDeps
 - update buildGoModule's vendorHash/vendorSha256
+- update buildDartApplication's vendorHash
 - update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
 - update fetchYarnDeps offlineCache output hash
 - update flake outputs (see `--flake`)

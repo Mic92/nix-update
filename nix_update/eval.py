@@ -52,6 +52,7 @@ class Package:
     go_modules: str | None
     go_modules_old: str | None
     cargo_deps: str | None
+    dart_deps: str | None
     npm_deps: str | None
     yarn_deps: str | None
     tests: list[str]
@@ -146,6 +147,11 @@ in {{
   go_modules = pkg.goModules.outputHash or null;
   go_modules_old = pkg.go-modules.outputHash or null;
   cargo_deps = pkg.cargoDeps.outputHash or null;
+  dart_deps =
+    if pkg ? dartDeps then
+      pkg.vendorHash or null
+    else
+      null;
   raw_cargo_lock =
     if pkg ? cargoDeps.lockFile then
       let

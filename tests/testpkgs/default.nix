@@ -10,4 +10,5 @@
   sourcehut = pkgs.python3.pkgs.callPackage ./sourcehut.nix { };
   savanna = pkgs.python3.pkgs.callPackage ./savanna.nix { };
   npm = pkgs.callPackage ./npm.nix { };
+  dart = pkgs.callPackage ./dart { };
 }
