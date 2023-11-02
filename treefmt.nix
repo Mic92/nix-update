@@ -34,7 +34,7 @@
             "-eucx"
             ''
               ${lib.getExe pkgs.ruff} --fix "$@"
-              ${lib.getExe pkgs.black} "$@"
+              ${lib.getExe pkgs.ruff} format "$@"
             ''
             "--" # this argument is ignored by bash
           ];
