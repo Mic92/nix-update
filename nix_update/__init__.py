@@ -65,8 +65,11 @@ def parse_args(args: list[str]) -> Options:
         "--shell", action="store_true", help="provide a shell with the package"
     )
     parser.add_argument(
-        "--version", nargs="?", default=VersionPreference.STABLE,
-        help="Version to update to. Possible values are: " + ', '.join(VersionPreference),
+        "--version",
+        nargs="?",
+        default=VersionPreference.STABLE,
+        help="Version to update to. Possible values are: "
+        + ", ".join(VersionPreference),
     )
     parser.add_argument(
         "--override-filename",
@@ -85,7 +88,7 @@ def parse_args(args: list[str]) -> Options:
         "attribute",
         default=default_attribute,
         nargs="?" if default_attribute else None,  # type: ignore
-        help='''Attribute name within the file evaluated (defaults to environment variable "UPDATE_NIX_ATTR_PATH")''',
+        help="""Attribute name within the file evaluated (defaults to environment variable "UPDATE_NIX_ATTR_PATH")""",
     )
 
     a = parser.parse_args(args)
