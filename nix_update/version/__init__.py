@@ -5,6 +5,7 @@ from typing import Protocol
 from urllib.parse import ParseResult
 
 from ..errors import VersionError
+from .bitbucket import fetch_bitbucket_snapshots, fetch_bitbucket_versions
 from .crate import fetch_crate_versions
 from .gitea import fetch_gitea_snapshots, fetch_gitea_versions
 from .github import fetch_github_snapshots, fetch_github_versions
@@ -39,12 +40,14 @@ fetchers: list[Callable[[ParseResult], list[Version]]] = [
     fetch_rubygem_versions,
     fetch_savannah_versions,
     fetch_sourcehut_versions,
+    fetch_bitbucket_versions,
 ]
 
 branch_snapshots_fetchers: list[SnapshotFetcher] = [
     fetch_gitea_snapshots,
     fetch_github_snapshots,
     fetch_gitlab_snapshots,
+    fetch_bitbucket_snapshots,
 ]
 
 

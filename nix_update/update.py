@@ -314,6 +314,9 @@ def update_version(
             package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/compare/{package.rev}...{new_version.rev or new_version.number}"
         elif GITLAB_API.match(package.parsed_url.geturl()) and package.src_homepage:
             package.diff_url = f"{package.src_homepage}-/compare/{package.rev}...{new_version.rev or new_version.number}"
+        elif package.parsed_url.netloc in ["bitbucket.org", "bitbucket.io"]:
+            _, owner, repo, *_ = package.parsed_url.path.split("/")
+            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/branches/compare/{new_version.rev or new_version.number}%0D{package.rev}"
 
     return replace_version(package)
 
