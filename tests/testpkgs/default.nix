@@ -1,5 +1,7 @@
 { pkgs ? import <nixpkgs> { } }:
 {
+  bitbucket = pkgs.callPackage ./bitbucket.nix { isSnapshot = false; };
+  bitbucket-snapshot = pkgs.callPackage ./bitbucket.nix { isSnapshot = true; };
   cargoLock.expand = pkgs.callPackage ./cargo-lock-expand { };
   cargoLock.update = pkgs.callPackage ./cargo-lock-update { };
   crate = pkgs.callPackage ./crate.nix { };
