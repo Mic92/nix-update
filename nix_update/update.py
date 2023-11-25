@@ -78,6 +78,9 @@ def replace_hash(filename: str, current: str, target: str) -> None:
         with fileinput.FileInput(filename, inplace=True) as f:
             for line in f:
                 line = line.replace(current, normalized_hash)
+                # Also update hash attr name
+                line = re.sub(r"sha256\s*=\s*", r"hash = ", line)
+                line = re.sub(r"Sha256\s*=\s*", r"Hash = ", line)
                 print(line, end="")
 
 
