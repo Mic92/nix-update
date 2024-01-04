@@ -88,13 +88,23 @@ It is also possible to specify the version manually
 $ nix-update --version=2.1.1 nixpkgs-review
 ```
 
+To update an unstable package to the latest commit of the default branch:
+
+```console
+$ nix-update --version=branch nixpkgs-review
+```
+
+To update an unstable package the latest commit from a certain branch:
+
+```console
+$ nix-update --version=branch=develop nixpkgs-review
+```
+
 To only update sources hashes without updating the version:
 
 ```console
 $ nix-update --version=skip nixpkgs-review
 ```
-
-Setting `--version` to `branch` instead, will look for the latest commit.
 
 To extract version information from versions with prefixes or suffixes,
 a regex can be used
