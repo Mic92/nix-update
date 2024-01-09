@@ -12,6 +12,7 @@ class Options:
     version: str = "stable"
     version_preference: VersionPreference = VersionPreference.STABLE
     version_regex: str = "(.*)"
+    version_key: str = "version"
     import_path: str = os.getcwd()
     override_filename: str | None = None
     url: str | None = None

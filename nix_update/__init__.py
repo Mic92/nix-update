@@ -18,7 +18,9 @@ def die(msg: str) -> NoReturn:
 
 
 def parse_args(args: list[str]) -> Options:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
     help = "File to import rather than default.nix. Examples, ./release.nix"
     parser.add_argument("-f", "--file", default="./.", help=help)
     parser.add_argument(
@@ -55,6 +57,12 @@ def parse_args(args: list[str]) -> Options:
         "--version-regex",
         help="Regex to extract version with, i.e. 'jq-(.*)'",
         default="(.*)",
+    )
+    parser.add_argument(
+        "-vk",
+        "--version-key",
+        help="Key of attribute that holds the version",
+        default="version",
     )
     parser.add_argument(
         "--run",
@@ -107,6 +115,7 @@ def parse_args(args: list[str]) -> Options:
         attribute=a.attribute,
         test=a.test,
         version_regex=a.version_regex,
+        version_key=a.version_key,
         review=a.review,
         format=a.format,
         override_filename=a.override_filename,

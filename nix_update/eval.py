@@ -91,7 +91,11 @@ class Package:
 
 
 def eval_expression(
-    escaped_import_path: str, attr: str, flake: bool, system: str | None
+    escaped_import_path: str,
+    attr: str,
+    flake: bool,
+    version_key: str,
+    system: str | None,
 ) -> str:
     system = f'"{system}"' if system else "builtins.currentSystem"
 
@@ -135,7 +139,7 @@ let
     sanitizePosition (builtins.unsafeGetAttrPos "src" pkg);
 in {{
   name = pkg.name;
-  old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
+  old_version = pkg.{version_key} or (builtins.parseDrvName pkg.name).{version_key};
   inherit raw_version_position;
   filename = position.file;
   line = position.line;
@@ -168,7 +172,11 @@ in {{
 
 def eval_attr(opts: Options) -> Package:
     expr = eval_expression(
-        opts.escaped_import_path, opts.escaped_attribute, opts.flake, opts.system
+        opts.escaped_import_path,
+        opts.escaped_attribute,
+        opts.flake,
+        opts.version_key,
+        opts.system,
     )
     cmd = [
         "nix",
