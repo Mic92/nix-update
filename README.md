@@ -28,9 +28,7 @@ designed to work with nixpkgs but also other package sets.
 
 ## Installation
 
-`nix-update` is included in nixpkgs (unstable channel, right
-now) or [NUR](https://github.com/nix-community/NUR)
-(nur.repos.mic92.nix-update).
+`nix-update` is included in nixpkgs.
 
 To use it run without installing it, use:
 
