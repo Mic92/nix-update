@@ -4,7 +4,7 @@
   bitbucket-snapshot = pkgs.callPackage ./bitbucket.nix { isSnapshot = true; };
   cargoLock.expand = pkgs.callPackage ./cargo-lock-expand { };
   cargoLock.update = pkgs.callPackage ./cargo-lock-update { };
-  composer.update = pkgs.callPackage ./composer.nix { };
+  composer = pkgs.callPackage ./composer.nix { };
   crate = pkgs.callPackage ./crate.nix { };
   gitea = pkgs.callPackage ./gitea.nix { };
   github = pkgs.callPackage ./github.nix { };
