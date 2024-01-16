@@ -243,6 +243,11 @@ def update_cargo_lock(
                 print(line, end="")
 
 
+def update_composer_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "composerRepository")
+    replace_hash(filename, current_hash, target_hash)
+
+
 def print_hashes(hashes: dict[str, str], indent: str) -> None:
     if not hashes:
         return
@@ -366,6 +371,9 @@ def update(opts: Options) -> Package:
             package.cargo_lock, CargoLockInStore
         ):
             update_cargo_lock(opts, package.filename, package.cargo_lock)
+
+        if package.composer_deps:
+            update_composer_deps_hash(opts, package.filename, package.composer_deps)
 
         if package.npm_deps:
             update_npm_deps_hash(opts, package.filename, package.npm_deps)

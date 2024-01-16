@@ -17,6 +17,7 @@ designed to work with nixpkgs but also other package sets.
 - update buildRustPackage's cargoHash/cargoSha256 and cargoSetupHook's cargoDeps
 - update buildGoModule's vendorHash/vendorSha256
 - update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
+- update buildComposerProject's vendorHash
 - update fetchYarnDeps offlineCache output hash
 - update flake outputs (see `--flake`)
 - build and run the resulting package (see `--build`,

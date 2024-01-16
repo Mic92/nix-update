@@ -54,6 +54,7 @@ class Package:
     cargo_deps: str | None
     npm_deps: str | None
     yarn_deps: str | None
+    composer_deps: str | None
     tests: list[str]
     has_update_script: bool
 
@@ -157,6 +158,7 @@ in {{
       if res.success then res.value.file else false
     else
       null;
+  composer_deps = pkg.composerRepository.outputHash or null;
   npm_deps = pkg.npmDeps.outputHash or null;
   yarn_deps = pkg.offlineCache.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or {{}});
