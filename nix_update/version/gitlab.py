@@ -30,7 +30,7 @@ def fetch_gitlab_versions(url: ParseResult) -> list[Version]:
     for tag in json_tags:
         name = tag["name"]
         assert isinstance(name, str)
-        if tag["release"]:
+        if tag.get("release"):
             # TODO: has gitlab preleases?
             releases.append(Version(name))
         else:
