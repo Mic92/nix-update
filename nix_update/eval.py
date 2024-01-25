@@ -47,6 +47,7 @@ class Package:
     url: str | None
     src_homepage: str | None
     changelog: str | None
+    maintainers: list[dict[str, str]] | None
     rev: str
     hash: str | None
     go_modules: str | None
@@ -165,6 +166,7 @@ in {{
   has_update_script = {has_update_script};
   src_homepage = pkg.src.meta.homepage or null;
   changelog = pkg.meta.changelog or null;
+  maintainers = pkg.meta.maintainers or null;
 }}"""
 
 

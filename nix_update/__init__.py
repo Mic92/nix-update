@@ -290,6 +290,14 @@ def main(args: list[str] = sys.argv[1:]) -> None:
 
     package = update(options)
 
+    if package.maintainers:
+        print("Package maintainers:")
+        for maintainer in package.maintainers:
+            print(
+                f"  - {maintainer['name']}"
+                + (f" (@{maintainer['github']})" if "github" in maintainer else "")
+            )
+
     if options.build:
         nix_build(options)
 
