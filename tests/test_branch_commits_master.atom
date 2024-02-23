@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
+  <id>tag:github.com,2008:/Mic92/nix-update/commits/master</id>
+  <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commits/master"/>
+  <link type="application/atom+xml" rel="self" href="https://github.com/Mic92/nix-update/commits/master.atom"/>
+  <title>Recent Commits to nix-update:master</title>
+  <updated>2024-02-19T14:47:50Z</updated>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/37e9b32f335b8bfafd764f49de573141f85d3416</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/37e9b32f335b8bfafd764f49de573141f85d3416"/>
+    <title>
+        bump version 1.2.0
+    </title>
+    <updated>2024-02-19T14:47:50Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;bump version 1.2.0&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/a566b9bdb17bc394cbbefdd274b54432edec6d3f</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/a566b9bdb17bc394cbbefdd274b54432edec6d3f"/>
+    <title>
+        print maintainers list
+    </title>
+    <updated>2024-01-25T10:38:41Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/33058747?s=30&amp;v=4"/>
+    <author>
+      <name>GaetanLepage</name>
+      <uri>https://github.com/GaetanLepage</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;print maintainers list&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/6e4ee6941a8f8b3ae636fc62da06f9314e46d3d3</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/6e4ee6941a8f8b3ae636fc62da06f9314e46d3d3"/>
+    <title>
+        make gitlab updater work by tag when releases are disabled
+    </title>
+    <updated>2024-01-17T14:56:30Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/298109?s=30&amp;v=4"/>
+    <author>
+      <name>lilyinstarlight</name>
+      <uri>https://github.com/lilyinstarlight</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;make gitlab updater work by tag when releases are disabled&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/ae70579d8d6736009387d8d76869c7193a08d813</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/ae70579d8d6736009387d8d76869c7193a08d813"/>
+    <title>
+        bump version 1.1.0
+    </title>
+    <updated>2024-01-16T11:35:20Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;bump version 1.1.0&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/da997c87c73f05eddc2aec3335d4a557a8dd2ca6</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/da997c87c73f05eddc2aec3335d4a557a8dd2ca6"/>
+    <title>
+        create-release: make sed regex more strict
+    </title>
+    <updated>2024-01-16T10:25:52Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;create-release: make sed regex more strict&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/36ffca82d29b04bf285baf65ece4d11ddac42594</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/36ffca82d29b04bf285baf65ece4d11ddac42594"/>
+    <title>
+        Merge pull request #217 from Mic92/composer-support
+    </title>
+    <updated>2024-01-16T10:12:47Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;Merge pull request #217 from Mic92/composer-support
+
+Add support for updating buildComposerProject&amp;#39;s vendorHash&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/0a30179f00f5a1a6c8422281b9580138b6f83074</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/0a30179f00f5a1a6c8422281b9580138b6f83074"/>
+    <title>
+        Add support for updating buildComposerProject&#39;s vendorHash
+    </title>
+    <updated>2024-01-16T10:06:16Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/498465?s=30&amp;v=4"/>
+    <author>
+      <name>gaelreyrol</name>
+      <uri>https://github.com/gaelreyrol</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;Add support for updating buildComposerProject&amp;#39;s vendorHash
+
+Update tests/testpkgs/default.nix&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/b80494da434277508fa968e6f1628d139b002c8f</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/b80494da434277508fa968e6f1628d139b002c8f"/>
+    <title>
+        Update README.md to precise that software is available in latest stab…
+    </title>
+    <updated>2024-01-15T09:59:58Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;Update README.md to precise that software is available in latest stable channel (23.11 as of today) (#215)
+Update README.md
+
+Update the README to precise that the software is also in the latest stable channel, currently 23.11, shows that it has version 1.0.0 of nix-update (https://search.nixos.org/packages?channel=23.11&amp;amp;show=nix-update&amp;amp;from=0&amp;amp;size=50&amp;amp;sort=relevance&amp;amp;type=packages&amp;amp;query=nix-update)
+
+* Update README.md
+
+* Update README.md&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/50640aa288176dbc96346edeb8806dd44293d3e7</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/50640aa288176dbc96346edeb8806dd44293d3e7"/>
+    <title>
+        Bump cachix/install-nix-action from 24 to 25
+    </title>
+    <updated>2024-01-15T06:33:58Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/29110?s=30&amp;v=4"/>
+    <author>
+      <name>dependabot</name>
+      <uri>https://github.com/dependabot</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;Bump cachix/install-nix-action from 24 to 25
+
+Bumps [cachix/install-nix-action](https://github.com/cachix/install-nix-action) from 24 to 25.
+- [Release notes](https://github.com/cachix/install-nix-action/releases)
+- [Commits](https://github.com/cachix/install-nix-action/compare/v24...v25)
+
+---
+updated-dependencies:
+- dependency-name: cachix/install-nix-action
+  dependency-type: direct:production
+  update-type: version-update:semver-major
+...
+
+Signed-off-by: dependabot[bot] &amp;lt;support@github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/4c763a7cf3770d043ef0351a40726b0f65c35eac</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/4c763a7cf3770d043ef0351a40726b0f65c35eac"/>
+    <title>
+        README: document `--version=branch` option in more depth
+    </title>
+    <updated>2024-01-04T08:26:43Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/18599032?s=30&amp;v=4"/>
+    <author>
+      <name>Atemu</name>
+      <uri>https://github.com/Atemu</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;README: document `--version=branch` option in more depth&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/dcdf594417903919c827a91178eac0c1f56feca5</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/dcdf594417903919c827a91178eac0c1f56feca5"/>
+    <title>
+        Bump cachix/install-nix-action from 23 to 24
+    </title>
+    <updated>2023-12-04T06:08:06Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/in/29110?s=30&amp;v=4"/>
+    <author>
+      <name>dependabot</name>
+      <uri>https://github.com/dependabot</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;Bump cachix/install-nix-action from 23 to 24
+
+Bumps [cachix/install-nix-action](https://github.com/cachix/install-nix-action) from 23 to 24.
+- [Release notes](https://github.com/cachix/install-nix-action/releases)
+- [Commits](https://github.com/cachix/install-nix-action/compare/v23...v24)
+
+---
+updated-dependencies:
+- dependency-name: cachix/install-nix-action
+  dependency-type: direct:production
+  update-type: version-update:semver-major
+...
+
+Signed-off-by: dependabot[bot] &amp;lt;support@github.com&amp;gt;&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/76c4e79c2c500e03c19abf2beb0d8b18134cf977</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/76c4e79c2c500e03c19abf2beb0d8b18134cf977"/>
+    <title>
+        bitbucket.org integration tests
+    </title>
+    <updated>2023-11-22T19:13:43Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/4167946?s=30&amp;v=4"/>
+    <author>
+      <name>EBADBEEF</name>
+      <uri>https://github.com/EBADBEEF</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;bitbucket.org integration tests&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/a10f7c047f243a4c2076261187967246388f91ac</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/a10f7c047f243a4c2076261187967246388f91ac"/>
+    <title>
+        bitbucket.org support for versions and snapshots
+    </title>
+    <updated>2023-11-22T19:13:43Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/4167946?s=30&amp;v=4"/>
+    <author>
+      <name>EBADBEEF</name>
+      <uri>https://github.com/EBADBEEF</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;bitbucket.org support for versions and snapshots&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/f6f45655e7b09c9f9155d4aac1d41eab37392c28</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/f6f45655e7b09c9f9155d4aac1d41eab37392c28"/>
+    <title>
+        README: drop comment about black formatter
+    </title>
+    <updated>2023-11-08T07:58:55Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;README: drop comment about black formatter&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/47945865f6683351c15842ed7efa990d21b975dd</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/47945865f6683351c15842ed7efa990d21b975dd"/>
+    <title>
+        flake.lock: Update
+    </title>
+    <updated>2023-11-08T07:58:55Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;flake.lock: Update
+
+Flake lock file updates:
+
+• Updated input &amp;#39;nixpkgs&amp;#39;:
+    &amp;#39;github:NixOS/nixpkgs/c082856b850ec60cda9f0a0db2bc7bd8900d708c&amp;#39; (2023-11-02)
+  → &amp;#39;github:NixOS/nixpkgs/ec750fd01963ab6b20ee1f0cb488754e8036d89d&amp;#39; (2023-11-07)&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/d945764f13d207ba2610d53ae2f3c7802ab8ab09</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/d945764f13d207ba2610d53ae2f3c7802ab8ab09"/>
+    <title>
+        nix fmt
+    </title>
+    <updated>2023-11-08T07:58:55Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;nix fmt&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/6f21bf4db4256cb9d913cda8f987b138718e261c</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/6f21bf4db4256cb9d913cda8f987b138718e261c"/>
+    <title>
+        improve --help output, notably &#39;--version&#39; possibilities
+    </title>
+    <updated>2023-11-08T07:58:55Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/886074?s=30&amp;v=4"/>
+    <author>
+      <name>teto</name>
+      <uri>https://github.com/teto</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;improve --help output, notably &amp;#39;--version&amp;#39; possibilities&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/c690b76213ca791b53c55a8f6abc18bcc0049e04</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/c690b76213ca791b53c55a8f6abc18bcc0049e04"/>
+    <title>
+        switch to ruff for formatting
+    </title>
+    <updated>2023-11-02T09:26:15Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;switch to ruff for formatting&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/5e679528f6a181a163b7a177ce49fd9232709592</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/5e679528f6a181a163b7a177ce49fd9232709592"/>
+    <title>
+        flake.lock: Update
+    </title>
+    <updated>2023-11-02T09:26:15Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;flake.lock: Update
+
+Flake lock file updates:
+
+• Updated input &amp;#39;flake-parts&amp;#39;:
+    &amp;#39;github:hercules-ci/flake-parts/7f53fdb7bdc5bb237da7fefef12d099e4fd611ca&amp;#39; (2023-09-01)
+  → &amp;#39;github:hercules-ci/flake-parts/8c9fa2545007b49a5db5f650ae91f227672c3877&amp;#39; (2023-11-01)
+• Updated input &amp;#39;nixpkgs&amp;#39;:
+    &amp;#39;github:NixOS/nixpkgs/517501bcf14ae6ec47efd6a17dda0ca8e6d866f9&amp;#39; (2023-09-27)
+  → &amp;#39;github:NixOS/nixpkgs/c082856b850ec60cda9f0a0db2bc7bd8900d708c&amp;#39; (2023-11-02)
+• Updated input &amp;#39;treefmt-nix&amp;#39;:
+    &amp;#39;github:numtide/treefmt-nix/720bd006d855b08e60664e4683ccddb7a9ff614a&amp;#39; (2023-09-27)
+  → &amp;#39;github:numtide/treefmt-nix/5deb8dc125a9f83b65ca86cf0c8167c46593e0b1&amp;#39; (2023-10-27)&lt;/pre&gt;
+    </content>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Grit::Commit/957b6c4dacdc748f7c2867e26bc861903eeea70d</id>
+    <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/957b6c4dacdc748f7c2867e26bc861903eeea70d"/>
+    <title>
+        nix-update: publish to flakestry
+    </title>
+    <updated>2023-10-24T16:10:39Z</updated>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
+    <author>
+      <name>Mic92</name>
+      <uri>https://github.com/Mic92</uri>
+    </author>
+    <content type="html">
+      &lt;pre style=&#39;white-space:pre-wrap;width:81ex&#39;&gt;nix-update: publish to flakestry&lt;/pre&gt;
+    </content>
+  </entry>
+</feed>

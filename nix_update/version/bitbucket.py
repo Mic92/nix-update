@@ -26,5 +26,9 @@ def fetch_bitbucket_snapshots(url: ParseResult, branch: str) -> list[Version]:
     commits_url = f'https://{url.netloc}/!api/2.0/repositories/{owner}/{repo}/refs?q=name="{branch}"'
     resp = urlopen(commits_url)
     ref = json.loads(resp.read())["values"][0]["target"]
+
+    versions = fetch_bitbucket_versions(url)
+    latest_version = versions[0].number if versions else "0"
+
     date = ref["date"][:10]  # to YYYY-MM-DD
-    return [Version(f"unstable-{date}", rev=ref["hash"])]
+    return [Version(f"{latest_version}-unstable-{date}", rev=ref["hash"])]

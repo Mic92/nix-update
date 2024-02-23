@@ -29,5 +29,8 @@ def fetch_gitea_snapshots(url: ParseResult, branch: str) -> list[Version]:
     if commit is None:
         return []
 
+    versions = fetch_gitea_versions(url)
+    latest_version = versions[0].number if versions else "0"
+
     date = commit["commit"]["committer"]["date"][:10]
-    return [Version(f"unstable-{date}", rev=commit["sha"])]
+    return [Version(f"{latest_version}-unstable-{date}", rev=commit["sha"])]
