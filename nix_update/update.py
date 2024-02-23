@@ -178,6 +178,7 @@ def update_cargo_lock(
     exit
   '';
   outputs = [ "out" ];
+  separateDebugInfo = false;
 }})
 """,
         ]
