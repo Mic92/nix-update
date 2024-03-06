@@ -73,7 +73,8 @@ $ nix-update attribute --flake [--version version]
 
 `nix-update` will than try to update either the
 `packages.{currentSystem}.{attribute}` or `{attribute}` output attribute of the
-given flake.
+given flake. To update a package in `legacyPackages`, pass the full path to that
+package including the platform: `legacyPackages.{platform}.{attribute}`.
 
 This example will fetch the latest github release:
 
