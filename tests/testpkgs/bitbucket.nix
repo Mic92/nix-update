@@ -10,7 +10,7 @@ let
   # commit.
   version =
     if (isSnapshot)
-    then "unstable-2022-10-01"
+    then "0.16-unstable-2022-10-01"
     else "1.0";
   rev =
     if (isSnapshot)

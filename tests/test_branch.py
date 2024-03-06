@@ -13,8 +13,10 @@ TEST_ROOT = Path(__file__).parent.resolve()
 
 
 def fake_urlopen(url: str) -> BinaryIO:
-    del url
-    return open(TEST_ROOT.joinpath("test_branch.atom"), "rb")
+    if url.endswith("releases.atom"):
+        return open(TEST_ROOT.joinpath("test_branch_releases.atom"), "rb")
+    else:
+        return open(TEST_ROOT.joinpath("test_branch_commits_master.atom"), "rb")
 
 
 def test_branch(helpers: conftest.Helpers) -> None:
@@ -27,5 +29,5 @@ def test_branch(helpers: conftest.Helpers) -> None:
                 "(.*)",
                 "master",
             ).number
-            == "unstable-2021-12-13"
+            == "1.2.0-unstable-2024-02-19"
         )

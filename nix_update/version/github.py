@@ -47,6 +47,9 @@ def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
     tree = ET.fromstring(resp.read())
     commits = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
 
+    versions = fetch_github_versions(url)
+    latest_version = versions[0].number if versions else "0"
+
     for entry in commits:
         link = entry.find("{http://www.w3.org/2005/Atom}link")
         updated = entry.find("{http://www.w3.org/2005/Atom}updated")
@@ -56,6 +59,6 @@ def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
         url = urlparse(link.attrib["href"])
         commit = url.path.rsplit("/", maxsplit=1)[-1]
         date = updated.text.split("T", maxsplit=1)[0]
-        return [Version(f"unstable-{date}", rev=commit)]
+        return [Version(f"{latest_version}-unstable-{date}", rev=commit)]
 
     return []
