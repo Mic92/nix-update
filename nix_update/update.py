@@ -163,14 +163,17 @@ def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> N
 def update_cargo_lock(
     opts: Options, filename: str, dst: CargoLockInSource | CargoLockInStore
 ) -> None:
-    res = run(
-        [
-            "nix",
-            "build",
-            "--impure",
-            "--print-out-paths",
-            "--expr",
-            f"""
+    with tempfile.TemporaryDirectory() as tempdir:
+        res = run(
+            [
+                "nix",
+                "build",
+                "--out-link",
+                f"{tempdir}/result",
+                "--impure",
+                "--print-out-paths",
+                "--expr",
+                f"""
 {get_package(opts)}.overrideAttrs (old: {{
   cargoDeps = null;
   postUnpack = ''
@@ -181,32 +184,32 @@ def update_cargo_lock(
   separateDebugInfo = false;
 }})
 """,
-        ]
-        + opts.extra_flags,
-    )
-    src = Path(res.stdout.strip())
-    if not src.is_file():
-        return
+            ]
+            + opts.extra_flags,
+        )
+        src = Path(res.stdout.strip())
+        if not src.is_file():
+            return
 
-    with open(src, "rb") as f:
-        if isinstance(dst, CargoLockInSource):
-            with open(dst.path, "wb") as fdst:
-                shutil.copyfileobj(f, fdst)
-                f.seek(0)
+        with open(src, "rb") as f:
+            if isinstance(dst, CargoLockInSource):
+                with open(dst.path, "wb") as fdst:
+                    shutil.copyfileobj(f, fdst)
+                    f.seek(0)
 
-        hashes = {}
-        lock = tomllib.load(f)
-        regex = re.compile(r"git\+([^?]+)(\?(rev|tag|branch)=.*)?#(.*)")
-        git_deps = {}
-        for pkg in lock["package"]:
-            if source := pkg.get("source"):
-                if match := regex.fullmatch(source):
-                    rev = match[4]
-                    if rev not in git_deps:
-                        git_deps[rev] = f"{pkg['name']}-{pkg['version']}", match[1]
+            hashes = {}
+            lock = tomllib.load(f)
+            regex = re.compile(r"git\+([^?]+)(\?(rev|tag|branch)=.*)?#(.*)")
+            git_deps = {}
+            for pkg in lock["package"]:
+                if source := pkg.get("source"):
+                    if match := regex.fullmatch(source):
+                        rev = match[4]
+                        if rev not in git_deps:
+                            git_deps[rev] = f"{pkg['name']}-{pkg['version']}", match[1]
 
-        for k, v in ThreadPoolExecutor().map(git_prefetch, git_deps.items()):
-            hashes[k] = v
+            for k, v in ThreadPoolExecutor().map(git_prefetch, git_deps.items()):
+                hashes[k] = v
 
     with fileinput.FileInput(filename, inplace=True) as f:
         short = re.compile(r"(\s*)cargoLock\.lockFile\s*=\s*(.+)\s*;\s*")
