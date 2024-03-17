@@ -56,6 +56,7 @@ class Package:
     npm_deps: str | None
     yarn_deps: str | None
     composer_deps: str | None
+    maven_deps: str | None
     tests: list[str]
     has_update_script: bool
 
@@ -162,6 +163,7 @@ in {{
   composer_deps = pkg.composerRepository.outputHash or null;
   npm_deps = pkg.npmDeps.outputHash or null;
   yarn_deps = pkg.offlineCache.outputHash or null;
+  maven_deps = pkg.fetchedMavenDeps.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or {{}});
   has_update_script = {has_update_script};
   src_homepage = pkg.src.meta.homepage or null;

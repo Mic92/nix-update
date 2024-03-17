@@ -271,6 +271,11 @@ def update_yarn_deps_hash(opts: Options, filename: str, current_hash: str) -> No
     replace_hash(filename, current_hash, target_hash)
 
 
+def update_maven_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "fetchedMavenDeps")
+    replace_hash(filename, current_hash, target_hash)
+
+
 def update_version(
     package: Package, version: str, preference: VersionPreference, version_regex: str
 ) -> bool:
@@ -384,5 +389,8 @@ def update(opts: Options) -> Package:
 
         if package.yarn_deps:
             update_yarn_deps_hash(opts, package.filename, package.yarn_deps)
+
+        if package.maven_deps:
+            update_maven_deps_hash(opts, package.filename, package.maven_deps)
 
     return package
