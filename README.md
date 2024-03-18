@@ -6,14 +6,16 @@ designed to work with nixpkgs but also other package sets.
 ## Features
 
 - automatically figure out the latest version of packages from:
-  - codeberg.org
+  - Codeberg
   - crates.io
-  - gitea.com
-  - github.com
-  - gitlab.com or other instances that uses fetchFromGitLab
-  - notabug.org
-  - pypi
-  - rubygems.org
+  - Gitea
+  - GitHub
+  - GitLab
+  - NotABug.org
+  - PyPi
+  - RubyGems.org
+  - Sourcehut
+  - Savannah
 - update buildRustPackage's cargoHash/cargoSha256 and cargoSetupHook's cargoDeps
 - update buildGoModule's vendorHash/vendorSha256
 - update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
