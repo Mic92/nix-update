@@ -4,11 +4,18 @@ import conftest
 
 from nix_update.options import Options
 from nix_update.update import update
+from nix_update.version.version import VersionPreference
 
 
 def test_update(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs() as path:
-        opts = Options(attribute="composer", import_path=str(path))
+        opts = Options(
+            attribute="composer",
+            import_path=str(path),
+            # For 0.14.0 we get inconsistent lock file errors
+            version="0.13.1",
+            version_preference=VersionPreference.FIXED,
+        )
         update(opts)
         version = subprocess.run(
             [
