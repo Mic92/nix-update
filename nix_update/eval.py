@@ -94,7 +94,11 @@ class Package:
 
 
 def eval_expression(
-    escaped_import_path: str, attr: str, flake: bool, system: str | None, override_filename: str | None
+    escaped_import_path: str,
+    attr: str,
+    flake: bool,
+    system: str | None,
+    override_filename: str | None,
 ) -> str:
     system = f'"{system}"' if system else "builtins.currentSystem"
 
@@ -184,7 +188,11 @@ in {{
 
 def eval_attr(opts: Options) -> Package:
     expr = eval_expression(
-        opts.escaped_import_path, opts.escaped_attribute, opts.flake, opts.system, opts.override_filename
+        opts.escaped_import_path,
+        opts.escaped_attribute,
+        opts.flake,
+        opts.system,
+        opts.override_filename,
     )
     cmd = [
         "nix",
