@@ -8,10 +8,10 @@ buildGoModule rec {
     owner = "~gpanders";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-0xLmjidPxjSkYmLI4lWieT2rswZsWBY/IUXFOrUFAMo=";
+    hash = "sha256-0xLmjidPxjSkYmLI4lWieT2rswZsWBY/IUXFOrUFAMo=";
   };
 
-  vendorSha256 = "sha256-7UuQXnQdlUMC0ZIgHydQ5bZMB5XrE7dhx5+1NI+zFkM=";
+  vendorHash = "sha256-7UuQXnQdlUMC0ZIgHydQ5bZMB5XrE7dhx5+1NI+zFkM=";
 
   nativeBuildInputs = [ installShellFiles makeWrapper scdoc ];
 
