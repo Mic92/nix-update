@@ -94,11 +94,24 @@ class Package:
 
 
 def eval_expression(
-    escaped_import_path: str, attr: str, flake: bool, system: str | None
+    escaped_import_path: str, attr: str, flake: bool, system: str | None, override_filename: str | None
 ) -> str:
     system = f'"{system}"' if system else "builtins.currentSystem"
 
     if flake:
+        sanitize_position = (
+            f"""
+              sanitizePosition = {{ file, ... }}@pos:
+                assert substring 0 outPathLen file != outPath
+                  -> throw "${{file}} is not in ${{outPath}}";
+                pos // {{ file = {escaped_import_path} + substring outPathLen (stringLength file - outPathLen) file; }};
+            """
+            if override_filename is None
+            else """
+              sanitizePosition = x: x;
+            """
+        ).strip()
+
         let_bindings = f"""
           inherit (builtins) getFlake stringLength substring;
           currentSystem = {system};
@@ -106,10 +119,7 @@ def eval_expression(
           pkg = flake.packages.${{currentSystem}}.{attr} or flake.{attr};
           inherit (flake) outPath;
           outPathLen = stringLength outPath;
-          sanitizePosition = {{ file, ... }}@pos:
-            assert substring 0 outPathLen file != outPath
-              -> throw "${{file}} is not in ${{outPath}}";
-            pos // {{ file = {escaped_import_path} + substring outPathLen (stringLength file - outPathLen) file; }};
+          {sanitize_position}
         """
     else:
         let_bindings = f"""
@@ -174,7 +184,7 @@ in {{
 
 def eval_attr(opts: Options) -> Package:
     expr = eval_expression(
-        opts.escaped_import_path, opts.escaped_attribute, opts.flake, opts.system
+        opts.escaped_import_path, opts.escaped_attribute, opts.flake, opts.system, opts.override_filename
     )
     cmd = [
         "nix",
