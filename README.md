@@ -34,7 +34,7 @@ designed to work with nixpkgs but also other package sets.
 
 `nix-update` is included in nixpkgs.
 
-To use it run without installing it, use:
+To run without installing it, use:
 
 ```console
 $ nix-shell -p nix-update
