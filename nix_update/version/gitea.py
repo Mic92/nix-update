@@ -6,7 +6,7 @@ from .version import Version
 
 
 def fetch_gitea_versions(url: ParseResult) -> list[Version]:
-    if url.netloc not in ["codeberg.org", "gitea.com", "notabug.org"]:
+    if url.netloc not in ["codeberg.org", "gitea.com"]:
         return []
 
     _, owner, repo, *_ = url.path.split("/")
@@ -17,7 +17,7 @@ def fetch_gitea_versions(url: ParseResult) -> list[Version]:
 
 
 def fetch_gitea_snapshots(url: ParseResult, branch: str) -> list[Version]:
-    if url.netloc not in ["codeberg.org", "gitea.com", "notabug.org"]:
+    if url.netloc not in ["codeberg.org", "gitea.com"]:
         return []
 
     _, owner, repo, *_ = url.path.split("/")

@@ -11,7 +11,6 @@ designed to work with nixpkgs but also other package sets.
   - Gitea
   - GitHub
   - GitLab
-  - NotABug.org
   - PyPi
   - RubyGems.org
   - Sourcehut
