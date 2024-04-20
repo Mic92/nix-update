@@ -52,7 +52,10 @@ def fetch_gitlab_snapshots(url: ParseResult, branch: str) -> list[Version]:
     resp = urllib.request.urlopen(gitlab_url)
     commits = json.load(resp)
 
-    versions = fetch_gitlab_versions(url)
+    try:
+        versions = fetch_gitlab_versions(url)
+    except VersionError:
+        versions = []
     latest_version = versions[0].number if versions else "0"
 
     for commit in commits:
