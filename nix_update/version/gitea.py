@@ -21,7 +21,7 @@ def fetch_gitea_snapshots(url: ParseResult, branch: str) -> list[Version]:
         return []
 
     _, owner, repo, *_ = url.path.split("/")
-    commits_url = f"https://{url.netloc}/api/v1/repos/{owner}/{repo}/commits?sha={branch}&limit=1stat=false"
+    commits_url = f"https://{url.netloc}/api/v1/repos/{owner}/{repo}/commits?sha={branch}&limit=1&stat=false&verification=false&files=false"
     resp = urlopen(commits_url)
     commits = json.loads(resp.read())
 
