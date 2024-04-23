@@ -6,6 +6,7 @@ designed to work with nixpkgs but also other package sets.
 ## Features
 
 - automatically figure out the latest version of packages from:
+  - BitBucket
   - Codeberg
   - crates.io
   - Gitea
