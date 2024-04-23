@@ -36,8 +36,8 @@ def test_version(helpers: conftest.Helpers) -> None:
         print(commit)
         assert version in commit
         assert "bitbucket" in commit
-        assert "/jongsoftdev/youless-python-bridge/branches/compare/" in commit
-        assert "%0D1.0" in commit
+        assert "/nielsenb/aniso8601/branches/compare/" in commit
+        assert "%0Dv9.0.0" in commit
 
 
 # integration test for bitbucket snapshots
@@ -76,5 +76,5 @@ def test_snapshot(helpers: conftest.Helpers) -> None:
         print(commit)
         assert version in commit
         assert "bitbucket" in commit
-        assert "/jongsoftdev/youless-python-bridge/branches/compare/" in commit
-        assert "%0Dc04342ef36dd5ba8f7d9b9fce2fb4926ef401fd5" in commit
+        assert "/nielsenb/aniso8601/branches/compare/" in commit
+        assert "%0D55b1b849a57341a303ae47eb67c7ecf8c283b7f8" in commit
