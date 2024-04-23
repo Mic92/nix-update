@@ -1,4 +1,5 @@
 import json
+import re
 from urllib.parse import ParseResult
 from urllib.request import urlopen
 
@@ -6,10 +7,11 @@ from .version import Version
 
 
 def fetch_gitea_versions(url: ParseResult) -> list[Version]:
-    if url.netloc not in ["codeberg.org", "gitea.com", "notabug.org"]:
+    if url.netloc not in ["codeberg.org", "gitea.com"]:
         return []
 
     _, owner, repo, *_ = url.path.split("/")
+    repo = re.sub(r"\.git$", "", repo)
     tags_url = f"https://{url.netloc}/api/v1/repos/{owner}/{repo}/tags"
     resp = urlopen(tags_url)
     tags = json.loads(resp.read())
@@ -17,11 +19,12 @@ def fetch_gitea_versions(url: ParseResult) -> list[Version]:
 
 
 def fetch_gitea_snapshots(url: ParseResult, branch: str) -> list[Version]:
-    if url.netloc not in ["codeberg.org", "gitea.com", "notabug.org"]:
+    if url.netloc not in ["codeberg.org", "gitea.com"]:
         return []
 
     _, owner, repo, *_ = url.path.split("/")
-    commits_url = f"https://{url.netloc}/api/v1/repos/{owner}/{repo}/commits?sha={branch}&limit=1stat=false"
+    repo = re.sub(r"\.git$", "", repo)
+    commits_url = f"https://{url.netloc}/api/v1/repos/{owner}/{repo}/commits?sha={branch}&limit=1&stat=false&verification=false&files=false"
     resp = urlopen(commits_url)
     commits = json.loads(resp.read())
 
