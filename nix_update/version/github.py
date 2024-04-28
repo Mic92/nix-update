@@ -1,3 +1,5 @@
+import json
+import os
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -5,7 +7,7 @@ from urllib.parse import ParseResult, unquote, urlparse
 from xml.etree.ElementTree import Element
 
 from ..errors import VersionError
-from ..utils import info
+from ..utils import info, warn
 from .version import Version
 
 
@@ -27,12 +29,27 @@ def fetch_github_versions(url: ParseResult) -> list[Version]:
     owner, repo = parts[1], parts[2]
     repo = re.sub(r"\.git$", "", repo)
     # TODO fallback to tags?
-    feed_url = f"https://github.com/{owner}/{repo}/releases.atom"
-    info(f"fetch {feed_url}")
-    resp = urllib.request.urlopen(feed_url)
-    tree = ET.fromstring(resp.read())
-    releases = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
-    return [version_from_entry(x) for x in releases]
+    github_url = f"https://api.github.com/repos/{owner}/{repo}/releases"
+    token = os.environ.get("GITHUB_TOKEN")
+    req = urllib.request.Request(
+        github_url,
+        headers={} if token is None else {"Authorization": f"Bearer {token}"},
+    )
+    try:
+        info(f"trying to fetch {github_url}")
+        resp = urllib.request.urlopen(req)
+        releases = json.loads(resp.read())
+        return [Version(x["tag_name"], x["prerelease"]) for x in releases]
+    except urllib.error.URLError as e:
+        warn(
+            f"Cannot fetch '{github_url}' using GitHub API ({e}), falling back to public atom feed"
+        )
+        feed_url = f"https://github.com/{owner}/{repo}/releases.atom"
+        info(f"fetch {feed_url}")
+        resp = urllib.request.urlopen(feed_url)
+        tree = ET.fromstring(resp.read())
+        releases = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
+        return [version_from_entry(x) for x in releases]
 
 
 def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:

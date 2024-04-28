@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
+
 import unittest.mock
 from pathlib import Path
 from typing import BinaryIO
 from urllib.parse import urlparse
+from urllib.request import Request
 
 import conftest
 
@@ -12,9 +14,10 @@ from nix_update.version.version import VersionPreference
 TEST_ROOT = Path(__file__).parent.resolve()
 
 
-def fake_urlopen(url: str) -> BinaryIO:
-    if url.endswith("releases.atom"):
-        return open(TEST_ROOT.joinpath("test_branch_releases.atom"), "rb")
+def fake_urlopen(url: str | Request) -> BinaryIO:
+    url = url if isinstance(url, str) else url.full_url
+    if url.endswith("releases"):
+        return open(TEST_ROOT.joinpath("test_branch_releases.json"), "rb")
     else:
         return open(TEST_ROOT.joinpath("test_branch_commits_master.atom"), "rb")
 
