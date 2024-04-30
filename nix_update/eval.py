@@ -142,13 +142,22 @@ def eval_expression(
     return f"""
 let
   {indent(dedent(let_bindings), "  ")}
+  positionFromMeta = pkg: let
+    parts = builtins.match "(.*):([0-9]+)" pkg.meta.position;
+  in {{
+    file = builtins.elemAt parts 0;
+    line = builtins.fromJSON (builtins.elemAt parts 1);
+  }};
+
   raw_version_position = sanitizePosition (builtins.unsafeGetAttrPos "version" pkg);
 
-  position = if pkg ? isRubyGem then
+  position = if pkg ? meta.position then
+    sanitizePosition (positionFromMeta pkg)
+  else if pkg ? isRubyGem then
     raw_version_position
   else if pkg ? isPhpExtension then
     raw_version_position
-   else
+  else
     sanitizePosition (builtins.unsafeGetAttrPos "src" pkg);
 in {{
   name = pkg.name;
