@@ -31,7 +31,7 @@ def parse_args(args: list[str]) -> Options:
     parser.add_argument(
         "--review", action="store_true", help="Run `nixpkgs-review wip`"
     )
-    parser.add_argument("--format", action="store_true", help="Run `nixpkgs-fmt`")
+    parser.add_argument("--format", action="store_true", help="Run `nixfmt`")
     parser.add_argument(
         "--commit", action="store_true", help="Commit the updated package"
     )
@@ -326,7 +326,7 @@ def main(args: list[str] = sys.argv[1:]) -> None:
             nixpkgs_review()
 
     if options.format:
-        run(["nixpkgs-fmt", package.filename], stdout=None)
+        run(["nixfmt", package.filename], stdout=None)
 
     if options.commit:
         assert git_dir is not None
