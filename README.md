@@ -140,7 +140,7 @@ tested. Additionally, the `--review` flag can be used to
 initiate a run of [nixpkgs-review](https://github.com/Mic92/nixpkgs-review), which will ensure all
 dependent packages can be built. In order to ensure consistent
 formatting, the `--format` flag will invoke
-[nixpkgs-fmt](https://github.com/nix-community/nixpkgs-fmt).
+[nixfmt](https://github.com/NixOS/nixfmt).
 
 ```console
 # Also runs nix-build

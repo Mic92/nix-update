@@ -27,8 +27,7 @@ from .version import Version, VersionPreference
 
 
 class SnapshotFetcher(Protocol):
-    def __call__(self, url: ParseResult, branch: str) -> list[Version]:
-        ...
+    def __call__(self, url: ParseResult, branch: str) -> list[Version]: ...
 
 
 fetchers: list[Callable[[ParseResult], list[Version]]] = [
