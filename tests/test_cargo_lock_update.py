@@ -14,7 +14,7 @@ def test_main(helpers: conftest.Helpers) -> None:
                 "--commit",
                 "cargoLock.update",
                 "--version",
-                "v0.0.255",
+                "v0.4.7",
             ]
         )
         subprocess.run(
@@ -39,6 +39,4 @@ def test_main(helpers: conftest.Helpers) -> None:
             check=True,
         ).stdout.strip()
         print(diff)
-        assert (
-            "https://github.com/charliermarsh/ruff/compare/v0.0.254...v0.0.255" in diff
-        )
+        assert "https://github.com/astral-sh/ruff/compare/v0.4.5...v0.4.7" in diff
