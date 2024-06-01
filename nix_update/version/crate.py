@@ -15,4 +15,6 @@ def fetch_crate_versions(url: ParseResult) -> list[Version]:
     info(f"fetch {crate_url}")
     resp = urllib.request.urlopen(crate_url)
     data = json.loads(resp.read())
-    return [Version(version["num"]) for version in data["versions"]]
+    return [
+        Version(version["num"]) for version in data["versions"] if not version["yanked"]
+    ]
