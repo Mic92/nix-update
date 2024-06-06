@@ -14,5 +14,6 @@
   savanna = pkgs.python3.pkgs.callPackage ./savanna.nix { };
   npm = pkgs.callPackage ./npm.nix { };
   npm-package = pkgs.callPackage ./npm-package.nix { };
+  pnpm = pkgs.callPackage ./pnpm.nix { };
   maven = pkgs.callPackage ./maven.nix { };
 }
