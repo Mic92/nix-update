@@ -261,6 +261,11 @@ def print_hashes(hashes: dict[str, str], indent: str) -> None:
     print(f"{indent}}};")
 
 
+def update_pnpm_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "pnpmDeps")
+    replace_hash(filename, current_hash, target_hash)
+
+
 def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "npmDeps")
     replace_hash(filename, current_hash, target_hash)
@@ -389,6 +394,9 @@ def update(opts: Options) -> Package:
 
         if package.npm_deps:
             update_npm_deps_hash(opts, package.filename, package.npm_deps)
+
+        if package.pnpm_deps:
+            update_pnpm_deps_hash(opts, package.filename, package.pnpm_deps)
 
         if package.yarn_deps:
             update_yarn_deps_hash(opts, package.filename, package.yarn_deps)

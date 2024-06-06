@@ -54,6 +54,7 @@ class Package:
     go_modules_old: str | None
     cargo_deps: str | None
     npm_deps: str | None
+    pnpm_deps: str | None
     yarn_deps: str | None
     composer_deps: str | None
     maven_deps: str | None
@@ -185,6 +186,7 @@ in {{
       null;
   composer_deps = pkg.composerRepository.outputHash or null;
   npm_deps = pkg.npmDeps.outputHash or null;
+  pnpm_deps = pkg.pnpmDeps.outputHash or null;
   yarn_deps = pkg.offlineCache.outputHash or null;
   maven_deps = pkg.fetchedMavenDeps.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or {{}});
