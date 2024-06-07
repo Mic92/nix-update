@@ -10,6 +10,7 @@ from .crate import fetch_crate_versions
 from .gitea import fetch_gitea_snapshots, fetch_gitea_versions
 from .github import fetch_github_snapshots, fetch_github_versions
 from .gitlab import fetch_gitlab_snapshots, fetch_gitlab_versions
+from .npm import fetch_npm_versions
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
@@ -32,6 +33,7 @@ class SnapshotFetcher(Protocol):
 
 fetchers: list[Callable[[ParseResult], list[Version]]] = [
     fetch_crate_versions,
+    fetch_npm_versions,
     fetch_pypi_versions,
     fetch_gitea_versions,
     fetch_github_versions,
@@ -132,5 +134,5 @@ def fetch_latest_version(
         )
 
     raise VersionError(
-        "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/pypi/savannah/sourcehut/rubygems projects right now"
+        "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/pypi/savannah/sourcehut/rubygems/npm projects right now"
     )
