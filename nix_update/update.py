@@ -320,6 +320,9 @@ def update_version(
             package.diff_url = (
                 f"https://diff.rs/{parts[4]}/{package.old_version}/{new_version.number}"
             )
+        if package.parsed_url.netloc == "registry.npmjs.org":
+            parts = package.parsed_url.path.split("/")
+            package.diff_url = f"https://npmdiff.dev/{parts[1]}/{package.old_version}/{new_version.number}"
         elif package.parsed_url.netloc == "github.com":
             _, owner, repo, *_ = package.parsed_url.path.split("/")
             package.diff_url = f"https://github.com/{owner}/{repo.removesuffix('.git')}/compare/{package.rev}...{new_version.rev or new_version.number}"
