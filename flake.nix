@@ -25,6 +25,13 @@
         packages.nix-update = pkgs.callPackage ./. { };
         packages.default = config.packages.nix-update;
 
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [ config.packages.default ];
+
+          # Make tests use our pinned Nixpkgs
+          env.NIX_PATH = "nixpkgs=${pkgs.path}";
+        };
+
         checks =
           let
             packages = lib.mapAttrs' (n: lib.nameValuePair "package-${n}") self'.packages;
