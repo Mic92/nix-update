@@ -25,8 +25,8 @@ nix-update = "nix_update:main"
 target-version = "py311"
 line-length = 88
 
-select = ["E", "F", "I", "U"]
-ignore = [ "E501" ]
+lint.select = ["E", "F", "I", "U"]
+lint.ignore = [ "E501" ]
 
 [tool.mypy]
 python_version = "3.11"
