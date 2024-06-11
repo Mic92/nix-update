@@ -35,20 +35,22 @@ fetchers: list[Callable[[ParseResult], list[Version]]] = [
     fetch_crate_versions,
     fetch_npm_versions,
     fetch_pypi_versions,
-    fetch_gitea_versions,
     fetch_github_versions,
     fetch_gitlab_versions,
     fetch_rubygem_versions,
     fetch_savannah_versions,
     fetch_sourcehut_versions,
     fetch_bitbucket_versions,
+    # all entries below perform requests to check if the target url is of that type
+    fetch_gitea_versions,
 ]
 
 branch_snapshots_fetchers: list[SnapshotFetcher] = [
-    fetch_gitea_snapshots,
     fetch_github_snapshots,
     fetch_gitlab_snapshots,
     fetch_bitbucket_snapshots,
+    # all entries below perform requests to check if the target url is of that type
+    fetch_gitea_snapshots,
 ]
 
 
