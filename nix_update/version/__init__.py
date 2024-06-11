@@ -72,7 +72,7 @@ def extract_version(version: Version, version_regex: str) -> Version | None:
 def is_unstable(version: Version, extracted: str) -> bool:
     if version.prerelease is not None:
         return version.prerelease
-    pattern = "rc|alpha|beta|preview|nightly|m[0-9]+"
+    pattern = "rc|alpha|beta|preview|nightly|prerelease|m[0-9]+"
     return re.search(pattern, extracted, re.IGNORECASE) is not None
 
 
