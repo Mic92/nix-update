@@ -1,13 +1,27 @@
 import json
 import re
+from urllib.error import URLError
 from urllib.parse import ParseResult
 from urllib.request import urlopen
 
 from .version import Version
 
+KNOWN_GITEA_HOSTS = ["codeberg.org", "gitea.com", "akkoma.dev"]
+
+
+def is_gitea_host(host: str) -> bool:
+    if host in KNOWN_GITEA_HOSTS:
+        return True
+    endpoint = f"https://{host}/api/v1/signing-key.gpg"
+    try:
+        resp = urlopen(endpoint)
+        return resp.status == 200
+    except URLError:
+        return False
+
 
 def fetch_gitea_versions(url: ParseResult) -> list[Version]:
-    if url.netloc not in ["codeberg.org", "gitea.com"]:
+    if not is_gitea_host(url.netloc):
         return []
 
     _, owner, repo, *_ = url.path.split("/")
@@ -19,7 +33,7 @@ def fetch_gitea_versions(url: ParseResult) -> list[Version]:
 
 
 def fetch_gitea_snapshots(url: ParseResult, branch: str) -> list[Version]:
-    if url.netloc not in ["codeberg.org", "gitea.com"]:
+    if not is_gitea_host(url.netloc):
         return []
 
     _, owner, repo, *_ = url.path.split("/")
