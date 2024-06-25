@@ -384,11 +384,6 @@ def update(opts: Options) -> Package:
         if package.cargo_deps:
             update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
 
-        if isinstance(package.cargo_lock, CargoLockInSource) or isinstance(
-            package.cargo_lock, CargoLockInStore
-        ):
-            update_cargo_lock(opts, package.filename, package.cargo_lock)
-
         if package.composer_deps:
             update_composer_deps_hash(opts, package.filename, package.composer_deps)
 
@@ -403,5 +398,10 @@ def update(opts: Options) -> Package:
 
         if package.maven_deps:
             update_maven_deps_hash(opts, package.filename, package.maven_deps)
+
+        if isinstance(package.cargo_lock, CargoLockInSource) or isinstance(
+            package.cargo_lock, CargoLockInStore
+        ):
+            update_cargo_lock(opts, package.filename, package.cargo_lock)
 
     return package
