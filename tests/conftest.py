@@ -34,6 +34,10 @@ class Helpers:
                 subprocess.run(["git", "-C", tmpdirname, "init"], check=True)
                 subprocess.run(["git", "-C", tmpdirname, "add", "--all"], check=True)
                 subprocess.run(
+                    ["git", "-C", tmpdirname, "config", "commit.gpgsign", "false"],
+                    check=True,
+                )
+                subprocess.run(
                     ["git", "-C", tmpdirname, "commit", "-m", "first commit"],
                     check=True,
                 )
