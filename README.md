@@ -138,9 +138,9 @@ nix-update --url https://github.com/signalapp/Signal-Desktop --override-filename
 With the `--shell`, `--build`, `--test` and `--run` flags the update can be
 tested. Additionally, the `--review` flag can be used to
 initiate a run of [nixpkgs-review](https://github.com/Mic92/nixpkgs-review), which will ensure all
-dependent packages can be built. In order to ensure consistent
-formatting, the `--format` flag will invoke
-[nixfmt](https://github.com/NixOS/nixfmt).
+dependent packages can be built.
+
+In order to ensure consistent formatting, the `--format` flag will invoke [nixfmt](https://github.com/NixOS/nixfmt) (`nixfmt-rfc-style` in nixpkgs).
 
 ```console
 # Also runs nix-build
