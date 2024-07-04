@@ -16,7 +16,7 @@ designed to work with nixpkgs but also other package sets.
   - RubyGems.org
   - Sourcehut
   - Savannah
-- update buildRustPackage's cargoHash/cargoSha256 and cargoSetupHook's cargoDeps
+- update buildRustPackage's cargoHash/cargoSha256/cargoLock and cargoSetupHook's cargoDeps
 - update buildGoModule's vendorHash/vendorSha256
 - update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
 - update buildComposerProject's vendorHash
