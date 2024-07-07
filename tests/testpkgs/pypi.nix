@@ -1,4 +1,10 @@
-{ buildPythonPackage, fetchPypi, twisted, mock, pytestCheckHook }:
+{
+  buildPythonPackage,
+  fetchPypi,
+  twisted,
+  mock,
+  pytestCheckHook,
+}:
 
 buildPythonPackage rec {
   pname = "python-mpd2";

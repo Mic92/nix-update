@@ -1,4 +1,8 @@
-{ rustPlatform, fetchCrate, hello }:
+{
+  rustPlatform,
+  fetchCrate,
+  hello,
+}:
 
 rustPlatform.buildRustPackage rec {
   pname = "fd-find";

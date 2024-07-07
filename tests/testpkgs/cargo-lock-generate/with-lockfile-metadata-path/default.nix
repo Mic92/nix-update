@@ -1,6 +1,7 @@
-{ python3Packages
-, rustPlatform
-, fetchFromGitHub
+{
+  python3Packages,
+  rustPlatform,
+  fetchFromGitHub,
 }:
 
 python3Packages.buildPythonPackage rec {
