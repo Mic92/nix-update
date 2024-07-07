@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 import conftest
@@ -6,7 +7,10 @@ import pytest
 from nix_update import main
 
 
-def test_main(helpers: conftest.Helpers) -> None:
+@pytest.mark.skipif(
+    "GITHUB_TOKEN" not in os.environ, reason="No GITHUB_TOKEN environment variable set"
+)
+def test_github_api(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
         main(["--file", str(path), "--commit", "github"])
         version = subprocess.run(
@@ -37,7 +41,7 @@ def test_main(helpers: conftest.Helpers) -> None:
         assert "https://github.com/sharkdp/fd/compare/v8.0.0...v" in commit
 
 
-def test_fallback(helpers: conftest.Helpers) -> None:
+def test_github_feed_fallback(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
         monkeypatch = pytest.MonkeyPatch()
         monkeypatch.setenv("GITHUB_TOKEN", "invalid_token")

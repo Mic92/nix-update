@@ -20,3 +20,6 @@ jobs:
         run: nix build
       - name: Run tests
         run: nix develop -c pytest -s .
+        env:
+          # used by nix-update tests
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
