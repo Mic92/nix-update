@@ -1,7 +1,7 @@
 # nix-update
 
-Nix-update updates versions/source hashes of nix packages. It is
-designed to work with nixpkgs but also other package sets.
+Nix-update updates versions/source hashes of nix packages. It is designed to
+work with nixpkgs but also other package sets.
 
 ## Features
 
@@ -16,7 +16,8 @@ designed to work with nixpkgs but also other package sets.
   - RubyGems.org
   - Sourcehut
   - Savannah
-- update buildRustPackage's cargoHash/cargoSha256/cargoLock and cargoSetupHook's cargoDeps
+- update buildRustPackage's cargoHash/cargoSha256/cargoLock and cargoSetupHook's
+  cargoDeps
 - update buildGoModule's vendorHash/vendorSha256
 - update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
 - update buildComposerProject's vendorHash
@@ -24,9 +25,9 @@ designed to work with nixpkgs but also other package sets.
 - update mixRelease's mixFodDeps
 - update fetchYarnDeps offlineCache output hash
 - update flake outputs (see `--flake`)
-- generate the following lockfile, Cargo.lock (see `--generate-lockfile` and `--lockfile-metadata-path`)
-- build and run the resulting package (see `--build`,
-  `--run` or `--shell`
+- generate the following lockfile, Cargo.lock (see `--generate-lockfile` and
+  `--lockfile-metadata-path`)
+- build and run the resulting package (see `--build`, `--run` or `--shell`
 - commit updated files (see `--commit` flag)
 - run update scripts (`passthru.updateScript`, see `--use-update-script` flag)
 - run package tests (see `--test` flag)
@@ -63,8 +64,8 @@ $ nix run github:Mic92/nix-update
 
 ## USAGE
 
-First change to your directory containing the nix expression (Could be a
-nixpkgs or your own repository). Than run `nix-update` as follows
+First change to your directory containing the nix expression (Could be a nixpkgs
+or your own repository). Than run `nix-update` as follows
 
 ```console
 $ nix-update attribute [--version version]
@@ -111,15 +112,16 @@ To only update sources hashes without updating the version:
 $ nix-update --version=skip nixpkgs-review
 ```
 
-To extract version information from versions with prefixes or suffixes,
-a regex can be used
+To extract version information from versions with prefixes or suffixes, a regex
+can be used
 
 ```console
 $ nix-update jq --version-regex 'jq-(.*)'
 ```
 
-By default `nix-update` will locate the file that needs to be patched using the `src` attribute of a derivation.
-In some cases this heurestic is wrong. One can override the behavior like that:
+By default `nix-update` will locate the file that needs to be patched using the
+`src` attribute of a derivation. In some cases this heurestic is wrong. One can
+override the behavior like that:
 
 ```console
 $ nix-update hello --override-filename pkgs/applications/misc/hello/default.nix
@@ -138,11 +140,12 @@ nix-update --url https://github.com/signalapp/Signal-Desktop --override-filename
 ```
 
 With the `--shell`, `--build`, `--test` and `--run` flags the update can be
-tested. Additionally, the `--review` flag can be used to
-initiate a run of [nixpkgs-review](https://github.com/Mic92/nixpkgs-review), which will ensure all
+tested. Additionally, the `--review` flag can be used to initiate a run of
+[nixpkgs-review](https://github.com/Mic92/nixpkgs-review), which will ensure all
 dependent packages can be built.
 
-In order to ensure consistent formatting, the `--format` flag will invoke [nixfmt](https://github.com/NixOS/nixfmt) (`nixfmt-rfc-style` in nixpkgs).
+In order to ensure consistent formatting, the `--format` flag will invoke
+[nixfmt](https://github.com/NixOS/nixfmt) (`nixfmt-rfc-style` in nixpkgs).
 
 ```console
 # Also runs nix-build
@@ -160,8 +163,7 @@ $ nix-update --format nixpkgs-review
 ```
 
 Nix-update also can optionally generate a commit message in the form
-`attribute: old_version -> new_version` with the applied
-version update:
+`attribute: old_version -> new_version` with the applied version update:
 
 ```console
 $ nix-update --commit bitcoin-abc
@@ -170,10 +172,10 @@ $ nix-update --commit bitcoin-abc
 1 file changed, 2 insertions(+), 2 deletions(-)
 ```
 
-By default, nix-update will attempt to update to the next stable version
-of a package. Alphas, betas, release candidates and similar unstable
-releases will be ignored. This can be affected by changing the parameter
-`version` from its default value `stable` to `unstable`.
+By default, nix-update will attempt to update to the next stable version of a
+package. Alphas, betas, release candidates and similar unstable releases will be
+ignored. This can be affected by changing the parameter `version` from its
+default value `stable` to `unstable`.
 
 ```console
 $ nix-update sbt
@@ -197,7 +199,8 @@ $ nix-update sbt --use-update-script --update-script-args "--argstr skip-prompt 
 
 ## Development setup
 
-First clone the repo to your preferred location (in the following, we assume `~/` - your home):
+First clone the repo to your preferred location (in the following, we assume
+`~/` - your home):
 
 ```console
 $ git clone https://github.com/Mic92/nix-update/ ~/nix-update
@@ -210,13 +213,15 @@ $ cd ~/nix-update
 $ nix develop
 ```
 
-Change to the repository that contains the nix files you want to update, i.e. nixpkgs:
+Change to the repository that contains the nix files you want to update, i.e.
+nixpkgs:
 
 ```console
 $ cd nixpkgs
 ```
 
-Now you can run `nix-update` just by specifying the full path to its executable wrapper:
+Now you can run `nix-update` just by specifying the full path to its executable
+wrapper:
 
 ```console
 $ ~/git/nix-update/bin/nix-update --commit hello
@@ -228,9 +233,9 @@ $ ~/git/nix-update/bin/nix-update --commit hello
 
 ## Known Bugs
 
-nix-update might not work correctly if a file contain multiple packages
-as it performs naive search and replace to update version numbers. This
-might be a problem if:
+nix-update might not work correctly if a file contain multiple packages as it
+performs naive search and replace to update version numbers. This might be a
+problem if:
 
 - A file contains the same version string for multiple packages.
 - `name` is used instead of `pname` and/or `${version}` is injected into `name`.
@@ -242,8 +247,7 @@ Related discussions:
 
 ## Related projects:
 
-- [nixpkgs-update](https://github.com/ryantm/nixpkgs-update) is
-  optimized for mass-updates in nixpkgs while nix-update is better
-  suited for interactive usage that might require user-intervention
-  i.e. fixing the build and testing the result. nix-update is also not
-  limited to nixpkgs.
+- [nixpkgs-update](https://github.com/ryantm/nixpkgs-update) is optimized for
+  mass-updates in nixpkgs while nix-update is better suited for interactive
+  usage that might require user-intervention i.e. fixing the build and testing
+  the result. nix-update is also not limited to nixpkgs.

@@ -1,5 +1,6 @@
-{ fetchFromGitHub
-, php
+{
+  fetchFromGitHub,
+  php,
 }:
 
 php.buildComposerProject (finalAttrs: {

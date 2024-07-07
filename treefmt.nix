@@ -1,46 +1,28 @@
-{ lib, inputs, ... }: {
-  imports = [
-    inputs.treefmt-nix.flakeModule
-  ];
+{ inputs, ... }:
+{
+  imports = [ inputs.treefmt-nix.flakeModule ];
 
-  perSystem = { pkgs, ... }: {
-    treefmt = {
-      # Used to find the project root
-      projectRootFile = "flake.lock";
+  perSystem =
+    { pkgs, ... }:
+    {
+      treefmt = {
+        # Used to find the project root
+        projectRootFile = "flake.lock";
 
-      programs.prettier.enable = true;
-      programs.mypy.enable = true;
+        programs.deno.enable =
+          pkgs.lib.meta.availableOn pkgs.stdenv.hostPlatform pkgs.deno && !pkgs.deno.meta.broken;
+        programs.mypy.enable = true;
 
-      settings.formatter = {
-        nix = {
-          command = "sh";
-          options = [
-            "-eucx"
-            ''
-              # First deadnix
-              ${lib.getExe pkgs.deadnix} --edit "$@"
-              # Then nixpkgs-fmt
-              ${lib.getExe pkgs.nixpkgs-fmt} "$@"
-            ''
-            "--"
-          ];
-          includes = [ "*.nix" ];
-          excludes = [ "nix/sources.nix" ];
-        };
+        programs.yamlfmt.enable = true;
 
-        python = {
-          command = "sh";
-          options = [
-            "-eucx"
-            ''
-              ${lib.getExe pkgs.ruff} check "$@"
-              ${lib.getExe pkgs.ruff} format "$@"
-            ''
-            "--" # this argument is ignored by bash
-          ];
-          includes = [ "*.py" ];
-        };
+        programs.nixfmt.enable = pkgs.lib.meta.availableOn pkgs.stdenv.buildPlatform pkgs.nixfmt-rfc-style.compiler;
+        programs.deadnix.enable = true;
+        programs.ruff.format = true;
+        programs.ruff.check = true;
+
+        programs.shellcheck.enable = pkgs.lib.meta.availableOn pkgs.stdenv.buildPlatform pkgs.shellcheck.compiler;
+        programs.shfmt.enable = true;
+        settings.formatter.shfmt.includes = [ "*.envrc" ];
       };
     };
-  };
 }
