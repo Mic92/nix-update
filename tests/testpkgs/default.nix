@@ -16,4 +16,5 @@
   npm-package = pkgs.callPackage ./npm-package.nix { };
   pnpm = pkgs.callPackage ./pnpm.nix { };
   maven = pkgs.callPackage ./maven.nix { };
+  mix = pkgs.callPackage ./mix.nix { };
 }
