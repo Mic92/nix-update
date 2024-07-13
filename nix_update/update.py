@@ -281,6 +281,11 @@ def update_maven_deps_hash(opts: Options, filename: str, current_hash: str) -> N
     replace_hash(filename, current_hash, target_hash)
 
 
+def update_mix_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "mixFodDeps")
+    replace_hash(filename, current_hash, target_hash)
+
+
 def update_version(
     package: Package, version: str, preference: VersionPreference, version_regex: str
 ) -> bool:
@@ -398,6 +403,9 @@ def update(opts: Options) -> Package:
 
         if package.maven_deps:
             update_maven_deps_hash(opts, package.filename, package.maven_deps)
+
+        if package.mix_deps:
+            update_mix_deps_hash(opts, package.filename, package.mix_deps)
 
         if isinstance(package.cargo_lock, CargoLockInSource) or isinstance(
             package.cargo_lock, CargoLockInStore
