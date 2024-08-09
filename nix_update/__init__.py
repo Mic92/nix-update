@@ -90,6 +90,16 @@ def parse_args(args: list[str]) -> Options:
         nargs="?" if default_attribute else None,  # type: ignore
         help="""Attribute name within the file evaluated (defaults to environment variable "UPDATE_NIX_ATTR_PATH")""",
     )
+    parser.add_argument(
+        "--generate-lockfile",
+        action="store_true",
+        help="Generate lockfile and replace vendored one",
+    )
+    parser.add_argument(
+        "--lockfile-metadata-path",
+        help="Path to the directory containing the metadata (e.g. Cargo.toml) referenced by the lockfile",
+        default=".",
+    )
 
     a = parser.parse_args(args)
     return Options(
@@ -111,6 +121,8 @@ def parse_args(args: list[str]) -> Options:
         format=a.format,
         override_filename=a.override_filename,
         system=a.system,
+        generate_lockfile=a.generate_lockfile,
+        lockfile_metadata_path=a.lockfile_metadata_path,
         extra_flags=(["--system", a.system] if a.system else [])
         + ["--extra-experimental-features", "flakes nix-command"],
     )
