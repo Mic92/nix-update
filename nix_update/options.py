@@ -25,6 +25,8 @@ class Options:
     review: bool = False
     format: bool = False
     system: str | None = None
+    generate_lockfile: bool = False
+    lockfile_metadata_path: str = "."
     extra_flags: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
