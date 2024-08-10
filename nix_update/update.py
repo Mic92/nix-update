@@ -7,6 +7,7 @@ import sys
 import tempfile
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from os import path
 from pathlib import Path
 
@@ -247,6 +248,50 @@ def update_cargo_lock(
                 print(line, end="")
 
 
+def generate_cargo_lock(opts: Options, filename: str) -> None:
+    @contextmanager
+    def disable_copystat():
+        _orig = shutil.copystat
+        shutil.copystat = lambda *args, **kwargs: None
+        try:
+            yield
+        finally:
+            shutil.copystat = _orig
+
+    res = run(
+        [
+            "nix",
+            "build",
+            "--no-link",
+            "--impure",
+            "--print-out-paths",
+            "--expr",
+            f"{get_package(opts)}.src",
+        ]
+        + opts.extra_flags,
+    )
+    src = Path(res.stdout.strip())
+
+    with tempfile.TemporaryDirectory() as tempdir:
+        with disable_copystat():
+            shutil.copytree(src, tempdir, dirs_exist_ok=True, copy_function=shutil.copy)
+
+        run(
+            [
+                "nix",
+                "run",
+                "nixpkgs#cargo",
+                "--",
+                "generate-lockfile",
+                "--manifest-path",
+                f"{opts.lockfile_metadata_path}/Cargo.toml",
+            ],
+            cwd=tempdir,
+        )
+
+        shutil.copy(tempdir + "/Cargo.lock", Path(filename).parent / "Cargo.lock")
+
+
 def update_composer_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "composerRepository")
     replace_hash(filename, current_hash, target_hash)
@@ -410,6 +455,9 @@ def update(opts: Options) -> Package:
         if isinstance(package.cargo_lock, CargoLockInSource) or isinstance(
             package.cargo_lock, CargoLockInStore
         ):
-            update_cargo_lock(opts, package.filename, package.cargo_lock)
+            if opts.generate_lockfile:
+                generate_cargo_lock(opts, package.filename)
+            else:
+                update_cargo_lock(opts, package.filename, package.cargo_lock)
 
     return package
