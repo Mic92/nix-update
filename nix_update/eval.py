@@ -153,14 +153,14 @@ let
 
   raw_version_position = sanitizePosition (builtins.unsafeGetAttrPos "version" pkg);
 
-  position = if pkg ? meta.position then
-    sanitizePosition (positionFromMeta pkg)
-  else if pkg ? isRubyGem then
+  position = if pkg ? isRubyGem then
     raw_version_position
   else if pkg ? isPhpExtension then
     raw_version_position
+  else if (builtins.unsafeGetAttrPos "src" pkg) != null then
+    sanitizePosition (builtins.unsafeGetAttrPos "src" pkg)
   else
-    sanitizePosition (builtins.unsafeGetAttrPos "src" pkg);
+    sanitizePosition (positionFromMeta pkg);
 in {{
   name = pkg.name;
   old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
