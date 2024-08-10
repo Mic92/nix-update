@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import textwrap
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
@@ -258,15 +259,36 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
         finally:
             shutil.copystat = _orig
 
+    getSrcAndCargo = textwrap.dedent(f"""
+      {get_package(opts)}.overrideAttrs (old: {{
+        cargoDeps = null;
+        cargoVendorDir = ".";
+        postUnpack = ''
+          cp -pr --reflink=auto -- $sourceRoot $out
+          mkdir -p "$out/nix-support"
+          command -v cargo > $out/nix-support/cargo-bin || {{
+            echo "no cargo executable found in native build inputs" >&2
+            exit 1
+          }}
+          exit
+        '';
+        outputs = [ "out" ];
+        separateDebugInfo = false;
+      }})
+    """)
+
     res = run(
         [
             "nix",
+            "--extra-experimental-features",
+            "flakes nix-command",
             "build",
+            "-L",
             "--no-link",
             "--impure",
             "--print-out-paths",
             "--expr",
-            f"{get_package(opts)}.src",
+            getSrcAndCargo,
         ]
         + opts.extra_flags,
     )
@@ -276,12 +298,11 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
         with disable_copystat():
             shutil.copytree(src, tempdir, dirs_exist_ok=True, copy_function=shutil.copy)
 
+        cargo_bin = (src / "nix-support" / "cargo-bin").read_text().rstrip("\n")
+
         run(
             [
-                "nix",
-                "run",
-                "nixpkgs#cargo",
-                "--",
+                cargo_bin,
                 "generate-lockfile",
                 "--manifest-path",
                 f"{opts.lockfile_metadata_path}/Cargo.toml",
