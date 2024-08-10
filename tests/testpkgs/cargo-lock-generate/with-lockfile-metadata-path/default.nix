@@ -1,7 +1,6 @@
 { python3Packages
 , rustPlatform
 , fetchFromGitHub
-,
 }:
 
 python3Packages.buildPythonPackage rec {
@@ -14,6 +13,11 @@ python3Packages.buildPythonPackage rec {
     rev = "python-v${version}";
     hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
+
+  nativeBuildInputs = [
+    rustPlatform.cargoSetupHook
+    rustPlatform.maturinBuildHook
+  ];
 
   cargoDeps = rustPlatform.importCargoLock { lockFile = ./Cargo.lock; };
 }
