@@ -10,6 +10,7 @@
   crate = pkgs.callPackage ./crate.nix { };
   gitea = pkgs.callPackage ./gitea.nix { };
   github = pkgs.callPackage ./github.nix { };
+  github-no-release = pkgs.callPackage ./github-no-release.nix { };
   gitlab = pkgs.callPackage ./gitlab.nix { };
   pypi = pkgs.python3.pkgs.callPackage ./pypi.nix { };
   sourcehut = pkgs.python3.pkgs.callPackage ./sourcehut.nix { };
