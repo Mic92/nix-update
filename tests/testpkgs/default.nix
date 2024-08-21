@@ -5,6 +5,7 @@
   cargoLock.expand = pkgs.callPackage ./cargo-lock-expand { };
   cargoLock.generate.simple = pkgs.callPackage ./cargo-lock-generate/simple { };
   cargoLock.generate.with-lockfile-metadata-path = pkgs.callPackage ./cargo-lock-generate/with-lockfile-metadata-path { };
+  cargoLock.generate.with-lockfile-metadata-path-outside-workspace = pkgs.callPackage ./cargo-lock-generate/with-lockfile-metadata-path-outside-workspace { };
   cargoLock.update = pkgs.callPackage ./cargo-lock-update { };
   composer = pkgs.callPackage ./composer.nix { };
   crate = pkgs.callPackage ./crate.nix { };

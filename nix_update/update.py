@@ -308,7 +308,17 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
             cwd=tempdir,
         )
 
-        shutil.copy(tempdir + "/Cargo.lock", Path(filename).parent / "Cargo.lock")
+        if (
+            lockfile_in_subdir := Path(tempdir)
+            / opts.lockfile_metadata_path
+            / "Cargo.lock"
+        ).exists():
+            # if Cargo.toml is outside a workspace, Cargo.lock is generated in the same directory as Cargo.toml
+            lockfile = lockfile_in_subdir
+        else:
+            lockfile = Path(tempdir) / "Cargo.lock"
+
+        shutil.copy(lockfile, Path(filename).parent / "Cargo.lock")
 
 
 def update_composer_deps_hash(opts: Options, filename: str, current_hash: str) -> None:

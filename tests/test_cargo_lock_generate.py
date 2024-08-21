@@ -85,3 +85,50 @@ def test_with_lockfile_metadata_path(helpers: conftest.Helpers) -> None:
         assert (
             "https://github.com/lancedb/lancedb/compare/python-v0.11.0...0.12.0" in diff
         )
+
+
+def test_with_lockfile_metadata_path_outside_workspace(
+    helpers: conftest.Helpers,
+) -> None:
+    """A test for a project where the target Cargo.toml is outside a workspace.
+
+    In this case, Cargo.lock is generated in the subdirectory where Cargo.toml is located, not in the project root.
+    For example, https://github.com/lancedb/lance/blob/v0.16.1/Cargo.toml
+    """
+    with helpers.testpkgs(init_git=True) as path:
+        main(
+            [
+                "--file",
+                str(path),
+                "--commit",
+                "cargoLock.generate.with-lockfile-metadata-path-outside-workspace",
+                "--version",
+                "v0.16.1",
+                "--generate-lockfile",
+                "--lockfile-metadata-path",
+                "python",
+            ]
+        )
+        subprocess.run(
+            [
+                "nix",
+                "eval",
+                "--raw",
+                "--extra-experimental-features",
+                "nix-command",
+                "-f",
+                path,
+                "cargoLock.generate.with-lockfile-metadata-path-outside-workspace.cargoDeps",
+            ],
+            check=True,
+            text=True,
+            stdout=subprocess.PIPE,
+        ).stdout.strip()
+        diff = subprocess.run(
+            ["git", "-C", path, "show"],
+            text=True,
+            stdout=subprocess.PIPE,
+            check=True,
+        ).stdout.strip()
+        print(diff)
+        assert "https://github.com/lancedb/lance/compare/v0.15.0...v0.16.1" in diff
