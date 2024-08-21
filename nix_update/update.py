@@ -280,8 +280,6 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
     res = run(
         [
             "nix",
-            "--extra-experimental-features",
-            "flakes nix-command",
             "build",
             "-L",
             "--no-link",
