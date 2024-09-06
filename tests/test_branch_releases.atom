@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xml:lang="en-US">
+  <id>tag:github.com,2008:https://github.com/Mic92/nix-update/releases</id>
+  <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/releases"/>
+  <link type="application/atom+xml" rel="self" href="https://github.com/Mic92/nix-update/releases.atom"/>
+  <title>Release notes from nix-update</title>
+  <updated>2024-02-19T14:47:50Z</updated>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/1.2.0</id>
+    <updated>2024-02-19T14:48:23Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/1.2.0"/>
+    <title>1.2.0</title>
+    <content type="html">&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;make gitlab updater work by tag when releases are disabled by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/lilyinstarlight/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/lilyinstarlight&quot;&gt;@lilyinstarlight&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2085235481&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/219&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/219/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/219&quot;&gt;#219&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;print maintainers list by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/GaetanLepage/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/GaetanLepage&quot;&gt;@GaetanLepage&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2099698047&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/222&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/222/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/222&quot;&gt;#222&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;New Contributors&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/lilyinstarlight/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/lilyinstarlight&quot;&gt;@lilyinstarlight&lt;/a&gt; made their first contribution in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2085235481&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/219&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/219/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/219&quot;&gt;#219&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/GaetanLepage/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/GaetanLepage&quot;&gt;@GaetanLepage&lt;/a&gt; made their first contribution in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2099698047&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/222&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/222/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/222&quot;&gt;#222&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/1.1.0...1.1.1&quot;&gt;&lt;tt&gt;1.1.0...1.1.1&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;make gitlab updater work by tag when releases are disabled by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/lilyinstarlight/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/lilyinstarlight&quot;&gt;@lilyinstarlight&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2085235481&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/219&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/219/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/219&quot;&gt;#219&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;print maintainers list by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/GaetanLepage/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/GaetanLepage&quot;&gt;@GaetanLepage&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2099698047&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/222&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/222/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/222&quot;&gt;#222&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;New Contributors&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/lilyinstarlight/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/lilyinstarlight&quot;&gt;@lilyinstarlight&lt;/a&gt; made their first contribution in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2085235481&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/219&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/219/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/219&quot;&gt;#219&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/GaetanLepage/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/GaetanLepage&quot;&gt;@GaetanLepage&lt;/a&gt; made their first contribution in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2099698047&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/222&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/222/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/222&quot;&gt;#222&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/1.1.0...1.2.0&quot;&gt;&lt;tt&gt;1.1.0...1.2.0&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/1.1.0</id>
+    <updated>2024-01-16T11:38:43Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/1.1.0"/>
+    <title>1.1.0</title>
+    <content type="html">&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Support bitbucket.org by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/EBADBEEF/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/EBADBEEF&quot;&gt;@EBADBEEF&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2006328534&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/208&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/208/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/208&quot;&gt;#208&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Add support for updating buildComposerProject&#39;s vendorHash by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/Mic92/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/Mic92&quot;&gt;@Mic92&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2083525539&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/217&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/217/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/217&quot;&gt;#217&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;New Contributors&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/EBADBEEF/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/EBADBEEF&quot;&gt;@EBADBEEF&lt;/a&gt; made their first contribution in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2006328534&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/208&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/208/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/208&quot;&gt;#208&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/Atemu/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/Atemu&quot;&gt;@Atemu&lt;/a&gt; made their first contribution in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2064906340&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/213&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/213/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/213&quot;&gt;#213&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/AkechiShiro/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/AkechiShiro&quot;&gt;@AkechiShiro&lt;/a&gt; made their first contribution in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;2080900275&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/215&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/215/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/215&quot;&gt;#215&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/1.0.0...1.1.0&quot;&gt;&lt;tt&gt;1.0.0...1.1.0&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/1.0.0</id>
+    <updated>2023-09-30T09:18:22Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/1.0.0"/>
+    <title>1.0.0</title>
+    <content type="html">&lt;p&gt;This has been stable for a long time. Time to bump the version to 1.0.0!&lt;/p&gt;
+&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;quote &lt;code&gt;import_path&lt;/code&gt; when importing in nix by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/figsoda/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/figsoda&quot;&gt;@figsoda&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1863534200&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/191&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/191/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/191&quot;&gt;#191&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;ruff: enable upgrade checks by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/Mic92/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/Mic92&quot;&gt;@Mic92&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1866442457&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/192&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/192/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/192&quot;&gt;#192&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;unquote versions from github atom feeds by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/figsoda/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/figsoda&quot;&gt;@figsoda&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1884608615&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/193&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/193/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/193&quot;&gt;#193&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;support for updating yarn FOD hash by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/yu-re-ka/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/yu-re-ka&quot;&gt;@yu-re-ka&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1021395791&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/68&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/68/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/68&quot;&gt;#68&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Modernize buildsystem by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/Mic92/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/Mic92&quot;&gt;@Mic92&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1920179986&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/199&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/199/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/199&quot;&gt;#199&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;New Contributors&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/yu-re-ka/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/yu-re-ka&quot;&gt;@yu-re-ka&lt;/a&gt; made their first contribution in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1021395791&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/68&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/68/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/68&quot;&gt;#68&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/0.19.3...1.0.0&quot;&gt;&lt;tt&gt;0.19.3...1.0.0&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/0.19.3</id>
+    <updated>2023-08-06T19:28:44Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/0.19.3"/>
+    <title>0.19.3</title>
+    <content type="html">&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;fix escaping for non-toplevel attributes by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/figsoda/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/figsoda&quot;&gt;@figsoda&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1838297699&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/182&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/182/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/182&quot;&gt;#182&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/0.19.2...0.19.3&quot;&gt;&lt;tt&gt;0.19.2...0.19.3&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/0.19.2</id>
+    <updated>2023-08-02T21:03:43Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/0.19.2"/>
+    <title>0.19.2</title>
+    <content type="html">&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;fix attribute name escaping by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/figsoda/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/figsoda&quot;&gt;@figsoda&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1833252113&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/180&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/180/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/180&quot;&gt;#180&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/0.19.1...0.19.2&quot;&gt;&lt;tt&gt;0.19.1...0.19.2&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/0.19.1</id>
+    <updated>2023-08-02T05:44:10Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/0.19.1"/>
+    <title>0.19.1</title>
+    <content type="html">&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;escape attribute names by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/figsoda/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/figsoda&quot;&gt;@figsoda&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1832143213&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/179&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/179/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/179&quot;&gt;#179&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/0.19.0...0.19.1&quot;&gt;&lt;tt&gt;0.19.0...0.19.1&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/0.19.0</id>
+    <updated>2023-07-12T20:30:28Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/0.19.0"/>
+    <title>0.19.0</title>
+    <content type="html">&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;also respect cargoRoot when updating checksum by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/Mic92/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/Mic92&quot;&gt;@Mic92&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1760004756&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/172&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/172/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/172&quot;&gt;#172&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;support new goModules attr by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/Artturin/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/Artturin&quot;&gt;@Artturin&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1799569871&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/176&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/176/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/176&quot;&gt;#176&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;New Contributors&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/Artturin/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/Artturin&quot;&gt;@Artturin&lt;/a&gt; made their first contribution in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1799569871&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/176&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/176/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/176&quot;&gt;#176&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/0.18.0...0.19.0&quot;&gt;&lt;tt&gt;0.18.0...0.19.0&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/0.18.0</id>
+    <updated>2023-06-02T14:09:22Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/0.18.0"/>
+    <title>0.18.0</title>
+    <content type="html">&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;nix-update: use nom if in path by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/Mic92/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/Mic92&quot;&gt;@Mic92&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1689088189&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/159&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/159/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/159&quot;&gt;#159&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;add diff support for &lt;code&gt;fetchCrate&lt;/code&gt; by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/figsoda/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/figsoda&quot;&gt;@figsoda&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1707934337&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/162&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/162/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/162&quot;&gt;#162&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;git-commit files directly without using staging area by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/Mic92/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/Mic92&quot;&gt;@Mic92&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1736869979&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/171&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/171/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/171&quot;&gt;#171&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/0.17.2...0.18.0&quot;&gt;&lt;tt&gt;0.17.2...0.18.0&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/0.17.2</id>
+    <updated>2023-04-28T08:19:05Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/0.17.2"/>
+    <title>0.17.2</title>
+    <content type="html">&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;improve version assertions in tests by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/figsoda/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/figsoda&quot;&gt;@figsoda&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1686027633&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/158&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/158/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/158&quot;&gt;#158&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;fix updating cargoLock with flakes by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/figsoda/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/figsoda&quot;&gt;@figsoda&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1685992879&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/157&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/157/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/157&quot;&gt;#157&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/0.17.1...0.17.2&quot;&gt;&lt;tt&gt;0.17.1...0.17.2&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+  <entry>
+    <id>tag:github.com,2008:Repository/245145732/0.17.1</id>
+    <updated>2023-04-22T18:12:07Z</updated>
+    <link rel="alternate" type="text/html" href="https://github.com/Mic92/nix-update/releases/tag/0.17.1"/>
+    <title>0.17.1</title>
+    <content type="html">&lt;h2&gt;What&#39;s Changed&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;improve assertion message by &lt;a class=&quot;user-mention notranslate&quot; data-hovercard-type=&quot;user&quot; data-hovercard-url=&quot;/users/figsoda/hovercard&quot; data-octo-click=&quot;hovercard-link-click&quot; data-octo-dimensions=&quot;link_type:self&quot; href=&quot;https://github.com/figsoda&quot;&gt;@figsoda&lt;/a&gt; in &lt;a class=&quot;issue-link js-issue-link&quot; data-error-text=&quot;Failed to load title&quot; data-id=&quot;1677136781&quot; data-permission-text=&quot;Title is private&quot; data-url=&quot;https://github.com/Mic92/nix-update/issues/155&quot; data-hovercard-type=&quot;pull_request&quot; data-hovercard-url=&quot;/Mic92/nix-update/pull/155/hovercard&quot; href=&quot;https://github.com/Mic92/nix-update/pull/155&quot;&gt;#155&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Full Changelog&lt;/strong&gt;: &lt;a class=&quot;commit-link&quot; href=&quot;https://github.com/Mic92/nix-update/compare/0.17.0...0.17.1&quot;&gt;&lt;tt&gt;0.17.0...0.17.1&lt;/tt&gt;&lt;/a&gt;&lt;/p&gt;</content>
+    <author>
+      <name>Mic92</name>
+    </author>
+    <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=60&amp;v=4"/>
+  </entry>
+</feed>
