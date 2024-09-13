@@ -433,6 +433,7 @@ def update(opts: Options) -> Package:
                 "--argstr",
                 "package",
                 opts.attribute,
+                *opts.update_script_args,
             ],
             stdout=None,
         )

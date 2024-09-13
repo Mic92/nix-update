@@ -17,6 +17,7 @@ class Options:
     url: str | None = None
     commit: bool = False
     use_update_script: bool = False
+    update_script_args: list[str] = field(default_factory=list)
     write_commit_message: str | None = None
     shell: bool = False
     run: bool = False

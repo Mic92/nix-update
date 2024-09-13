@@ -1,5 +1,6 @@
 import argparse
 import os
+import shlex
 import shutil
 import sys
 import tempfile
@@ -40,6 +41,12 @@ def parse_args(args: list[str]) -> Options:
         "--use-update-script",
         action="store_true",
         help="Use passthru.updateScript instead if possible",
+    )
+    parser.add_argument(
+        "--update-script-args",
+        default=[],
+        type=shlex.split,
+        help="Args to pass to `nix-shell maintainers/scripts/update.nix`, subject to splitting.",
     )
     parser.add_argument(
         "--url",
@@ -108,6 +115,7 @@ def parse_args(args: list[str]) -> Options:
         build=a.build,
         commit=a.commit,
         use_update_script=a.use_update_script,
+        update_script_args=a.update_script_args,
         url=a.url,
         write_commit_message=a.write_commit_message,
         run=a.run,
