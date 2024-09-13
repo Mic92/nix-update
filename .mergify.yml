@@ -3,6 +3,7 @@ queue_rules:
     merge_conditions:
       - check-success=format-check
       - check-success=tests
+      - check-success=buildbot/nix-build
 defaults:
   actions:
     queue:
