@@ -183,6 +183,18 @@ $ nix-update sbt --version=unstable
 Update 1.4.6 -> 1.5.0-M1 in sbt
 ```
 
+Nix-update can also run the `passthru.updateScript` defined by the package.
+
+```console
+$ nix-update sbt --use-update-script
+```
+
+Arguments can be passed to `nix-shell maintainers/scripts/update.nix` like so
+
+```console
+$ nix-update sbt --use-update-script --update-script-args "--argstr skip-prompt true"
+```
+
 ## Development setup
 
 First clone the repo to your preferred location (in the following, we assume `~/` - your home):
