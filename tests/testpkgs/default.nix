@@ -8,6 +8,7 @@
   cargoLock.generate.with-lockfile-metadata-path-outside-workspace = pkgs.callPackage ./cargo-lock-generate/with-lockfile-metadata-path-outside-workspace { };
   cargoLock.update = pkgs.callPackage ./cargo-lock-update { };
   composer = pkgs.callPackage ./composer.nix { };
+  composer-old = pkgs.callPackage ./composer-old.nix { };
   crate = pkgs.callPackage ./crate.nix { };
   gitea = pkgs.callPackage ./gitea.nix { };
   github = pkgs.callPackage ./github.nix { };

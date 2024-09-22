@@ -57,6 +57,7 @@ class Package:
     pnpm_deps: str | None
     yarn_deps: str | None
     composer_deps: str | None
+    composer_deps_old: str | None
     maven_deps: str | None
     mix_deps: str | None
     tests: list[str]
@@ -185,7 +186,8 @@ in {{
       if res.success then res.value.file else false
     else
       null;
-  composer_deps = pkg.composerRepository.outputHash or null;
+  composer_deps = pkg.composerVendor.outputHash or null;
+  composer_deps_old = pkg.composerRepository.outputHash or null;
   npm_deps = pkg.npmDeps.outputHash or null;
   pnpm_deps = pkg.pnpmDeps.outputHash or null;
   yarn_deps = pkg.offlineCache.outputHash or null;
