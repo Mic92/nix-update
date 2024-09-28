@@ -33,7 +33,7 @@
           options = [
             "-eucx"
             ''
-              ${lib.getExe pkgs.ruff} --fix "$@"
+              ${lib.getExe pkgs.ruff} check "$@"
               ${lib.getExe pkgs.ruff} format "$@"
             ''
             "--" # this argument is ignored by bash
