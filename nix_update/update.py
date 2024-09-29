@@ -322,6 +322,13 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
 
 
 def update_composer_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "composerVendor")
+    replace_hash(filename, current_hash, target_hash)
+
+
+def update_composer_deps_hash_old(
+    opts: Options, filename: str, current_hash: str
+) -> None:
     target_hash = nix_prefetch(opts, "composerRepository")
     replace_hash(filename, current_hash, target_hash)
 
@@ -466,6 +473,11 @@ def update(opts: Options) -> Package:
 
         if package.composer_deps:
             update_composer_deps_hash(opts, package.filename, package.composer_deps)
+
+        if package.composer_deps_old:
+            update_composer_deps_hash_old(
+                opts, package.filename, package.composer_deps_old
+            )
 
         if package.npm_deps:
             update_npm_deps_hash(opts, package.filename, package.npm_deps)

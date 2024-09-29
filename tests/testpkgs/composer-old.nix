@@ -2,14 +2,14 @@
 , php
 }:
 
-php.buildComposerProject2 (finalAttrs: {
-  pname = "phpunit";
-  version = "11.3.0";
+php.buildComposerProject (finalAttrs: {
+  pname = "castor";
+  version = "0.10.0";
 
   src = fetchFromGitHub {
-    owner = "sebastianbergmann";
-    repo = "phpunit";
-    rev = finalAttrs.version;
+    owner = "jolicode";
+    repo = "castor";
+    rev = "v${finalAttrs.version}";
     hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 
