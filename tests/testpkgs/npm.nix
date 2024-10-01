@@ -1,6 +1,4 @@
-{ fetchFromGitHub
-, buildNpmPackage
-}:
+{ fetchFromGitHub, buildNpmPackage }:
 
 buildNpmPackage rec {
   pname = "jellyfin-web";

@@ -1,6 +1,6 @@
-{ pkgs ? import <nixpkgs> { }
+{
+  pkgs ? import <nixpkgs> { },
 }:
-
 
 pkgs.python311.pkgs.buildPythonApplication {
   pname = "nix-update";
@@ -21,7 +21,11 @@ pkgs.python311.pkgs.buildPythonApplication {
   makeWrapperArgs = [
     "--prefix PATH"
     ":"
-    (pkgs.lib.makeBinPath [ pkgs.nixVersions.stable or pkgs.nix_2_4 pkgs.nixpkgs-review pkgs.nix-prefetch-git ])
+    (pkgs.lib.makeBinPath [
+      pkgs.nixVersions.stable or pkgs.nix_2_4
+      pkgs.nixpkgs-review
+      pkgs.nix-prefetch-git
+    ])
   ];
   shellHook = ''
     # workaround because `python setup.py develop` breaks for me

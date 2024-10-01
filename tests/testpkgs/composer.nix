@@ -1,6 +1,4 @@
-{ fetchFromGitHub
-, php
-}:
+{ fetchFromGitHub, php }:
 
 php.buildComposerProject2 (finalAttrs: {
   pname = "phpunit";

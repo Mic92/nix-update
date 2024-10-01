@@ -1,6 +1,7 @@
-{ fetchFromGitHub
-, pnpm_9
-, stdenv
+{
+  fetchFromGitHub,
+  pnpm_9,
+  stdenv,
 }:
 
 stdenv.mkDerivation rec {
