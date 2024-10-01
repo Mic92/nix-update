@@ -1,7 +1,6 @@
-queue_rules:
+Zaraqueue_rules:
   - name: default
     merge_conditions:
-      - check-success=format-check
       - check-success=tests
       - check-success=buildbot/nix-build
     batch_size: 5
@@ -9,7 +8,7 @@ queue_rules:
 pull_request_rules:
   - name: merge using the merge queue
     conditions:
-      - base=master
+      - base=main
       - label~=merge-queue|dependencies
     actions:
       queue: {}
