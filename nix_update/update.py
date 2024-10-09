@@ -77,7 +77,7 @@ def to_sri(hashstr: str) -> str:
 def replace_hash(filename: str, current: str, target: str) -> None:
     normalized_hash = to_sri(target)
     if to_sri(current) != normalized_hash:
-        with open(filename, 'r+', encoding='utf8') as f:
+        with open(filename, "r+", encoding="utf8") as f:
             content = f.read()
             f.seek(0)
             f.write(content.replace(current, normalized_hash))
