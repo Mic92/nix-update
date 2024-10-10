@@ -6,7 +6,7 @@ pkgs.python3.pkgs.buildPythonApplication {
   pname = "nix-update";
   version = "1.5.2";
   src = ./.;
-  format = "pyproject";
+  pyproject = true;
   buildInputs = [ pkgs.makeWrapper ];
   nativeBuildInputs = [ pkgs.python3.pkgs.setuptools ];
   nativeCheckInputs = [
