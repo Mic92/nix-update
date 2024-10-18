@@ -2,15 +2,15 @@
   pkgs ? import <nixpkgs> { },
 }:
 
-pkgs.python311.pkgs.buildPythonApplication {
+pkgs.python3.pkgs.buildPythonApplication {
   pname = "nix-update";
-  version = "1.0.0";
+  version = "1.5.2";
   src = ./.;
-  format = "pyproject";
+  pyproject = true;
   buildInputs = [ pkgs.makeWrapper ];
-  nativeBuildInputs = [ pkgs.python311.pkgs.setuptools ];
+  nativeBuildInputs = [ pkgs.python3.pkgs.setuptools ];
   nativeCheckInputs = [
-    pkgs.python311.pkgs.pytest
+    pkgs.python3.pkgs.pytest
     # technically not test inputs, but we need it for development in PATH
     pkgs.nixVersions.stable
     pkgs.nix-prefetch-git
@@ -22,12 +22,9 @@ pkgs.python311.pkgs.buildPythonApplication {
     "--prefix PATH"
     ":"
     (pkgs.lib.makeBinPath [
-      pkgs.nixVersions.stable or pkgs.nix_2_4
+      pkgs.nixVersions.stable
       pkgs.nixpkgs-review
       pkgs.nix-prefetch-git
     ])
   ];
-  shellHook = ''
-    # workaround because `python setup.py develop` breaks for me
-  '';
 }
