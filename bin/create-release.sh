@@ -33,6 +33,6 @@ git add pyproject.toml default.nix
 nix flake check -vL
 nix develop -c pytest -s .
 git commit -m "bump version ${version}"
-git tag -e "${version}"
+git tag "${version}"
 
 echo "now run 'git push --tags origin main'"
