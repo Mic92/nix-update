@@ -10,17 +10,17 @@
         projectRootFile = "flake.lock";
 
         programs.deno.enable =
-          pkgs.lib.meta.availableOn pkgs.stdenv.hostPlatform pkgs.deno && !pkgs.deno.meta.broken;
+          pkgs.hostPlatform.system != "x86_64-darwin" && pkgs.hostPlatform.system != "riscv64-linux";
         programs.mypy.enable = true;
 
         programs.yamlfmt.enable = true;
 
-        programs.nixfmt.enable = pkgs.lib.meta.availableOn pkgs.stdenv.buildPlatform pkgs.nixfmt-rfc-style.compiler;
+        programs.nixfmt.enable = pkgs.hostPlatform.system != "riscv64-linux";
         programs.deadnix.enable = true;
         programs.ruff.format = true;
         programs.ruff.check = true;
 
-        programs.shellcheck.enable = pkgs.lib.meta.availableOn pkgs.stdenv.buildPlatform pkgs.shellcheck.compiler;
+        programs.shellcheck.enable = pkgs.hostPlatform.system != "riscv64-linux";
         programs.shfmt.enable = true;
         settings.formatter.shfmt.includes = [ "*.envrc" ];
       };
