@@ -11,8 +11,8 @@ if [[ -z $version ]]; then
   exit 1
 fi
 
-if [[ "$(git symbolic-ref --short HEAD)" != "master" ]]; then
-  echo "must be on master branch" >&2
+if [[ "$(git symbolic-ref --short HEAD)" != "main" ]]; then
+  echo "must be on main branch" >&2
   exit 1
 fi
 
@@ -22,8 +22,8 @@ if [[ -n $uncommitted_changes ]]; then
   echo -e "There are uncommitted changes, exiting:\n${uncommitted_changes}" >&2
   exit 1
 fi
-git pull git@github.com:Mic92/nix-update master
-unpushed_commits=$(git log --format=oneline origin/master..master)
+git pull git@github.com:Mic92/nix-update main
+unpushed_commits=$(git log --format=oneline origin/main..main)
 if [[ $unpushed_commits != "" ]]; then
   echo -e "\nThere are unpushed changes, exiting:\n$unpushed_commits" >&2
   exit 1
@@ -35,4 +35,4 @@ nix develop -c pytest -s .
 git commit -m "bump version ${version}"
 git tag -e "${version}"
 
-echo "now run 'git push --tags origin master'"
+echo "now run 'git push --tags origin main'"
