@@ -30,4 +30,6 @@
   pnpm = pkgs.callPackage ./pnpm.nix { };
   maven = pkgs.callPackage ./maven.nix { };
   mix = pkgs.callPackage ./mix.nix { };
+  set = pkgs.callPackage ./set.nix { };
+  let-bound-version = pkgs.callPackage ./let-bound-version.nix { };
 }

@@ -237,7 +237,6 @@ nix-update might not work correctly if a file contain multiple packages as it
 performs naive search and replace to update version numbers. This might be a
 problem if:
 
-- A file contains the same version string for multiple packages.
 - `name` is used instead of `pname` and/or `${version}` is injected into `name`.
 
 Related discussions:
