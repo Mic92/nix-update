@@ -1,19 +1,20 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-
-pkgs.python3.pkgs.buildPythonApplication {
+pkgs.python3Packages.buildPythonApplication {
   pname = "nix-update";
   version = "1.5.2";
   src = ./.;
   pyproject = true;
   buildInputs = [ pkgs.makeWrapper ];
-  nativeBuildInputs = [ pkgs.python3.pkgs.setuptools ];
-  nativeCheckInputs = [
-    pkgs.python3.pkgs.pytest
-    # technically not test inputs, but we need it for development in PATH
+  build-system = [ pkgs.python3Packages.setuptools ];
+  nativeBuildInputs = [
     pkgs.nixVersions.stable
     pkgs.nix-prefetch-git
+  ];
+  nativeCheckInputs = [
+    pkgs.python3Packages.pytest
+    pkgs.python3Packages.pytest-xdist
   ];
   checkPhase = ''
     PYTHONPATH= $out/bin/nix-update --help

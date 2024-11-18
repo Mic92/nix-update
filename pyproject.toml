@@ -21,6 +21,9 @@ Homepage = "https://github.com/Mic92/nix-update"
 [project.scripts]
 nix-update = "nix_update:main"
 
+[tool.pytest.ini_options]
+addopts = "-v -n auto"
+
 [tool.ruff]
 target-version = "py311"
 line-length = 88
