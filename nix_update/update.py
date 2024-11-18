@@ -162,6 +162,13 @@ def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> N
     replace_hash(filename, current_hash, target_hash)
 
 
+def update_cargo_vendor_deps_hash(
+    opts: Options, filename: str, current_hash: str
+) -> None:
+    target_hash = nix_prefetch(opts, "cargoDeps.vendorStaging")
+    replace_hash(filename, current_hash, target_hash)
+
+
 def update_cargo_lock(
     opts: Options, filename: str, dst: CargoLockInSource | CargoLockInStore
 ) -> None:
@@ -470,6 +477,11 @@ def update(opts: Options) -> Package:
 
         if package.cargo_deps:
             update_cargo_deps_hash(opts, package.filename, package.cargo_deps)
+
+        if package.cargo_vendor_deps:
+            update_cargo_vendor_deps_hash(
+                opts, package.filename, package.cargo_vendor_deps
+            )
 
         if package.composer_deps:
             update_composer_deps_hash(opts, package.filename, package.composer_deps)
