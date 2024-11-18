@@ -86,6 +86,8 @@ class Package:
             self.version_position = None
         else:
             self.version_position = Position(**raw_version_position)
+            if self.filename:
+                self.version_position.file = self.filename
 
         if raw_cargo_lock is None:
             self.cargo_lock = NoCargoLock()
@@ -221,11 +223,11 @@ def eval_attr(opts: Options) -> Package:
     ] + opts.extra_flags
     res = run(cmd)
     out = json.loads(res.stdout)
-    package = Package(attribute=opts.attribute, import_path=opts.import_path, **out)
     if opts.override_filename is not None:
-        package.filename = opts.override_filename
+        out["filename"] = opts.override_filename
     if opts.url is not None:
-        package.parsed_url = urlparse(opts.url)
+        out["url"] = opts.url
+    package = Package(attribute=opts.attribute, import_path=opts.import_path, **out)
     if opts.version_preference != VersionPreference.SKIP and package.old_version == "":
         raise UpdateError(
             f"Nix's builtins.parseDrvName could not parse the version from {package.name}"
