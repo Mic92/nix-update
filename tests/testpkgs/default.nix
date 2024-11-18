@@ -14,6 +14,8 @@
       { };
   cargoLock.update = pkgs.callPackage ./cargo-lock-update { };
   composer = pkgs.callPackage ./composer.nix { };
+  cargoVendorDeps.nonRustPackage = pkgs.callPackage ./cargo-vendor-deps/non-rust-package.nix { };
+  cargoVendorDeps.rustPackage = pkgs.callPackage ./cargo-vendor-deps/rust-package.nix { };
   composer-old = pkgs.callPackage ./composer-old.nix { };
   crate = pkgs.callPackage ./crate.nix { };
   gitea = pkgs.callPackage ./gitea.nix { };
