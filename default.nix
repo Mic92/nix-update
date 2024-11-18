@@ -14,6 +14,7 @@ pkgs.python3Packages.buildPythonApplication {
   ];
   nativeCheckInputs = [
     pkgs.python3Packages.pytest
+    pkgs.python3Packages.pytest-xdist
   ];
   checkPhase = ''
     PYTHONPATH= $out/bin/nix-update --help
