@@ -31,3 +31,12 @@ def test_main(helpers: conftest.Helpers) -> None:
         print(commit)
         assert f"crate: 8.0.0 -> {version}" in commit
         assert "https://diff.rs/fd-find/8.0.0/" in commit
+
+        diff = subprocess.run(
+            ["git", "-C", path, "show"],
+            text=True,
+            stdout=subprocess.PIPE,
+            check=True,
+        ).stdout.strip()
+        print(diff)
+        assert "https://diff.rs/fd-find/8.0.0/10.2.0" in diff
