@@ -1,4 +1,5 @@
 import os
+import shlex
 import subprocess
 import sys
 from collections.abc import Callable
@@ -31,7 +32,7 @@ def run(
     check: bool = True,
     extra_env: dict[str, str] = {},
 ) -> "subprocess.CompletedProcess[str]":
-    info("$ " + " ".join(command))
+    info("$ " + shlex.join(command))
     env = os.environ.copy()
     env.update(extra_env)
     return subprocess.run(
