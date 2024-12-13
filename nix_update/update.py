@@ -372,6 +372,11 @@ def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> Non
 
 
 def update_yarn_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "yarnOfflineCache")
+    replace_hash(filename, current_hash, target_hash)
+
+
+def update_yarn_deps_hash_old(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "offlineCache")
     replace_hash(filename, current_hash, target_hash)
 
@@ -511,6 +516,9 @@ def update(opts: Options) -> Package:
 
         if package.yarn_deps:
             update_yarn_deps_hash(opts, package.filename, package.yarn_deps)
+
+        if package.yarn_deps_old:
+            update_yarn_deps_hash_old(opts, package.filename, package.yarn_deps_old)
 
         if package.maven_deps:
             update_maven_deps_hash(opts, package.filename, package.maven_deps)
