@@ -57,6 +57,7 @@ class Package:
     npm_deps: str | None
     pnpm_deps: str | None
     yarn_deps: str | None
+    yarn_deps_old: str | None
     composer_deps: str | None
     composer_deps_old: str | None
     maven_deps: str | None
@@ -194,7 +195,8 @@ in {{
   composer_deps_old = pkg.composerRepository.outputHash or null;
   npm_deps = pkg.npmDeps.outputHash or null;
   pnpm_deps = pkg.pnpmDeps.outputHash or null;
-  yarn_deps = pkg.offlineCache.outputHash or null;
+  yarn_deps = pkg.yarnOfflineCache.outputHash or null;
+  yarn_deps_old = pkg.offlineCache.outputHash or null;
   maven_deps = pkg.fetchedMavenDeps.outputHash or null;
   mix_deps = pkg.mixFodDeps.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or {{}});
