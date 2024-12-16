@@ -340,6 +340,81 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
         shutil.copy(lockfile, Path(filename).parent / "Cargo.lock")
 
 
+def generate_npm_lock(opts: Options, filename: str) -> None:
+    @contextmanager
+    def disable_copystat():
+        _orig = shutil.copystat
+        shutil.copystat = lambda *args, **kwargs: None
+        try:
+            yield
+        finally:
+            shutil.copystat = _orig
+
+    getSrcAndNpm = textwrap.dedent(
+        f"""
+      {get_package(opts)}.overrideAttrs (old: {{
+        npmDeps = null;
+        npmDepsHash = null;
+        postUnpack = ''
+          cp -pr --reflink=auto -- $sourceRoot $out
+          mkdir -p "$out/nix-support"
+          command -v npm > $out/nix-support/npm-bin || {{
+            echo "no npm executable found in native build inputs" >&2
+            exit 1
+          }}
+          exit
+        '';
+        outputs = [ "out" ];
+        separateDebugInfo = false;
+      }})
+    """
+    )
+
+    res = run(
+        [
+            "nix",
+            "build",
+            "-L",
+            "--no-link",
+            "--impure",
+            "--print-out-paths",
+            "--expr",
+            getSrcAndNpm,
+        ]
+        + opts.extra_flags,
+    )
+    src = Path(res.stdout.strip())
+
+    with tempfile.TemporaryDirectory() as tempdir:
+        with disable_copystat():
+            shutil.copytree(src, tempdir, dirs_exist_ok=True, copy_function=shutil.copy)
+
+        npm_bin = (src / "nix-support" / "npm-bin").read_text().rstrip("\n")
+
+        run(
+            [
+                npm_bin,
+                "install",
+                "--package-lock-only",
+                "--prefix",
+                opts.lockfile_metadata_path,
+            ],
+            cwd=tempdir,
+        )
+
+        if (
+            lockfile_in_subdir := Path(tempdir)
+            / opts.lockfile_metadata_path
+            / "package-lock.json"
+        ).exists():
+            # if package.json is outside a workspace, package0lock.json is generated in the same directory as package.json
+            lockfile = lockfile_in_subdir
+        else:
+            lockfile = Path(tempdir) / "package-lock.json"
+
+        shutil.copy(lockfile, Path(filename).parent / "package-lock.json")
+
+
 def update_composer_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "composerVendor")
     replace_hash(filename, current_hash, target_hash)
@@ -509,6 +584,8 @@ def update(opts: Options) -> Package:
             )
 
         if package.npm_deps:
+            if opts.generate_lockfile:
+                generate_npm_lock(opts, package.filename)
             update_npm_deps_hash(opts, package.filename, package.npm_deps)
 
         if package.pnpm_deps:
