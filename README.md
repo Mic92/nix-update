@@ -197,6 +197,63 @@ Arguments can be passed to `nix-shell maintainers/scripts/update.nix` like so
 $ nix-update sbt --use-update-script --update-script-args "--argstr skip-prompt true"
 ```
 
+## Subpackages
+
+Some packages consist of multiple fixed-output derivations derived from the same
+upstream source. For example, a Go project with Go module dependencies might
+also include a JavaScript project with npm dependencies.
+
+To support such use cases, `nix-update` allows specifying subpackages directly
+in the command line. Consider a package accessible via the `some-package`
+attribute, which also provides a second fixed-output derivation as a subpackage
+named `web-ui`:
+
+```nix
+{
+  buildGoModule,
+  fetchFromGitHub,
+  buildNpmPackage,
+}:
+
+let
+  pname = "some-package";
+  version = "1.0.0";
+  src = fetchFromGitHub {
+    owner = "owner";
+    repo = "repo";
+    rev = "v${version}";
+    hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+  };
+
+  web-ui = buildNpmPackage rec {
+    ...
+    npmDepsHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+  };
+in
+buildGoModule rec {
+  inherit
+    web-ui
+    pname
+    version
+    src;
+
+  vendorHash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+
+  preBuild = ''
+    cp -r ${web-ui}/* web/dist
+  '';
+}
+```
+
+You can update the package and its subpackage using `nix-update` as follows:
+
+```
+nix-update --subpackage web-ui some-package
+```
+
+The `--subpackage` option can be repeated to update multiple subpackages in the
+same derivation.
+
 ## Development setup
 
 First clone the repo to your preferred location (in the following, we assume
