@@ -107,6 +107,13 @@ def parse_args(args: list[str]) -> Options:
         help="Path to the directory containing the metadata (e.g. Cargo.toml) referenced by the lockfile",
         default=".",
     )
+    parser.add_argument(
+        "-s",
+        "--subpackage",
+        action="append",
+        help="Attribute for a subpackage that nix-update should try to get hashes for",
+        default=None,
+    )
 
     a = parser.parse_args(args)
     return Options(
@@ -116,6 +123,7 @@ def parse_args(args: list[str]) -> Options:
         commit=a.commit,
         use_update_script=a.use_update_script,
         update_script_args=a.update_script_args,
+        subpackages=a.subpackage,
         url=a.url,
         write_commit_message=a.write_commit_message,
         run=a.run,
