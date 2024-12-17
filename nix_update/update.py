@@ -268,7 +268,33 @@ def update_cargo_lock(
                 print(line, end="")
 
 
-def generate_cargo_lock(opts: Options, filename: str) -> None:
+def generate_lockfile(opts: Options, filename: str, type: str) -> None:
+    if type == "cargo":
+        cmd = [
+            "generate-lockfile",
+            "--manifest-path",
+            f"{opts.lockfile_metadata_path}/Cargo.toml",
+        ]
+        bin_name = "cargo"
+        lockfile_name = "Cargo.lock"
+        extra_nix_override = """
+          cargoDeps = null;
+          cargoVendorDir = ".";
+        """
+    elif type == "npm":
+        cmd = [
+            "install",
+            "--package-lock-only",
+            "--prefix",
+            opts.lockfile_metadata_path,
+        ]
+        bin_name = "npm"
+        lockfile_name = "package-lock.json"
+        extra_nix_override = """
+          npmDeps = null;
+          npmDepsHash = null;
+        """
+
     @contextmanager
     def disable_copystat():
         _orig = shutil.copystat
@@ -278,15 +304,15 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
         finally:
             shutil.copystat = _orig
 
-    getSrcAndCargo = textwrap.dedent(f"""
+    getSrcAndBin = textwrap.dedent(
+        f"""
       {get_package(opts)}.overrideAttrs (old: {{
-        cargoDeps = null;
-        cargoVendorDir = ".";
+        {extra_nix_override}
         postUnpack = ''
           cp -pr --reflink=auto -- $sourceRoot $out
           mkdir -p "$out/nix-support"
-          command -v cargo > $out/nix-support/cargo-bin || {{
-            echo "no cargo executable found in native build inputs" >&2
+          command -v {bin_name} > $out/nix-support/{bin_name}-bin || {{
+            echo "no {bin_name} executable found in native build inputs" >&2
             exit 1
           }}
           exit
@@ -294,7 +320,8 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
         outputs = [ "out" ];
         separateDebugInfo = false;
       }})
-    """)
+    """
+    )
 
     res = run(
         [
@@ -305,7 +332,7 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
             "--impure",
             "--print-out-paths",
             "--expr",
-            getSrcAndCargo,
+            getSrcAndBin,
         ]
         + opts.extra_flags,
     )
@@ -315,29 +342,23 @@ def generate_cargo_lock(opts: Options, filename: str) -> None:
         with disable_copystat():
             shutil.copytree(src, tempdir, dirs_exist_ok=True, copy_function=shutil.copy)
 
-        cargo_bin = (src / "nix-support" / "cargo-bin").read_text().rstrip("\n")
+        bin_path = (src / "nix-support" / f"{bin_name}-bin").read_text().rstrip("\n")
 
         run(
-            [
-                cargo_bin,
-                "generate-lockfile",
-                "--manifest-path",
-                f"{opts.lockfile_metadata_path}/Cargo.toml",
-            ],
+            [bin_path] + cmd,
             cwd=tempdir,
         )
 
         if (
             lockfile_in_subdir := Path(tempdir)
             / opts.lockfile_metadata_path
-            / "Cargo.lock"
+            / lockfile_name
         ).exists():
-            # if Cargo.toml is outside a workspace, Cargo.lock is generated in the same directory as Cargo.toml
             lockfile = lockfile_in_subdir
         else:
-            lockfile = Path(tempdir) / "Cargo.lock"
+            lockfile = Path(tempdir) / lockfile_name
 
-        shutil.copy(lockfile, Path(filename).parent / "Cargo.lock")
+        shutil.copy(lockfile, Path(filename).parent / lockfile_name)
 
 
 def update_composer_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
@@ -509,6 +530,8 @@ def update(opts: Options) -> Package:
             )
 
         if package.npm_deps:
+            if opts.generate_lockfile:
+                generate_lockfile(opts, package.filename, "npm")
             update_npm_deps_hash(opts, package.filename, package.npm_deps)
 
         if package.pnpm_deps:
@@ -530,7 +553,7 @@ def update(opts: Options) -> Package:
             package.cargo_lock, CargoLockInStore
         ):
             if opts.generate_lockfile:
-                generate_cargo_lock(opts, package.filename)
+                generate_lockfile(opts, package.filename, "cargo")
             else:
                 update_cargo_lock(opts, package.filename, package.cargo_lock)
 

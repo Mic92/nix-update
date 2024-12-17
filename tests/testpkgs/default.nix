@@ -27,6 +27,7 @@
   savanna = pkgs.python3.pkgs.callPackage ./savanna.nix { };
   npm = pkgs.callPackage ./npm.nix { };
   npm-package = pkgs.callPackage ./npm-package.nix { };
+  npm-lock-generate = pkgs.callPackage ./npm-lock-generate { };
   pnpm = pkgs.callPackage ./pnpm.nix { };
   maven = pkgs.callPackage ./maven.nix { };
   mix = pkgs.callPackage ./mix.nix { };
