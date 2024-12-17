@@ -227,6 +227,13 @@ wrapper:
 $ ~/git/nix-update/bin/nix-update --commit hello
 ```
 
+This project uses [treefmt-nix](https://github.com/numtide/treefmt-nix) for formatting.
+It can be run on the repository like that:
+
+```
+$ nix fmt
+```
+
 ## TODO
 
 - create pull requests
