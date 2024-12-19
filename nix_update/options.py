@@ -13,6 +13,7 @@ class Options:
     version_preference: VersionPreference = VersionPreference.STABLE
     version_regex: str = "(.*)"
     import_path: str = os.getcwd()
+    subpackages: list[str] | None = None
     override_filename: str | None = None
     url: str | None = None
     commit: bool = False

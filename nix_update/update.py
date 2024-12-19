@@ -9,6 +9,7 @@ import textwrap
 import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
+from copy import deepcopy
 from os import path
 from pathlib import Path
 
@@ -504,6 +505,18 @@ def update(opts: Options) -> Package:
 
     if package.hash and update_hash:
         update_src_hash(opts, package.filename, package.hash)
+
+    if opts.subpackages:
+        for subpackage in opts.subpackages:
+            info(f"Updating subpackage {subpackage}")
+            subpackage_opts = deepcopy(opts)
+            subpackage_opts.attribute += f".{subpackage}"
+            # Update escaped package attribute
+            subpackage_opts.__post_init__()
+            subpackage_opts.subpackages = None
+            # Do not update the version number since that's already been done
+            subpackage_opts.version_preference = VersionPreference.SKIP
+            update(subpackage_opts)
 
     # if no package.hash was provided we just update the other hashes unconditionally
     if update_hash or not package.hash:
