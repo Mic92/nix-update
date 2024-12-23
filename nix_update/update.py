@@ -458,20 +458,21 @@ def update_version(
             package.diff_url = (
                 f"https://diff.rs/{parts[4]}/{package.old_version}/{new_version.number}"
             )
+        old_rev_tag = package.rev or package.tag
         if package.parsed_url.netloc == "registry.npmjs.org":
             parts = package.parsed_url.path.split("/")
             package.diff_url = f"https://npmdiff.dev/{parts[1]}/{package.old_version}/{new_version.number}"
         elif package.parsed_url.netloc == "github.com":
             _, owner, repo, *_ = package.parsed_url.path.split("/")
-            package.diff_url = f"https://github.com/{owner}/{repo.removesuffix('.git')}/compare/{package.rev}...{new_version.rev or new_version.number}"
+            package.diff_url = f"https://github.com/{owner}/{repo.removesuffix('.git')}/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
         elif package.parsed_url.netloc in ["codeberg.org", "gitea.com"]:
             _, owner, repo, *_ = package.parsed_url.path.split("/")
-            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/compare/{package.rev}...{new_version.rev or new_version.number}"
+            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
         elif GITLAB_API.match(package.parsed_url.geturl()) and package.src_homepage:
-            package.diff_url = f"{package.src_homepage}-/compare/{package.rev}...{new_version.rev or new_version.number}"
+            package.diff_url = f"{package.src_homepage}-/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
         elif package.parsed_url.netloc in ["bitbucket.org", "bitbucket.io"]:
             _, owner, repo, *_ = package.parsed_url.path.split("/")
-            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/branches/compare/{new_version.rev or new_version.number}%0D{package.rev}"
+            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/branches/compare/{new_version.rev or new_version.number}%0D{old_rev_tag}"
 
     return replace_version(package)
 
