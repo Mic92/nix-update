@@ -25,13 +25,14 @@ from .version.version import Version, VersionPreference
 
 def replace_version(package: Package) -> bool:
     assert package.new_version is not None
+    old_rev_tag = package.rev or package.tag
     old_version = package.old_version
     new_version = package.new_version.number
     if new_version.startswith("v"):
         new_version = new_version[1:]
 
     changed = old_version != new_version or (
-        package.new_version.rev is not None and package.new_version.rev != package.rev
+        package.new_version.rev is not None and package.new_version.rev != old_rev_tag
     )
 
     if changed:
@@ -46,7 +47,7 @@ def replace_version(package: Package) -> bool:
         with fileinput.FileInput(package.filename, inplace=True) as f:
             for i, line in enumerate(f, 1):
                 if package.new_version.rev:
-                    line = line.replace(package.rev, package.new_version.rev)
+                    line = line.replace(old_rev_tag, package.new_version.rev)
                 if (
                     not version_string_in_version_declaration
                     or package.version_position.line == i
