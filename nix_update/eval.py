@@ -48,7 +48,8 @@ class Package:
     src_homepage: str | None
     changelog: str | None
     maintainers: list[dict[str, str]] | None
-    rev: str
+    rev: str | None
+    tag: str | None
     hash: str | None
     go_modules: str | None
     go_modules_old: str | None
@@ -175,6 +176,7 @@ in {{
   urls = pkg.src.urls or null;
   url = pkg.src.url or null;
   rev = pkg.src.rev or null;
+  tag = pkg.src.tag or null;
   hash = pkg.src.outputHash or null;
   go_modules = pkg.goModules.outputHash or null;
   go_modules_old = pkg.go-modules.outputHash or null;

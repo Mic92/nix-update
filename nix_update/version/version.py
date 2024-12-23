@@ -7,6 +7,7 @@ class Version:
     number: str
     prerelease: bool | None = None
     rev: str | None = None
+    tag: str | None = None
 
 
 class VersionPreference(StrEnum):
