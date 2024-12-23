@@ -81,7 +81,7 @@ def fetch_latest_version(
     preference: VersionPreference,
     version_regex: str,
     branch: str | None = None,
-    old_rev: str | None = None,
+    old_rev_tag: str | None = None,
     version_prefix: str = "",
 ) -> Version:
     unstable: list[str] = []
@@ -119,7 +119,7 @@ def fetch_latest_version(
                     None,
                 )
 
-                if ver is not None and ver.rev != old_rev:
+                if ver is not None and ver.rev != old_rev_tag:
                     return ver
 
             return final[0]

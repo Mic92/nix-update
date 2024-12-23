@@ -435,12 +435,13 @@ def update_version(
         else:
             assert version.startswith("branch=")
             branch = version[7:]
+        old_rev_tag = package.rev or package.tag
         new_version = fetch_latest_version(
             package.parsed_url,
             preference,
             version_regex,
             branch,
-            package.rev,
+            old_rev_tag,
             version_prefix,
         )
     package.new_version = new_version
