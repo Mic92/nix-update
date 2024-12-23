@@ -496,7 +496,9 @@ def update(opts: Options) -> Package:
         )
 
         new_package = eval_attr(opts)
-        package.new_version = Version(new_package.old_version, rev=new_package.rev)
+        package.new_version = Version(
+            new_package.old_version, rev=new_package.rev, tag=new_package.tag
+        )
 
         return package
 
