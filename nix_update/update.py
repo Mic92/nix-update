@@ -426,8 +426,9 @@ def update_version(
         version_prefix = ""
         if preference != VersionPreference.BRANCH:
             branch = None
-            if package.rev and package.rev.endswith(package.old_version):
-                version_prefix = package.rev.removesuffix(package.old_version)
+            old_rev_tag = package.rev or package.tag
+            if old_rev_tag and old_rev_tag.endswith(package.old_version):
+                version_prefix = old_rev_tag.removesuffix(package.old_version)
         elif version == "branch":
             # fallback
             branch = "HEAD"
