@@ -65,7 +65,7 @@ $ nix run github:Mic92/nix-update
 ## USAGE
 
 First change to your directory containing the nix expression (Could be a nixpkgs
-or your own repository). Than run `nix-update` as follows
+or your own repository). Then run `nix-update` as follows
 
 ```console
 $ nix-update attribute [--version version]
@@ -77,7 +77,7 @@ If your package is defined in a flake use the `--flake` flag instead:
 $ nix-update attribute --flake [--version version]
 ```
 
-`nix-update` will than try to update either the
+`nix-update` will then try to update either the
 `packages.{currentSystem}.{attribute}` or `{attribute}` output attribute of the
 given flake. To update a package in `legacyPackages`, pass the full path to that
 package including the platform: `legacyPackages.{platform}.{attribute}`.
@@ -260,10 +260,10 @@ First clone the repo to your preferred location (in the following, we assume
 `~/` - your home):
 
 ```console
-$ git clone https://github.com/Mic92/nix-update/ ~/nix-update
+$ git clone https://github.com/Mic92/nix-update/ ~/git/nix-update
 ```
 
-Than enter the dev shell:
+Then enter the dev shell:
 
 ```console
 $ cd ~/nix-update
@@ -297,7 +297,7 @@ $ nix fmt
 
 ## Known Bugs
 
-nix-update might not work correctly if a file contain multiple packages as it
+nix-update might not work correctly if a file contains multiple packages as it
 performs naive search and replace to update version numbers. This might be a
 problem if:
 

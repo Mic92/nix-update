@@ -25,13 +25,14 @@ from .version.version import Version, VersionPreference
 
 def replace_version(package: Package) -> bool:
     assert package.new_version is not None
+    old_rev_tag = package.rev or package.tag
     old_version = package.old_version
     new_version = package.new_version.number
     if new_version.startswith("v"):
         new_version = new_version[1:]
 
     changed = old_version != new_version or (
-        package.new_version.rev is not None and package.new_version.rev != package.rev
+        package.new_version.rev is not None and package.new_version.rev != old_rev_tag
     )
 
     if changed:
@@ -46,7 +47,7 @@ def replace_version(package: Package) -> bool:
         with fileinput.FileInput(package.filename, inplace=True) as f:
             for i, line in enumerate(f, 1):
                 if package.new_version.rev:
-                    line = line.replace(package.rev, package.new_version.rev)
+                    line = line.replace(old_rev_tag, package.new_version.rev)
                 if (
                     not version_string_in_version_declaration
                     or package.version_position.line == i
@@ -425,20 +426,22 @@ def update_version(
         version_prefix = ""
         if preference != VersionPreference.BRANCH:
             branch = None
-            if package.rev and package.rev.endswith(package.old_version):
-                version_prefix = package.rev.removesuffix(package.old_version)
+            old_rev_tag = package.rev or package.tag
+            if old_rev_tag and old_rev_tag.endswith(package.old_version):
+                version_prefix = old_rev_tag.removesuffix(package.old_version)
         elif version == "branch":
             # fallback
             branch = "HEAD"
         else:
             assert version.startswith("branch=")
             branch = version[7:]
+        old_rev_tag = package.rev or package.tag
         new_version = fetch_latest_version(
             package.parsed_url,
             preference,
             version_regex,
             branch,
-            package.rev,
+            old_rev_tag,
             version_prefix,
         )
     package.new_version = new_version
@@ -457,20 +460,21 @@ def update_version(
             package.diff_url = (
                 f"https://diff.rs/{parts[4]}/{package.old_version}/{new_version.number}"
             )
+        old_rev_tag = package.rev or package.tag
         if package.parsed_url.netloc == "registry.npmjs.org":
             parts = package.parsed_url.path.split("/")
             package.diff_url = f"https://npmdiff.dev/{parts[1]}/{package.old_version}/{new_version.number}"
         elif package.parsed_url.netloc == "github.com":
             _, owner, repo, *_ = package.parsed_url.path.split("/")
-            package.diff_url = f"https://github.com/{owner}/{repo.removesuffix('.git')}/compare/{package.rev}...{new_version.rev or new_version.number}"
+            package.diff_url = f"https://github.com/{owner}/{repo.removesuffix('.git')}/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
         elif package.parsed_url.netloc in ["codeberg.org", "gitea.com"]:
             _, owner, repo, *_ = package.parsed_url.path.split("/")
-            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/compare/{package.rev}...{new_version.rev or new_version.number}"
+            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
         elif GITLAB_API.match(package.parsed_url.geturl()) and package.src_homepage:
-            package.diff_url = f"{package.src_homepage}-/compare/{package.rev}...{new_version.rev or new_version.number}"
+            package.diff_url = f"{package.src_homepage}-/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
         elif package.parsed_url.netloc in ["bitbucket.org", "bitbucket.io"]:
             _, owner, repo, *_ = package.parsed_url.path.split("/")
-            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/branches/compare/{new_version.rev or new_version.number}%0D{package.rev}"
+            package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/branches/compare/{new_version.rev or new_version.number}%0D{old_rev_tag}"
 
     return replace_version(package)
 
@@ -492,7 +496,9 @@ def update(opts: Options) -> Package:
         )
 
         new_package = eval_attr(opts)
-        package.new_version = Version(new_package.old_version, rev=new_package.rev)
+        package.new_version = Version(
+            new_package.old_version, rev=new_package.rev, tag=new_package.tag
+        )
 
         return package
 
