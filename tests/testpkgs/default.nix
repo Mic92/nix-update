@@ -26,6 +26,7 @@
   pypi = pkgs.python3.pkgs.callPackage ./pypi.nix { };
   sourcehut = pkgs.python3.pkgs.callPackage ./sourcehut.nix { };
   savanna = pkgs.python3.pkgs.callPackage ./savanna.nix { };
+  net-news-wire = pkgs.callPackage ./net-news-wire.nix { };
   npm = pkgs.callPackage ./npm.nix { };
   npm-package = pkgs.callPackage ./npm-package.nix { };
   npm-lock-generate = pkgs.callPackage ./npm-lock-generate { };
