@@ -46,7 +46,7 @@ def replace_version(package: Package) -> bool:
                         break
         with fileinput.FileInput(package.filename, inplace=True) as f:
             for i, line in enumerate(f, 1):
-                if package.new_version.rev:
+                if package.rev is not None and package.new_version.rev:
                     line = line.replace(old_rev_tag, package.new_version.rev)
                 if (
                     not version_string_in_version_declaration
