@@ -1,13 +1,23 @@
 import subprocess
+from pathlib import Path
 
 import conftest
 
-from pathlib import Path
 from nix_update import main
+
 
 def test_main(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
-        main(["--file", str(path), "--commit", "net-news-wire", "--version-regex", "^mac-(\\d+\\.\\d+\\.\\d+)$"])
+        main(
+            [
+                "--file",
+                str(path),
+                "--commit",
+                "net-news-wire",
+                "--version-regex",
+                "^mac-(\\d+\\.\\d+\\.\\d+)$",
+            ]
+        )
         version = get_nix_value(path, "net-news-wire.version")
         src = get_nix_value(path, "net-news-wire.src")
         commit = subprocess.run(
@@ -21,6 +31,7 @@ def test_main(helpers: conftest.Helpers) -> None:
         assert version != "6.1.5"
         assert version in commit
         assert "net-news-wire: 6.1.5 ->" in commit
+
 
 def get_nix_value(path: Path, key: str) -> str:
     return subprocess.run(
