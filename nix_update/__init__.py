@@ -114,8 +114,22 @@ def parse_args(args: list[str]) -> Options:
         help="Attribute of a subpackage that nix-update should try to update hashes for",
         default=None,
     )
+    parser.add_argument(
+        "--option",
+        help="Nix option to set",
+        action="append",
+        nargs=2,
+        metavar=("name", "value"),
+        default=[],
+    )
 
     a = parser.parse_args(args)
+    extra_flags = ["--extra-experimental-features", "flakes nix-command"]
+    if a.system:
+        extra_flags.extend(["--system", a.system])
+    for name, value in a.option:
+        extra_flags.extend(["--option", name, value])
+
     return Options(
         import_path=os.path.realpath(a.file),
         flake=a.flake,
@@ -139,8 +153,7 @@ def parse_args(args: list[str]) -> Options:
         system=a.system,
         generate_lockfile=a.generate_lockfile,
         lockfile_metadata_path=a.lockfile_metadata_path,
-        extra_flags=(["--system", a.system] if a.system else [])
-        + ["--extra-experimental-features", "flakes nix-command"],
+        extra_flags=extra_flags,
     )
 
 
