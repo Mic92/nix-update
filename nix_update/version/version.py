@@ -20,12 +20,12 @@ class VersionPreference(StrEnum):
     @staticmethod
     def from_str(version: str) -> "VersionPreference":
         # auto is deprecated
-        if version == "auto" or version == "stable":
+        if version in ("auto", "stable"):
             return VersionPreference.STABLE
-        elif version == "unstable":
+        if version == "unstable":
             return VersionPreference.UNSTABLE
-        elif version == "skip":
+        if version == "skip":
             return VersionPreference.SKIP
-        elif version == "branch" or version.startswith("branch="):
+        if version == "branch" or version.startswith("branch="):
             return VersionPreference.BRANCH
         return VersionPreference.FIXED

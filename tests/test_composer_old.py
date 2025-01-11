@@ -30,5 +30,6 @@ def test_update(helpers: conftest.Helpers) -> None:
             ],
             text=True,
             stdout=subprocess.PIPE,
+            check=False,
         ).stdout.strip()
         assert tuple(map(int, version.split("."))) >= (0, 11, 1)

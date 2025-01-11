@@ -69,9 +69,9 @@ def to_sri(hashstr: str) -> str:
     elif length == 40:
         # could be also base32 == 32, but we ignore this case and hope no one is using it
         prefix = "sha1:"
-    elif length == 64 or length == 52:
+    elif length in (64, 52):
         prefix = "sha256:"
-    elif length == 103 or length == 128:
+    elif length in (103, 128):
         prefix = "sha512:"
     else:
         return hashstr
@@ -120,8 +120,8 @@ def nix_prefetch(opts: Options, attr: str) -> str:
                 "nix-build",
                 "--expr",
                 f'let src = {expr}; in (src.overrideAttrs or (f: src // f src)) (_: {{ outputHash = ""; outputHashAlgo = "sha256"; }})',
-            ]
-            + opts.extra_flags,
+                *opts.extra_flags,
+            ],
             extra_env=extra_env,
             stderr=subprocess.PIPE,
             check=False,
@@ -139,11 +139,9 @@ def nix_prefetch(opts: Options, attr: str) -> str:
 
     if got == "":
         print(stderr, file=sys.stderr)
-        raise UpdateError(
-            f"failed to retrieve hash when trying to update {opts.attribute}.{attr}"
-        )
-    else:
-        return got
+        msg = f"failed to retrieve hash when trying to update {opts.attribute}.{attr}"
+        raise UpdateError(msg)
+    return got
 
 
 def disable_check_meta(opts: Options) -> str:
@@ -196,19 +194,9 @@ def update_cargo_lock(
                 "--impure",
                 "--print-out-paths",
                 "--expr",
-                f"""
-{get_package(opts)}.overrideAttrs (old: {{
-  cargoDeps = null;
-  postUnpack = ''
-    cp -r "$sourceRoot/${{old.cargoRoot or "."}}/Cargo.lock" $out
-    exit
-  '';
-  outputs = [ "out" ];
-  separateDebugInfo = false;
-}})
-""",
-            ]
-            + opts.extra_flags,
+                f'\n{get_package(opts)}.overrideAttrs (old: {{\n  cargoDeps = null;\n  postUnpack = \'\'\n    cp -r "$sourceRoot/${{old.cargoRoot or "."}}/Cargo.lock" $out\n    exit\n  \'\';\n  outputs = [ "out" ];\n  separateDebugInfo = false;\n}})\n',
+                *opts.extra_flags,
+            ],
         )
         src = Path(res.stdout.strip())
         if not src.is_file():
@@ -249,7 +237,7 @@ def update_cargo_lock(
                 for line in f:
                     print(line, end="")
                 return
-            elif match := expanded.fullmatch(line):
+            if match := expanded.fullmatch(line):
                 indent = match[1]
                 path = match[2]
                 print(line, end="")
@@ -335,8 +323,8 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
             "--print-out-paths",
             "--expr",
             getSrcAndBin,
-        ]
-        + opts.extra_flags,
+            *opts.extra_flags,
+        ],
     )
     src = Path(res.stdout.strip())
 
@@ -347,7 +335,7 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
         bin_path = (src / "nix-support" / f"{bin_name}-bin").read_text().rstrip("\n")
 
         run(
-            [bin_path] + cmd,
+            [bin_path, *cmd],
             cwd=tempdir,
         )
 
@@ -421,7 +409,8 @@ def update_version(
         new_version = Version(version)
     else:
         if not package.parsed_url:
-            raise UpdateError("Could not find a url in the derivations src attribute")
+            msg = "Could not find a url in the derivations src attribute"
+            raise UpdateError(msg)
 
         version_prefix = ""
         if preference != VersionPreference.BRANCH:
@@ -568,9 +557,7 @@ def update(opts: Options) -> Package:
         if package.mix_deps:
             update_mix_deps_hash(opts, package.filename, package.mix_deps)
 
-        if isinstance(package.cargo_lock, CargoLockInSource) or isinstance(
-            package.cargo_lock, CargoLockInStore
-        ):
+        if isinstance(package.cargo_lock, CargoLockInSource | CargoLockInStore):
             if opts.generate_lockfile:
                 generate_lockfile(opts, package.filename, "cargo")
             else:

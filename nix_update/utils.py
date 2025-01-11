@@ -30,8 +30,10 @@ def run(
     stdout: None | int | IO[Any] = subprocess.PIPE,
     stderr: None | int | IO[Any] = None,
     check: bool = True,
-    extra_env: dict[str, str] = {},
+    extra_env: dict[str, str] | None = None,
 ) -> "subprocess.CompletedProcess[str]":
+    if extra_env is None:
+        extra_env = {}
     info("$ " + shlex.join(command))
     env = os.environ.copy()
     env.update(extra_env)

@@ -2,8 +2,9 @@ import json
 import urllib.request
 from urllib.parse import ParseResult
 
-from ..errors import VersionError
-from ..utils import info
+from nix_update.errors import VersionError
+from nix_update.utils import info
+
 from .version import Version
 
 
@@ -18,7 +19,8 @@ def fetch_rubygem_versions(url: ParseResult) -> list[Version]:
     resp = urllib.request.urlopen(versions_url)
     json_versions = json.load(resp)
     if len(json_versions) == 0:
-        raise VersionError("No versions found")
+        msg = "No versions found"
+        raise VersionError(msg)
 
     versions: list[Version] = []
     for version in json_versions:

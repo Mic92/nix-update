@@ -4,8 +4,9 @@ import urllib.request
 from datetime import datetime
 from urllib.parse import ParseResult, quote_plus
 
-from ..errors import VersionError
-from ..utils import info
+from nix_update.errors import VersionError
+from nix_update.utils import info
+
 from .version import Version
 
 GITLAB_API = re.compile(
@@ -24,7 +25,8 @@ def fetch_gitlab_versions(url: ParseResult) -> list[Version]:
     resp = urllib.request.urlopen(gitlab_url)
     json_tags = json.loads(resp.read())
     if len(json_tags) == 0:
-        raise VersionError("No git tags found")
+        msg = "No git tags found"
+        raise VersionError(msg)
     releases = []
     tags = []
     for tag in json_tags:

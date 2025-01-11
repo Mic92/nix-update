@@ -93,9 +93,9 @@ class Package:
 
         if raw_cargo_lock is None:
             self.cargo_lock = NoCargoLock()
-        elif raw_cargo_lock is False:
-            self.cargo_lock = CargoLockInStore()
-        elif not os.path.realpath(raw_cargo_lock).startswith(import_path):
+        elif raw_cargo_lock is False or not os.path.realpath(raw_cargo_lock).startswith(
+            import_path
+        ):
             self.cargo_lock = CargoLockInStore()
         else:
             self.cargo_lock = CargoLockInSource(raw_cargo_lock)
@@ -217,14 +217,7 @@ def eval_attr(opts: Options) -> Package:
         opts.system,
         opts.override_filename,
     )
-    cmd = [
-        "nix",
-        "eval",
-        "--json",
-        "--impure",
-        "--expr",
-        expr,
-    ] + opts.extra_flags
+    cmd = ["nix", "eval", "--json", "--impure", "--expr", expr, *opts.extra_flags]
     res = run(cmd)
     out = json.loads(res.stdout)
     if opts.override_filename is not None:
@@ -233,8 +226,7 @@ def eval_attr(opts: Options) -> Package:
         out["url"] = opts.url
     package = Package(attribute=opts.attribute, import_path=opts.import_path, **out)
     if opts.version_preference != VersionPreference.SKIP and package.old_version == "":
-        raise UpdateError(
-            f"Nix's builtins.parseDrvName could not parse the version from {package.name}"
-        )
+        msg = f"Nix's builtins.parseDrvName could not parse the version from {package.name}"
+        raise UpdateError(msg)
 
     return package

@@ -23,5 +23,6 @@ def test_update(helpers: conftest.Helpers) -> None:
             ],
             text=True,
             stdout=subprocess.PIPE,
+            check=False,
         ).stdout.strip()
         assert pnpm_hash != "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
