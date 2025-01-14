@@ -4,7 +4,8 @@ from functools import partial
 from typing import Protocol
 from urllib.parse import ParseResult
 
-from ..errors import VersionError
+from nix_update.errors import VersionError
+
 from .bitbucket import fetch_bitbucket_snapshots, fetch_bitbucket_versions
 from .crate import fetch_crate_versions
 from .gitea import fetch_gitea_snapshots, fetch_gitea_versions
@@ -131,10 +132,8 @@ def fetch_latest_version(
         )
 
     if unstable:
-        raise VersionError(
-            f"Found an unstable version {unstable[0]}, which is being ignored. To update to unstable version, please use '--version=unstable'"
-        )
+        msg = f"Found an unstable version {unstable[0]}, which is being ignored. To update to unstable version, please use '--version=unstable'"
+        raise VersionError(msg)
 
-    raise VersionError(
-        "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/pypi/savannah/sourcehut/rubygems/npm projects right now"
-    )
+    msg = "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/pypi/savannah/sourcehut/rubygems/npm projects right now"
+    raise VersionError(msg)

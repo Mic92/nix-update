@@ -4,7 +4,8 @@ import xml.etree.ElementTree as ET
 from urllib.parse import ParseResult, urljoin, urlparse
 from xml.etree.ElementTree import Element
 
-from ..utils import info
+from nix_update.utils import info
+
 from .version import Version
 
 filename_regex = re.compile(r"-(\d+(?:\.\d+)*(?:-[^-.]+)?)\.tar\.[^.]+$")

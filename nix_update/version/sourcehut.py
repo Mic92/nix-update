@@ -3,14 +3,16 @@ import xml.etree.ElementTree as ET
 from urllib.parse import ParseResult, urlparse
 from xml.etree.ElementTree import Element
 
-from ..errors import VersionError
-from ..utils import info
+from nix_update.errors import VersionError
+from nix_update.utils import info
+
 from .version import Version
 
 
 def version_from_entry(entry: Element) -> Version:
     if entry is None:
-        raise VersionError("No release found")
+        msg = "No release found"
+        raise VersionError(msg)
     link = entry.find("link")
     assert link is not None
     url = urlparse(str(link.text))

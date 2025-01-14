@@ -27,6 +27,7 @@ def test_update(helpers: conftest.Helpers) -> None:
                 ],
                 text=True,
                 stdout=subprocess.PIPE,
+                check=False,
             ).stdout.strip()
 
         subpackage_hash = get_attr("subpackage.autobrr-web.pnpmDeps.outputHash")

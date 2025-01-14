@@ -4,6 +4,7 @@ import shlex
 import shutil
 import sys
 import tempfile
+from pathlib import Path
 from typing import NoReturn
 
 from .eval import CargoLockInSource, Package, eval_attr
@@ -20,8 +21,8 @@ def die(msg: str) -> NoReturn:
 
 def parse_args(args: list[str]) -> Options:
     parser = argparse.ArgumentParser()
-    help = "File to import rather than default.nix. Examples, ./release.nix"
-    parser.add_argument("-f", "--file", default="./.", help=help)
+    help_msg = "File to import rather than default.nix. Examples, ./release.nix"
+    parser.add_argument("-f", "--file", default="./.", help=help_msg)
     parser.add_argument(
         "-F", "--flake", action="store_true", help="Update a flake attribute instead"
     )
@@ -94,7 +95,7 @@ def parse_args(args: list[str]) -> Options:
     parser.add_argument(
         "attribute",
         default=default_attribute,
-        nargs="?" if default_attribute else None,  # type: ignore
+        nargs="?" if default_attribute else None,  # type: ignore[arg-type]
         help="""Attribute name within the file evaluated (defaults to environment variable "UPDATE_NIX_ATTR_PATH")""",
     )
     parser.add_argument(
@@ -151,18 +152,19 @@ def nix_shell(options: Options) -> None:
                 "nix",
                 "shell",
                 f"{options.import_path}#{options.attribute}",
-            ]
-            + options.extra_flags,
+                *options.extra_flags,
+            ],
             stdout=None,
             check=False,
         )
     else:
         expr = f"let pkgs = import {options.escaped_import_path} {{}}; in pkgs.mkShell {{ buildInputs = [ pkgs.{options.escaped_attribute} ]; }}"
         with tempfile.TemporaryDirectory() as d:
-            path = os.path.join(d, "default.nix")
-            with open(path, "w") as f:
-                f.write(expr)
-            run(["nix-shell", path] + options.extra_flags, stdout=None, check=False)
+            path = Path(d) / "default.nix"
+            path.write_text(expr)
+            run(
+                ["nix-shell", str(path), *options.extra_flags], stdout=None, check=False
+            )
 
 
 def git_has_diff(git_dir: str, package: Package) -> bool:
@@ -197,8 +199,16 @@ def git_commit(git_dir: str, package: Package) -> None:
         or (new_version.rev and new_version.rev != package.rev)
     ):
         run(
-            ["git", "-C", git_dir, "commit", "--verbose", "--message", msg]
-            + files_changed,
+            [
+                "git",
+                "-C",
+                git_dir,
+                "commit",
+                "--verbose",
+                "--message",
+                msg,
+                *files_changed,
+            ],
             stdout=None,
         )
     else:
@@ -206,8 +216,16 @@ def git_commit(git_dir: str, package: Package) -> None:
             f.write(msg)
             f.flush()
             run(
-                ["git", "-C", git_dir, "commit", "--verbose", "--template", f.name]
-                + files_changed,
+                [
+                    "git",
+                    "-C",
+                    git_dir,
+                    "commit",
+                    "--verbose",
+                    "--template",
+                    f.name,
+                    *files_changed,
+                ],
                 stdout=None,
             )
 
@@ -244,11 +262,7 @@ def validate_git_dir(import_path: str) -> str:
 
 
 def nix_run(options: Options) -> None:
-    cmd = [
-        "nix",
-        "shell",
-        "-L",
-    ] + options.extra_flags
+    cmd = ["nix", "shell", "-L", *options.extra_flags]
 
     if options.flake:
         cmd.append(f"{options.import_path}#{options.attribute}")
@@ -265,16 +279,11 @@ def nix_build_tool() -> str:
     "Return `nom` if found in $PATH"
     if shutil.which("nom"):
         return "nom"
-    else:
-        return "nix"
+    return "nix"
 
 
 def nix_build(options: Options) -> None:
-    cmd = [
-        nix_build_tool(),
-        "build",
-        "-L",
-    ] + options.extra_flags
+    cmd = [nix_build_tool(), "build", "-L", *options.extra_flags]
     if options.flake:
         cmd.append(f"{options.import_path}#{options.attribute}")
     else:
@@ -286,7 +295,7 @@ def nix_test(opts: Options, package: Package) -> None:
     if not package.tests:
         die(f"Package '{package.name}' does not define any tests")
 
-    cmd = [nix_build_tool(), "build", "-L"] + opts.extra_flags
+    cmd = [nix_build_tool(), "build", "-L", *opts.extra_flags]
 
     if opts.flake:
         for t in package.tests:

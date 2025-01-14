@@ -15,8 +15,7 @@ TEST_ROOT = Path(__file__).parent.resolve()
 def fake_urlopen(url: str) -> BinaryIO:
     if url.endswith("releases.atom"):
         return open(TEST_ROOT.joinpath("test_branch_releases.atom"), "rb")
-    else:
-        return open(TEST_ROOT.joinpath("test_branch_commits_master.atom"), "rb")
+    return open(TEST_ROOT.joinpath("test_branch_commits_master.atom"), "rb")
 
 
 def test_branch(helpers: conftest.Helpers) -> None:

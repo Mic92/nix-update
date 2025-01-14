@@ -2,7 +2,8 @@ import json
 import urllib.request
 from urllib.parse import ParseResult
 
-from ..utils import info
+from nix_update.utils import info
+
 from .version import Version
 
 
