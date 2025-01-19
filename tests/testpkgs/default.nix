@@ -18,6 +18,7 @@
   cargoVendorDeps.rustPackage = pkgs.callPackage ./cargo-vendor-deps/rust-package.nix { };
   composer-old = pkgs.callPackage ./composer-old.nix { };
   crate = pkgs.callPackage ./crate.nix { };
+  nuget-deps-generate = pkgs.callPackage ./nuget-deps-generate { };
   gitea = pkgs.callPackage ./gitea.nix { };
   github = pkgs.callPackage ./github.nix { };
   github-no-release = pkgs.callPackage ./github-no-release.nix { };

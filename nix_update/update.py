@@ -402,6 +402,20 @@ def update_mix_deps_hash(opts: Options, filename: str, current_hash: str) -> Non
     replace_hash(filename, current_hash, target_hash)
 
 
+def update_nuget_deps(opts: Options) -> None:
+    fetch_deps_script_path = run(
+        [
+            "nix-build",
+            opts.import_path,
+            "-A",
+            f"{opts.attribute}.fetch-deps",
+            "--no-out-link",
+        ]
+    ).stdout.strip()
+
+    run([fetch_deps_script_path])
+
+
 def update_version(
     package: Package, version: str, preference: VersionPreference, version_regex: str
 ) -> bool:
@@ -556,6 +570,9 @@ def update(opts: Options) -> Package:
 
         if package.mix_deps:
             update_mix_deps_hash(opts, package.filename, package.mix_deps)
+
+        if package.has_nuget_deps:
+            update_nuget_deps(opts)
 
         if isinstance(package.cargo_lock, CargoLockInSource | CargoLockInStore):
             if opts.generate_lockfile:

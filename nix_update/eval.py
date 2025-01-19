@@ -63,6 +63,7 @@ class Package:
     composer_deps_old: str | None
     maven_deps: str | None
     mix_deps: str | None
+    has_nuget_deps: bool
     tests: list[str]
     has_update_script: bool
 
@@ -200,6 +201,7 @@ in {{
   yarn_deps = pkg.yarnOfflineCache.outputHash or null;
   yarn_deps_old = pkg.offlineCache.outputHash or null;
   maven_deps = pkg.fetchedMavenDeps.outputHash or null;
+  has_nuget_deps = pkg ? nugetDeps;
   mix_deps = pkg.mixFodDeps.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or {{}});
   has_update_script = {has_update_script};
