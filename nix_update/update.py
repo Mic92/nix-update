@@ -527,8 +527,8 @@ def update(opts: Options) -> Package:
             subpackage_opts.version_preference = VersionPreference.SKIP
             update(subpackage_opts)
 
-    # if no package.hash was provided we just update the other hashes unconditionally
-    if update_hash or not package.hash:
+    # if no package.hash was provided we just update the other hashes unless it should be skipped
+    if (update_hash or not package.hash) and not opts.src_only:
         if package.go_modules:
             update_go_modules_hash(opts, package.filename, package.go_modules)
 

@@ -116,6 +116,11 @@ def parse_args(args: list[str]) -> Options:
         default=None,
     )
     parser.add_argument(
+        "--src-only",
+        help="Only update the source, not dependencies such as npmDeps, cargoDeps or nugetDeps",
+        action="store_true",
+    )
+    parser.add_argument(
         "--option",
         help="Nix option to set",
         action="append",
@@ -154,6 +159,7 @@ def parse_args(args: list[str]) -> Options:
         system=a.system,
         generate_lockfile=a.generate_lockfile,
         lockfile_metadata_path=a.lockfile_metadata_path,
+        src_only=a.src_only,
         extra_flags=extra_flags,
     )
 
