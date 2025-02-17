@@ -144,9 +144,7 @@ def eval_expression(
           sanitizePosition = x: x;
         """
 
-    has_update_script = (
-        "false" if flake else "pkg.passthru.updateScript or null != null"
-    )
+    has_update_script = "pkg.passthru.updateScript or null != null"
 
     return f"""
 let
