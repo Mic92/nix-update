@@ -145,7 +145,7 @@ def eval_expression(
         """
 
     has_update_script = (
-        "false" if flake else "pkg.passthru.updateScript or null != null"
+        "pkg.passthru.updateScript or null != null"
     )
 
     return f"""
