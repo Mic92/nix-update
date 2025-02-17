@@ -486,17 +486,29 @@ def update(opts: Options) -> Package:
     package = eval_attr(opts)
 
     if package.has_update_script and opts.use_update_script:
-        run(
-            [
-                "nix-shell",
-                path.join(opts.import_path, "maintainers/scripts/update.nix"),
-                "--argstr",
-                "package",
-                opts.attribute,
-                *opts.update_script_args,
-            ],
-            stdout=None,
-        )
+        if opts.flake:
+            run(
+                [
+                    "nix",
+                    "run",
+                    f".#{opts.attribute}.updateScript",
+                    "--",
+                    *opts.update_script_args,
+                ],
+                stdout=None,
+            )
+        else:
+            run(
+                [
+                    "nix-shell",
+                    path.join(opts.import_path, "maintainers/scripts/update.nix"),
+                    "--argstr",
+                    "package",
+                    opts.attribute,
+                    *opts.update_script_args,
+                ],
+                stdout=None,
+            )
 
         new_package = eval_attr(opts)
         package.new_version = Version(
