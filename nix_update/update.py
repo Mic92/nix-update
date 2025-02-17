@@ -512,10 +512,8 @@ def update_version(
     return True
 
 
-def update(opts: Options) -> Package:
-    package = eval_attr(opts)
-
-    if package.has_update_script and opts.use_update_script:
+def run_update_script(package: Package, opts: Options) -> None:
+    if not opts.flake:
         run(
             [
                 "nix-shell",
@@ -523,10 +521,59 @@ def update(opts: Options) -> Package:
                 "--argstr",
                 "package",
                 opts.attribute,
+                "--argstr",
+                "skip-prompt",
+                "true",
                 *opts.update_script_args,
             ],
             stdout=None,
         )
+        return
+
+    update_script = run(
+        [
+            "nix",
+            "--extra-experimental-features",
+            "flakes nix-command",
+            "build",
+            "--print-out-paths",
+            "--impure",
+            "--expr",
+            f'with import <nixpkgs> {{}}; let pkg = {get_package(opts)}; in (pkgs.writeScript "updateScript" (builtins.toString (map builtins.toString (pkgs.lib.toList (pkg.updateScript.command or pkg.updateScript)))))',
+        ],
+    ).stdout.strip()
+
+    run(
+        [
+            "nix",
+            "develop",
+            "--impure",
+            "--expr",
+            f"with import <nixpkgs> {{}}; pkgs.mkShell {{inputsFrom = [{get_package(opts)}];}}",
+            "--command",
+            "bash",
+            "-c",
+            " ".join(
+                [
+                    "env",
+                    f"UPDATE_NIX_NAME={package.name}",
+                    f"UPDATE_NIX_PNAME={package.pname}",
+                    f"UPDATE_NIX_OLD_VERSION={package.old_version}",
+                    f"UPDATE_NIX_ATTR_PATH={package.attribute}",
+                    update_script,
+                ]
+            ),
+            *opts.update_script_args,
+        ],
+        cwd=opts.import_path,
+    )
+
+
+def update(opts: Options) -> Package:
+    package = eval_attr(opts)
+
+    if package.has_update_script and opts.use_update_script:
+        run_update_script(package, opts)
         new_package = eval_attr(opts)
         package.new_version = Version(
             new_package.old_version, rev=new_package.rev, tag=new_package.tag

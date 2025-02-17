@@ -2,6 +2,7 @@
   rustPlatform,
   fetchCrate,
   hello,
+  nix-update-script,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "fd-find";
@@ -17,5 +18,11 @@ rustPlatform.buildRustPackage rec {
   passthru.tests = {
     foo = hello;
     bar = hello;
+  };
+  passthru.updateScript = nix-update-script {
+    attrPath = "crate";
+    extraArgs = [
+      "--flake"
+    ];
   };
 }
