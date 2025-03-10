@@ -29,6 +29,7 @@ class Options:
     system: str | None = None
     generate_lockfile: bool = False
     lockfile_metadata_path: str = "."
+    src_only: bool = False
     extra_flags: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
