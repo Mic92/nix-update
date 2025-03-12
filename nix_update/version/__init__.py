@@ -17,7 +17,7 @@ from .npm import fetch_npm_versions
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
-from .sourcehut import fetch_sourcehut_versions
+from .sourcehut import fetch_sourcehut_snapshots, fetch_sourcehut_versions
 from .version import Version, VersionPreference
 
 # def find_repology_release(attr) -> str:
@@ -56,6 +56,7 @@ branch_snapshots_fetchers: list[SnapshotFetcher] = [
     fetch_github_snapshots,
     fetch_gitlab_snapshots,
     fetch_bitbucket_snapshots,
+    fetch_sourcehut_snapshots,
     # all entries below perform requests to check if the target url is of that type
     fetch_gitea_snapshots,
 ]
