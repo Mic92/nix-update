@@ -8,6 +8,7 @@ from .version.version import VersionPreference
 @dataclass
 class Options:
     attribute: str
+    quiet: bool = False
     flake: bool = False
     version: str = "stable"
     version_preference: VersionPreference = VersionPreference.STABLE

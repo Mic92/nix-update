@@ -19,14 +19,14 @@ def version_from_entry(entry: Element) -> Version:
     return Version(url.path.split("/")[-1])
 
 
-def fetch_sourcehut_versions(url: ParseResult) -> list[Version]:
+def fetch_sourcehut_versions(url: ParseResult, quiet: bool) -> list[Version]:
     if url.netloc != "git.sr.ht":
         return []
     parts = url.path.split("/")
     owner, repo = parts[1], parts[2]
     # repo = re.sub(r"\.git$", "", repo)
     feed_url = f"https://git.sr.ht/{owner}/{repo}/refs/rss.xml"
-    info(f"fetch {feed_url}")
+    info(f"fetch {feed_url}", quiet)
     resp = urllib.request.urlopen(feed_url)
     tree = ET.fromstring(resp.read())
     releases = tree.findall(".//item")
