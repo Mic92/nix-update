@@ -28,5 +28,5 @@ def fetch_rubygem_versions(url: ParseResult) -> list[Version]:
         assert isinstance(number, str)
         prerelease = version["prerelease"]
         assert isinstance(prerelease, bool)
-        version.append(Version(number, prerelease=prerelease))
+        versions.append(Version(number, prerelease=prerelease))
     return versions
