@@ -27,6 +27,7 @@
   gitlab = pkgs.callPackage ./gitlab.nix { };
   pypi = pkgs.python3.pkgs.callPackage ./pypi.nix { };
   sourcehut = pkgs.python3.pkgs.callPackage ./sourcehut.nix { };
+  sourcehut-snapshot = pkgs.python3.pkgs.callPackage ./sourcehut-snapshot.nix { };
   savanna = pkgs.python3.pkgs.callPackage ./savanna.nix { };
   net-news-wire = pkgs.callPackage ./net-news-wire.nix { };
   npm = pkgs.callPackage ./npm.nix { };
