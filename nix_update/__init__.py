@@ -54,6 +54,9 @@ def parse_args(args: list[str]) -> Options:
         help="URL to the repository to check for a release instead of using the URL in the src attribute of the package",
     )
     parser.add_argument(
+        "--commit-message", action="store_true", help="Print commit message to stdout",
+    )
+    parser.add_argument(
         "--write-commit-message",
         metavar="FILE",
         help="Write commit message to FILE",
@@ -140,6 +143,7 @@ def parse_args(args: list[str]) -> Options:
         update_script_args=a.update_script_args,
         subpackages=a.subpackage,
         url=a.url,
+        commit_message=a.commit_message,
         write_commit_message=a.write_commit_message,
         run=a.run,
         shell=a.shell,
@@ -241,6 +245,11 @@ def git_commit(git_dir: str, package: Package) -> None:
                 ],
                 stdout=None,
             )
+
+
+def print_commit_message(package: Package) -> None:
+    print(format_commit_message(package))
+    print("\n")
 
 
 def write_commit_message(path: str, package: Package) -> None:
@@ -384,6 +393,9 @@ def main(args: list[str] = sys.argv[1:]) -> None:
             # If we have a changelog we will re-eval the package in case it has changed
             package.changelog = eval_attr(options).changelog
         git_commit(git_dir, package)
+
+    if options.commit_message:
+        print_commit_message(package)
 
     if options.write_commit_message is not None:
         write_commit_message(options.write_commit_message, package)
