@@ -10,6 +10,7 @@ import tomllib
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from copy import deepcopy
+from functools import partial
 from os import path
 from pathlib import Path
 
@@ -23,7 +24,7 @@ from .version.gitlab import GITLAB_API
 from .version.version import Version, VersionPreference
 
 
-def replace_version(package: Package) -> bool:
+def replace_version(package: Package, quiet: bool) -> bool:
     assert package.new_version is not None
     old_rev_tag = package.rev or package.tag
     old_version = package.old_version
@@ -36,7 +37,7 @@ def replace_version(package: Package) -> bool:
     )
 
     if changed:
-        info(f"Update {old_version} -> {new_version} in {package.filename}")
+        info(f"Update {old_version} -> {new_version} in {package.filename}", quiet)
         version_string_in_version_declaration = False
         if package.version_position is not None:
             with open(package.filename) as f:
@@ -55,12 +56,12 @@ def replace_version(package: Package) -> bool:
                     line = line.replace(f'"{old_version}"', f'"{new_version}"')
                 print(line, end="")
     else:
-        info(f"Not updating version, already {old_version}")
+        info(f"Not updating version, already {old_version}", quiet)
 
     return changed
 
 
-def to_sri(hashstr: str) -> str:
+def to_sri(hashstr: str, quiet: bool = False) -> str:
     if "-" in hashstr:
         return hashstr
     length = len(hashstr)
@@ -84,13 +85,13 @@ def to_sri(hashstr: str) -> str:
         "to-sri",
         f"{prefix}{hashstr}",
     ]
-    proc = run(cmd)
+    proc = run(cmd, quiet=quiet)
     return proc.stdout.rstrip("\n")
 
 
-def replace_hash(filename: str, current: str, target: str) -> None:
-    normalized_hash = to_sri(target)
-    if to_sri(current) != normalized_hash:
+def replace_hash(filename: str, current: str, target: str, quiet: bool = False) -> None:
+    normalized_hash = to_sri(target, quiet)
+    if to_sri(current, quiet) != normalized_hash:
         with fileinput.FileInput(filename, inplace=True) as f:
             for line in f:
                 line = line.replace(current, normalized_hash)
@@ -125,6 +126,7 @@ def nix_prefetch(opts: Options, attr: str) -> str:
             extra_env=extra_env,
             stderr=subprocess.PIPE,
             check=False,
+            quiet=opts.quiet,
         )
         stderr = res.stderr.strip()
         got = ""
@@ -148,37 +150,37 @@ def disable_check_meta(opts: Options) -> str:
     return f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {opts.escaped_import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
 
 
-def git_prefetch(x: tuple[str, tuple[str, str]]) -> tuple[str, str]:
+def git_prefetch(x: tuple[str, tuple[str, str]], quiet: bool = False) -> tuple[str, str]:
     rev, (key, url) = x
-    res = run(["nix-prefetch-git", url, rev, "--fetch-submodules"])
-    return key, to_sri(json.loads(res.stdout)["sha256"])
+    res = run(["nix-prefetch-git", url, rev, "--fetch-submodules"], quiet=quiet)
+    return key, to_sri(json.loads(res.stdout)["sha256"], quiet=quiet)
 
 
 def update_src_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "src")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_go_modules_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "goModules")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_go_modules_hash_old(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "go-modules")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "cargoDeps")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_cargo_vendor_deps_hash(
     opts: Options, filename: str, current_hash: str
 ) -> None:
     target_hash = nix_prefetch(opts, "cargoDeps.vendorStaging")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_cargo_lock(
@@ -197,6 +199,7 @@ def update_cargo_lock(
                 f'\n{get_package(opts)}.overrideAttrs (old: {{\n  cargoDeps = null;\n  postUnpack = \'\'\n    cp -r "$sourceRoot/${{old.cargoRoot or "."}}/Cargo.lock" $out\n    exit\n  \'\';\n  outputs = [ "out" ];\n  separateDebugInfo = false;\n}})\n',
                 *opts.extra_flags,
             ],
+            quiet=opts.quiet,
         )
         src = Path(res.stdout.strip())
         if not src.is_file():
@@ -219,7 +222,7 @@ def update_cargo_lock(
                         if rev not in git_deps:
                             git_deps[rev] = f"{pkg['name']}-{pkg['version']}", match[1]
 
-            for k, v in ThreadPoolExecutor().map(git_prefetch, git_deps.items()):
+            for k, v in ThreadPoolExecutor().map(partial(git_prefetch, quiet= opts.quiet), git_deps.items()):
                 hashes[k] = v
 
     with fileinput.FileInput(filename, inplace=True) as f:
@@ -325,6 +328,7 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
             getSrcAndBin,
             *opts.extra_flags,
         ],
+        quiet=opts.quiet,
     )
     src = Path(res.stdout.strip())
 
@@ -337,6 +341,7 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
         run(
             [bin_path, *cmd],
             cwd=tempdir,
+            quiet=opts.quiet,
         )
 
         if (
@@ -353,14 +358,14 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
 
 def update_composer_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "composerVendor")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_composer_deps_hash_old(
     opts: Options, filename: str, current_hash: str
 ) -> None:
     target_hash = nix_prefetch(opts, "composerRepository")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def print_hashes(hashes: dict[str, str], indent: str) -> None:
@@ -374,32 +379,32 @@ def print_hashes(hashes: dict[str, str], indent: str) -> None:
 
 def update_pnpm_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "pnpmDeps")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "npmDeps")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_yarn_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "yarnOfflineCache")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_yarn_deps_hash_old(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "offlineCache")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_maven_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "fetchedMavenDeps")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_mix_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "mixFodDeps")
-    replace_hash(filename, current_hash, target_hash)
+    replace_hash(filename, current_hash, target_hash, quiet=opts.quiet)
 
 
 def update_nuget_deps(opts: Options) -> None:
@@ -410,14 +415,19 @@ def update_nuget_deps(opts: Options) -> None:
             "-A",
             f"{opts.attribute}.fetch-deps",
             "--no-out-link",
-        ]
+        ],
+        quiet=opts.quiet,
     ).stdout.strip()
 
-    run([fetch_deps_script_path])
+    run([fetch_deps_script_path], quiet=opts.quiet)
 
 
 def update_version(
-    package: Package, version: str, preference: VersionPreference, version_regex: str
+    package: Package,
+    version: str,
+    preference: VersionPreference,
+    version_regex: str,
+    quiet: bool
 ) -> bool:
     if preference == VersionPreference.FIXED:
         new_version = Version(version)
@@ -446,12 +456,13 @@ def update_version(
             branch,
             old_rev_tag,
             version_prefix,
+            quiet,
         )
     package.new_version = new_version
     position = package.version_position
     if new_version.number == package.old_version and position:
         recovered_version = old_version_from_git(
-            position.file, position.line, new_version.number
+            position.file, position.line, new_version.number, quiet
         )
         if recovered_version:
             package.old_version = recovered_version
@@ -479,24 +490,38 @@ def update_version(
             _, owner, repo, *_ = package.parsed_url.path.split("/")
             package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/branches/compare/{new_version.rev or new_version.number}%0D{old_rev_tag}"
 
-    return replace_version(package)
+    return replace_version(package, quiet)
 
 
 def update(opts: Options) -> Package:
     package = eval_attr(opts)
 
     if package.has_update_script and opts.use_update_script:
-        run(
-            [
-                "nix-shell",
-                path.join(opts.import_path, "maintainers/scripts/update.nix"),
-                "--argstr",
-                "package",
-                opts.attribute,
-                *opts.update_script_args,
-            ],
-            stdout=None,
-        )
+        if opts.flake:
+            run(
+                [
+                    "nix",
+                    "run",
+                    f".#{opts.attribute}.updateScript",
+                    "--",
+                    *opts.update_script_args,
+                ],
+                stdout=None,
+                quiet=opts.quiet,
+            )
+        else:
+            run(
+                [
+                    "nix-shell",
+                    path.join(opts.import_path, "maintainers/scripts/update.nix"),
+                    "--argstr",
+                    "package",
+                    opts.attribute,
+                    *opts.update_script_args,
+                ],
+                stdout=None,
+                quiet=opts.quiet,
+            )
 
         new_package = eval_attr(opts)
         package.new_version = Version(
@@ -509,7 +534,11 @@ def update(opts: Options) -> Package:
 
     if opts.version_preference != VersionPreference.SKIP:
         update_hash = update_version(
-            package, opts.version, opts.version_preference, opts.version_regex
+            package,
+            opts.version,
+            opts.version_preference,
+            opts.version_regex,
+            opts.quiet,
         )
 
     if package.hash and update_hash:
@@ -517,7 +546,7 @@ def update(opts: Options) -> Package:
 
     if opts.subpackages:
         for subpackage in opts.subpackages:
-            info(f"Updating subpackage {subpackage}")
+            info(f"Updating subpackage {subpackage}", opts.quiet)
             subpackage_opts = deepcopy(opts)
             subpackage_opts.attribute += f".{subpackage}"
             # Update escaped package attribute
