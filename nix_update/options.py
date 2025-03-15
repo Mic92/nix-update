@@ -20,6 +20,7 @@ class Options:
     commit: bool = False
     use_update_script: bool = False
     update_script_args: list[str] = field(default_factory=list)
+    print_commit_message: bool = False
     write_commit_message: str | None = None
     shell: bool = False
     run: bool = False
