@@ -8,14 +8,14 @@ from nix_update.utils import info
 from .version import Version
 
 
-def fetch_rubygem_versions(url: ParseResult) -> list[Version]:
+def fetch_rubygem_versions(url: ParseResult, quiet: bool) -> list[Version]:
     if url.netloc != "rubygems.org":
         return []
     parts = url.path.split("/")
     gem = parts[-1]
     gem_name, _ = gem.rsplit("-")
     versions_url = f"https://rubygems.org/api/v1/versions/{gem_name}.json"
-    info(f"fetch {versions_url}")
+    info(f"fetch {versions_url}", quiet)
     resp = urllib.request.urlopen(versions_url)
     json_versions = json.load(resp)
     if len(json_versions) == 0:
