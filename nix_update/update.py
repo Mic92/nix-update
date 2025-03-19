@@ -505,6 +505,8 @@ def update(opts: Options) -> Package:
             run(
                 [
                     "nix",
+                    "--extra-experimental-features",
+                    "flakes nix-command",
                     "run",
                     f".#{opts.attribute}.updateScript",
                     "--",
