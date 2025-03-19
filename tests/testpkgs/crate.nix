@@ -2,6 +2,7 @@
   rustPlatform,
   fetchCrate,
   hello,
+  nix-update-script,
 }:
 rustPlatform.buildRustPackage rec {
   pname = "fd-find";
@@ -18,4 +19,5 @@ rustPlatform.buildRustPackage rec {
     foo = hello;
     bar = hello;
   };
+  passthru.updateScript = nix-update-script { };
 }
