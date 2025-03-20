@@ -62,7 +62,7 @@ If you have nix flakes enabled you can also do:
 $ nix run github:Mic92/nix-update
 ```
 
-## USAGE
+## Usage
 
 First change to your directory containing the nix expression (Could be a nixpkgs
 or your own repository). Then run `nix-update` as follows
@@ -100,7 +100,7 @@ To update an unstable package to the latest commit of the default branch:
 $ nix-update --version=branch nixpkgs-review
 ```
 
-To update an unstable package the latest commit from a certain branch:
+To update an unstable package to the latest commit from a certain branch:
 
 ```console
 $ nix-update --version=branch=develop nixpkgs-review
@@ -120,7 +120,7 @@ $ nix-update jq --version-regex 'jq-(.*)'
 ```
 
 By default `nix-update` will locate the file that needs to be patched using the
-`src` attribute of a derivation. In some cases this heurestic is wrong. One can
+`src` attribute of a derivation. In some cases this heuristic is wrong. One can
 override the behavior like that:
 
 ```console
