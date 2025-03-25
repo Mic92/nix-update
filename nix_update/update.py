@@ -502,14 +502,22 @@ def update(opts: Options) -> Package:
 
     if package.has_update_script and opts.use_update_script:
         if opts.flake:
+            nixpkgs_path = run(
+                ["nix", "eval", "--impure", "--expr", "(import <nixpkgs> {}).path"],
+                quiet=opts.quiet,
+            ).stdout.strip()
+
             run(
                 [
-                    "nix",
-                    "--extra-experimental-features",
-                    "flakes nix-command",
-                    "run",
-                    f".#{opts.attribute}.updateScript",
-                    "--",
+                    "nix-shell",
+                    path.join(nixpkgs_path, "maintainers/scripts/update.nix"),
+                    "--impure",
+                    "--argstr",
+                    "package",
+                    opts.attribute,
+                    "--arg",
+                    "include-overlays",
+                    f"[(final: prev: {{{opts.attribute} = {get_package(opts)};}})]",
                     *opts.update_script_args,
                 ],
                 stdout=None,
