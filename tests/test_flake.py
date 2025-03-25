@@ -44,7 +44,6 @@ def test_main(helpers: conftest.Helpers) -> None:
 
 def test_update_script(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
-        breakpoint()
         main(
             [
                 "--file",
