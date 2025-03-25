@@ -19,5 +19,12 @@ rustPlatform.buildRustPackage rec {
     foo = hello;
     bar = hello;
   };
-  passthru.updateScript = nix-update-script { };
+  passthru.updateScript = nix-update-script {
+    attrPath = "crate";
+    extraArgs = [
+      "--flake"
+      "--file"
+      "REPLACE_THIS"
+    ];
+  };
 }

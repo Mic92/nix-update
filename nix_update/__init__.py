@@ -160,7 +160,7 @@ def parse_args(args: list[str]) -> Options:
         shell=a.shell,
         version=a.version,
         version_preference=VersionPreference.from_str(a.version),
-        attribute=a.attribute,
+        attribute=a.attribute.replace("nixUpdatePkgs.", ""),
         test=a.test,
         version_regex=a.version_regex,
         review=a.review,

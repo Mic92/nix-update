@@ -1,3 +1,4 @@
+import fileinput
 import os
 import shutil
 import subprocess
@@ -21,7 +22,8 @@ class Helpers:
     @staticmethod
     @contextmanager
     def testpkgs(init_git: bool = False) -> Iterator[Path]:
-        with tempfile.TemporaryDirectory() as tmpdirname:
+        with tempfile.TemporaryDirectory() as _tmpdirname:
+            tmpdirname = Path(_tmpdirname)
             shutil.copytree(
                 Helpers.root().joinpath("testpkgs"), tmpdirname, dirs_exist_ok=True
             )
@@ -41,6 +43,8 @@ class Helpers:
                     ["git", "-C", tmpdirname, "commit", "-m", "first commit"],
                     check=True,
                 )
+                for line in fileinput.input(tmpdirname / "crate.nix", inplace=True):
+                    print(line.replace("REPLACE_THIS", str(tmpdirname)), end="")
             yield Path(tmpdirname)
 
 
