@@ -78,4 +78,4 @@ def test_non_rust_package(helpers: conftest.Helpers) -> None:
             check=True,
         ).stdout.strip()
         print(diff)
-        assert "https://github.com/pop-os/popsicle/compare/1.3.0...v1.3.3" in diff
+        assert "https://github.com/pop-os/popsicle/compare/1.3.0...1.3.3" in diff

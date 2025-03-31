@@ -83,7 +83,8 @@ def test_with_lockfile_metadata_path(helpers: conftest.Helpers) -> None:
         ).stdout.strip()
         print(diff)
         assert (
-            "https://github.com/lancedb/lancedb/compare/python-v0.11.0...0.12.0" in diff
+            "https://github.com/lancedb/lancedb/compare/python-v0.11.0...python-v0.12.0"
+            in diff
         )
 
 

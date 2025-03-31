@@ -417,7 +417,11 @@ def update_nuget_deps(opts: Options) -> None:
 
 
 def update_version(
-    package: Package, version: str, preference: VersionPreference, version_regex: str
+    opts: Options,
+    package: Package,
+    version: str,
+    preference: VersionPreference,
+    version_regex: str,
 ) -> bool:
     if preference == VersionPreference.FIXED:
         new_version = Version(version)
@@ -457,6 +461,9 @@ def update_version(
             package.old_version = recovered_version
             return False
 
+    if not replace_version(package):
+        return False
+
     if package.parsed_url:
         if package.parsed_url.netloc == "crates.io":
             parts = package.parsed_url.path.split("/")
@@ -469,7 +476,29 @@ def update_version(
             package.diff_url = f"https://npmdiff.dev/{parts[1]}/{package.old_version}/{new_version.number}"
         elif package.parsed_url.netloc == "github.com":
             _, owner, repo, *_ = package.parsed_url.path.split("/")
-            package.diff_url = f"https://github.com/{owner}/{repo.removesuffix('.git')}/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
+
+            if old_rev_tag is None:
+                # happens when using fetchurl with a github link rather than using fetchFromGitHub
+                regex = re.compile(".*/releases/download/(.*)/.*")
+                match = regex.match(package.parsed_url.path)
+                if match is not None:
+                    old_rev_tag = match.group(1)
+
+            new_rev_tag = new_version.rev or new_version.tag
+            if new_rev_tag is None:
+                # happens with fixed version preference (and possibly more situtations?)
+                new_package = eval_attr(opts)
+                new_rev_tag = new_package.rev or new_package.tag
+
+                if new_rev_tag is None and new_package.parsed_url is not None:
+                    # happens when using fetchurl with a github link rather than using fetchFromGitHub
+                    regex = re.compile(".*/releases/download/(.*)/.*")
+                    match = regex.match(new_package.parsed_url.path)
+                    if match is not None:
+                        new_rev_tag = match.group(1)
+
+            if old_rev_tag is not None and new_rev_tag is not None:
+                package.diff_url = f"https://github.com/{owner}/{repo.removesuffix('.git')}/compare/{old_rev_tag}...{new_rev_tag}"
         elif package.parsed_url.netloc in ["codeberg.org", "gitea.com"]:
             _, owner, repo, *_ = package.parsed_url.path.split("/")
             package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
@@ -479,7 +508,7 @@ def update_version(
             _, owner, repo, *_ = package.parsed_url.path.split("/")
             package.diff_url = f"https://{package.parsed_url.netloc}/{owner}/{repo}/branches/compare/{new_version.rev or new_version.number}%0D{old_rev_tag}"
 
-    return replace_version(package)
+    return True
 
 
 def update(opts: Options) -> Package:
@@ -509,7 +538,7 @@ def update(opts: Options) -> Package:
 
     if opts.version_preference != VersionPreference.SKIP:
         update_hash = update_version(
-            package, opts.version, opts.version_preference, opts.version_regex
+            opts, package, opts.version, opts.version_preference, opts.version_regex
         )
 
     if package.hash and update_hash:
