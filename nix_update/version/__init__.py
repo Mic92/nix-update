@@ -3,9 +3,11 @@ from collections.abc import Callable
 from functools import partial
 from typing import Protocol
 from urllib.parse import ParseResult
+from urllib.request import build_opener, install_opener
 
 from nix_update.errors import VersionError
 
+from ..VERSION import VERSION
 from .bitbucket import fetch_bitbucket_snapshots, fetch_bitbucket_versions
 from .crate import fetch_crate_versions
 from .gitea import fetch_gitea_snapshots, fetch_gitea_versions
@@ -26,6 +28,10 @@ from .version import Version, VersionPreference
 #            if repo["status"] == "newest":
 #                return repo["version"]
 #    return None
+
+opener = build_opener()
+opener.addheaders = [("User-Agent", f"nix-update/{VERSION}")]
+install_opener(opener)
 
 
 class SnapshotFetcher(Protocol):

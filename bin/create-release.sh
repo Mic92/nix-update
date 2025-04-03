@@ -30,6 +30,7 @@ if [[ $unpushed_commits != "" ]]; then
 fi
 sed -i -e "s!version = \".*\";!version = \"${version}\";!" default.nix
 sed -i -e "s!^version = \".*\"\$!version = \"${version}\"!" pyproject.toml
+echo "VERSION = \"${version}\"" >nix_update/VERSION.py
 git add pyproject.toml default.nix
 nix flake check -vL
 nix develop -c pytest -s .
