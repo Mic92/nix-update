@@ -144,9 +144,7 @@ def eval_expression(
           sanitizePosition = x: x;
         """
 
-    has_update_script = (
-        "false" if flake else "pkg.passthru.updateScript or null != null"
-    )
+    has_update_script = "pkg.passthru.updateScript or null != null"
 
     return f"""
 let
@@ -220,7 +218,7 @@ def eval_attr(opts: Options) -> Package:
         opts.override_filename,
     )
     cmd = ["nix", "eval", "--json", "--impure", "--expr", expr, *opts.extra_flags]
-    res = run(cmd)
+    res = run(cmd, quiet=opts.quiet)
     out = json.loads(res.stdout)
     if opts.override_filename is not None:
         out["filename"] = opts.override_filename

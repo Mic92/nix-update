@@ -22,7 +22,7 @@ def version_from_entry(entry: Element) -> Version:
     return Version(unquote(url.path.split("/")[-1]))
 
 
-def fetch_github_versions(url: ParseResult) -> list[Version]:
+def fetch_github_versions(url: ParseResult, quiet: bool) -> list[Version]:
     if url.netloc != "github.com":
         return []
     parts = url.path.split("/")
@@ -30,26 +30,26 @@ def fetch_github_versions(url: ParseResult) -> list[Version]:
     repo = re.sub(r"\.git$", "", repo)
     # TODO fallback to tags?
     feed_url = f"https://github.com/{owner}/{repo}/releases.atom"
-    info(f"fetch {feed_url}")
+    info(f"fetch {feed_url}", quiet)
     resp = urllib.request.urlopen(feed_url)
     tree = ET.fromstring(resp.read())
     releases = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
     return [version_from_entry(x) for x in releases]
 
 
-def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
+def fetch_github_snapshots(url: ParseResult, branch: str, quiet: bool) -> list[Version]:
     if url.netloc != "github.com":
         return []
     parts = url.path.split("/")
     owner, repo = parts[1], parts[2]
     repo = re.sub(r"\.git$", "", repo)
     feed_url = f"https://github.com/{owner}/{repo}/commits/{branch}.atom"
-    info(f"fetch {feed_url}")
+    info(f"fetch {feed_url}", quiet)
     resp = urllib.request.urlopen(feed_url)
     tree = ET.fromstring(resp.read())
     commits = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
 
-    versions = fetch_github_versions(url)
+    versions = fetch_github_versions(url, quiet)
     latest_version = versions[0].number if versions else "0"
 
     for entry in commits:
