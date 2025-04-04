@@ -3,9 +3,11 @@ from collections.abc import Callable
 from functools import partial
 from typing import Protocol
 from urllib.parse import ParseResult
+from urllib.request import build_opener, install_opener
 
 from nix_update.errors import VersionError
 
+from ..VERSION import VERSION
 from .bitbucket import fetch_bitbucket_snapshots, fetch_bitbucket_versions
 from .crate import fetch_crate_versions
 from .gitea import fetch_gitea_snapshots, fetch_gitea_versions
@@ -15,7 +17,7 @@ from .npm import fetch_npm_versions
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
-from .sourcehut import fetch_sourcehut_versions
+from .sourcehut import fetch_sourcehut_snapshots, fetch_sourcehut_versions
 from .version import Version, VersionPreference
 
 # def find_repology_release(attr) -> str:
@@ -26,6 +28,10 @@ from .version import Version, VersionPreference
 #            if repo["status"] == "newest":
 #                return repo["version"]
 #    return None
+
+opener = build_opener()
+opener.addheaders = [("User-Agent", f"nix-update/{VERSION}")]
+install_opener(opener)
 
 
 class SnapshotFetcher(Protocol):
@@ -50,6 +56,7 @@ branch_snapshots_fetchers: list[SnapshotFetcher] = [
     fetch_github_snapshots,
     fetch_gitlab_snapshots,
     fetch_bitbucket_snapshots,
+    fetch_sourcehut_snapshots,
     # all entries below perform requests to check if the target url is of that type
     fetch_gitea_snapshots,
 ]
