@@ -128,11 +128,13 @@ def nix_prefetch(opts: Options, attr: str) -> str:
             check=False,
         )
         stderr = res.stderr.strip()
+        # got:    xxx
+        # expected 'xxx' but got 'xxx'
+        regex = re.compile(r".*got:?\s*'?([^']*)('|$)")
         got = ""
         for line in stderr.split("\n"):
-            line = line.strip()
-            if line.startswith("got:"):
-                got = line.split("got:")[1].strip()
+            if match := regex.fullmatch(line):
+                got = match[1]
                 break
     finally:
         if tempdir:
