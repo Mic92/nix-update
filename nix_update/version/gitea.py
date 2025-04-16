@@ -20,7 +20,7 @@ def is_gitea_host(host: str) -> bool:
         return False
 
 
-def fetch_gitea_versions(url: ParseResult, quiet: bool) -> list[Version]:
+def fetch_gitea_versions(url: ParseResult) -> list[Version]:
     if not is_gitea_host(url.netloc):
         return []
 
@@ -32,7 +32,7 @@ def fetch_gitea_versions(url: ParseResult, quiet: bool) -> list[Version]:
     return [Version(tag["name"]) for tag in tags]
 
 
-def fetch_gitea_snapshots(url: ParseResult, branch: str, quiet: bool) -> list[Version]:
+def fetch_gitea_snapshots(url: ParseResult, branch: str) -> list[Version]:
     if not is_gitea_host(url.netloc):
         return []
 

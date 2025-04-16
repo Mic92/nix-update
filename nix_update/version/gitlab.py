@@ -14,14 +14,14 @@ GITLAB_API = re.compile(
 )
 
 
-def fetch_gitlab_versions(url: ParseResult, quiet: bool) -> list[Version]:
+def fetch_gitlab_versions(url: ParseResult) -> list[Version]:
     match = GITLAB_API.match(url.geturl())
     if not match:
         return []
     domain = match.group("domain")
     project_id = match.group("project_id")
     gitlab_url = f"https://{domain}/api/v4/projects/{project_id}/repository/tags"
-    info(f"fetch {gitlab_url}", quiet)
+    info(f"fetch {gitlab_url}")
     resp = urllib.request.urlopen(gitlab_url)
     json_tags = json.loads(resp.read())
     if len(json_tags) == 0:
@@ -43,14 +43,14 @@ def fetch_gitlab_versions(url: ParseResult, quiet: bool) -> list[Version]:
     return releases
 
 
-def fetch_gitlab_snapshots(url: ParseResult, branch: str, quiet: bool) -> list[Version]:
+def fetch_gitlab_snapshots(url: ParseResult, branch: str) -> list[Version]:
     match = GITLAB_API.match(url.geturl())
     if not match:
         return []
     domain = match.group("domain")
     project_id = match.group("project_id")
     gitlab_url = f"https://{domain}/api/v4/projects/{project_id}/repository/commits?ref_name={quote_plus(branch)}"
-    info(f"fetch {gitlab_url}", quiet)
+    info(f"fetch {gitlab_url}")
     resp = urllib.request.urlopen(gitlab_url)
     commits = json.load(resp)
 

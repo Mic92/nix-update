@@ -9,9 +9,18 @@ from typing import IO, Any
 HAS_TTY = sys.stdout.isatty()
 ROOT = Path(os.path.dirname(os.path.realpath(__file__)))
 
+
+class LogLevel:
+    INFO = 0
+    WARNING = 1
+
+
+LOG_LEVEL = LogLevel.INFO
+
+
 def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
-    def wrapper(text: str, quiet: bool = False) -> None:
-        if quiet:
+    def wrapper(text: str) -> None:
+        if LOG_LEVEL < LogLevel.INFO:
             return
         if HAS_TTY:
             print(f"\x1b[{code}m{text}\x1b[0m", file=file)
@@ -31,11 +40,10 @@ def run(
     stderr: None | int | IO[Any] = None,
     check: bool = True,
     extra_env: dict[str, str] | None = None,
-    quiet: bool = False,
 ) -> "subprocess.CompletedProcess[str]":
     if extra_env is None:
         extra_env = {}
-    info("$ " + shlex.join(command), quiet)
+    info("$ " + shlex.join(command))
     env = os.environ.copy()
     env.update(extra_env)
     return subprocess.run(

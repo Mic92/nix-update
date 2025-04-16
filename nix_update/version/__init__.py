@@ -91,7 +91,6 @@ def fetch_latest_version(
     branch: str | None = None,
     old_rev_tag: str | None = None,
     version_prefix: str = "",
-    quiet: bool = False,
 ) -> Version:
     unstable: list[str] = []
     filtered: list[str] = []
@@ -99,7 +98,7 @@ def fetch_latest_version(
     if preference == VersionPreference.BRANCH:
         used_fetchers = [partial(f, branch=branch) for f in branch_snapshots_fetchers]
     for fetcher in used_fetchers:
-        versions = fetcher(url, quiet=quiet)
+        versions = fetcher(url)
         if versions == []:
             continue
         final = []
