@@ -470,7 +470,7 @@ def update_version(
             package.diff_url = (
                 f"https://diff.rs/{parts[4]}/{package.old_version}/{new_version.number}"
             )
-        old_rev_tag = package.rev or package.tag
+        old_rev_tag = package.tag or package.rev
         if package.parsed_url.netloc == "registry.npmjs.org":
             parts = package.parsed_url.path.split("/")
             package.diff_url = f"https://npmdiff.dev/{parts[1]}/{package.old_version}/{new_version.number}"
@@ -484,11 +484,11 @@ def update_version(
                 if match is not None:
                     old_rev_tag = match.group(1)
 
-            new_rev_tag = new_version.rev or new_version.tag
+            new_rev_tag = new_version.tag or new_version.rev
             if new_rev_tag is None:
                 # happens with fixed version preference (and possibly more situtations?)
                 new_package = eval_attr(opts)
-                new_rev_tag = new_package.rev or new_package.tag
+                new_rev_tag = new_package.tag or new_package.rev
 
                 if new_rev_tag is None and new_package.parsed_url is not None:
                     # happens when using fetchurl with a github link rather than using fetchFromGitHub
