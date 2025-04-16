@@ -21,7 +21,8 @@ class Helpers:
     @staticmethod
     @contextmanager
     def testpkgs(init_git: bool = False) -> Iterator[Path]:
-        with tempfile.TemporaryDirectory() as tmpdirname:
+        with tempfile.TemporaryDirectory() as _tmpdirname:
+            tmpdirname = Path(_tmpdirname)
             shutil.copytree(
                 Helpers.root().joinpath("testpkgs"), tmpdirname, dirs_exist_ok=True
             )

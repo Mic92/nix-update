@@ -40,6 +40,7 @@ class Package:
     attribute: str
     import_path: InitVar[str]
     name: str
+    pname: str
     old_version: str
     filename: str
     line: int
@@ -144,9 +145,7 @@ def eval_expression(
           sanitizePosition = x: x;
         """
 
-    has_update_script = (
-        "false" if flake else "pkg.passthru.updateScript or null != null"
-    )
+    has_update_script = "pkg.passthru.updateScript or null != null"
 
     return f"""
 let
@@ -170,6 +169,7 @@ let
     sanitizePosition (positionFromMeta pkg);
 in {{
   name = pkg.name;
+  pname = pkg.pname;
   old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
   inherit raw_version_position;
   filename = position.file;
