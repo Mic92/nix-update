@@ -7,13 +7,13 @@ from nix_update.utils import info
 from .version import Version
 
 
-def fetch_pypi_versions(url: ParseResult, quiet: bool) -> list[Version]:
+def fetch_pypi_versions(url: ParseResult) -> list[Version]:
     if url.netloc != "pypi":
         return []
     parts = url.path.split("/")
     package = parts[2]
     pypi_url = f"https://pypi.org/pypi/{package}/json"
-    info(f"fetch {pypi_url}", quiet)
+    info(f"fetch {pypi_url}")
     resp = urllib.request.urlopen(pypi_url)
     data = json.loads(resp.read())
     version = data["info"]["version"]

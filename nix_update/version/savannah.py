@@ -23,12 +23,12 @@ def version_from_link(a: Element, baseurl: str) -> Version | None:
     return Version(m[1])
 
 
-def fetch_savannah_versions(url: ParseResult, quiet: bool) -> list[Version]:
+def fetch_savannah_versions(url: ParseResult) -> list[Version]:
     if url.scheme != "mirror" or url.netloc != "savannah":
         return []
     pname = url.path.split("/", 2)[1]
     dir_url = f"https://download.savannah.nongnu.org/releases/{pname}/?C=M&O=D"
-    info(f"fetch {dir_url}", quiet)
+    info(f"fetch {dir_url}")
     resp = urllib.request.urlopen(dir_url)
     html = resp.read()
 

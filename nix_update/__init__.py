@@ -7,10 +7,11 @@ import tempfile
 from pathlib import Path
 from typing import NoReturn
 
+from . import utils
 from .eval import CargoLockInSource, Package, eval_attr
 from .options import Options
 from .update import update
-from .utils import run
+from .utils import info, run
 from .version.version import VersionPreference
 
 
@@ -185,7 +186,6 @@ def nix_shell(options: Options) -> None:
             ],
             stdout=None,
             check=False,
-            quiet=options.quiet,
         )
     else:
         expr = f"let pkgs = import {options.escaped_import_path} {{}}; in pkgs.mkShell {{ buildInputs = [ pkgs.{options.escaped_attribute} ]; }}"
@@ -196,12 +196,11 @@ def nix_shell(options: Options) -> None:
                 ["nix-shell", str(path), *options.extra_flags],
                 stdout=None,
                 check=False,
-                quiet=options.quiet,
             )
 
 
-def git_has_diff(git_dir: str, package: Package, quiet: bool) -> bool:
-    diff = run(["git", "-C", git_dir, "diff", "--", package.filename], quiet=quiet)
+def git_has_diff(git_dir: str, package: Package) -> bool:
+    diff = run(["git", "-C", git_dir, "diff", "--", package.filename])
     return len(diff.stdout) > 0
 
 
@@ -221,7 +220,7 @@ def format_commit_message(package: Package) -> str:
     return msg
 
 
-def git_commit(git_dir: str, package: Package, quiet: bool) -> None:
+def git_commit(git_dir: str, package: Package) -> None:
     msg = format_commit_message(package)
     new_version = package.new_version
     files_changed = [package.filename]
@@ -243,7 +242,6 @@ def git_commit(git_dir: str, package: Package, quiet: bool) -> None:
                 *files_changed,
             ],
             stdout=None,
-            quiet=quiet,
         )
     else:
         with tempfile.NamedTemporaryFile(mode="w") as f:
@@ -261,7 +259,6 @@ def git_commit(git_dir: str, package: Package, quiet: bool) -> None:
                     *files_changed,
                 ],
                 stdout=None,
-                quiet=quiet,
             )
 
 
@@ -312,7 +309,6 @@ def nix_run(options: Options) -> None:
         cmd,
         stdout=None,
         check=False,
-        quiet=options.quiet,
     )
 
 
@@ -329,7 +325,7 @@ def nix_build(options: Options) -> None:
         cmd.append(f"{options.import_path}#{options.attribute}")
     else:
         cmd.extend(["-f", options.import_path, options.attribute])
-    run(cmd, stdout=None, quiet=options.quiet)
+    run(cmd, stdout=None)
 
 
 def nix_test(opts: Options, package: Package) -> None:
@@ -359,6 +355,9 @@ def nixpkgs_review() -> None:
 
 def main(args: list[str] = sys.argv[1:]) -> None:
     options = parse_args(args)
+    if options.quiet:
+        utils.LOG_LEVEL = utils.LogLevel.WARNING
+
     if not os.path.exists(options.import_path):
         die(f"path {options.import_path} does not exist")
 
@@ -388,11 +387,10 @@ def main(args: list[str] = sys.argv[1:]) -> None:
     if not git_dir:
         git_dir = find_git_root(options.import_path)
 
-    changes_detected = not git_dir or git_has_diff(git_dir, package, options.quiet)
+    changes_detected = not git_dir or git_has_diff(git_dir, package)
 
     if not changes_detected:
-        if not options.quiet:
-            print("No changes detected, skipping remaining steps")
+        info("No changes detected, skipping remaining steps")
         return
 
     if options.test:
@@ -405,14 +403,14 @@ def main(args: list[str] = sys.argv[1:]) -> None:
             nixpkgs_review()
 
     if options.format:
-        run(["nixfmt", package.filename], stdout=None, quiet=options.quiet)
+        run(["nixfmt", package.filename], stdout=None)
 
     if options.commit:
         assert git_dir is not None
         if package.changelog:
             # If we have a changelog we will re-eval the package in case it has changed
             package.changelog = eval_attr(options).changelog
-        git_commit(git_dir, package, quiet=options.quiet)
+        git_commit(git_dir, package)
 
     if options.print_commit_message:
         print_commit_message(package)
