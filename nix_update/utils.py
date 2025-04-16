@@ -9,7 +9,6 @@ from typing import IO, Any
 HAS_TTY = sys.stdout.isatty()
 ROOT = Path(os.path.dirname(os.path.realpath(__file__)))
 
-
 def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
     def wrapper(text: str, quiet: bool = False) -> None:
         if quiet:
@@ -22,7 +21,6 @@ def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
     return wrapper
 
 
-warn = color_text(31, file=sys.stderr)
 info = color_text(32)
 
 
