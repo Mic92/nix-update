@@ -1,20 +1,22 @@
 {
+  buildNpmPackage,
   fetchFromGitHub,
   pnpm_9,
-  stdenv,
 }:
 
-stdenv.mkDerivation rec {
-  pname = "vesktop";
-  version = "1.5.2";
+buildNpmPackage rec {
+  pname = "flood";
+  version = "4.9.2";
 
   src = fetchFromGitHub {
-    owner = "Vencord";
-    repo = "Vesktop";
+    owner = "jesec";
+    repo = "flood";
     rev = "v${version}";
-    sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+    hash = "sha256-sIwXx9DA+vRW4pf6jyqcsla0khh8fdpvVTZ5pLrUhhc=";
   };
 
+  npmConfigHook = pnpm_9.configHook;
+  npmDeps = pnpmDeps;
   pnpmDeps = pnpm_9.fetchDeps {
     inherit pname version src;
     hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
