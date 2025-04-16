@@ -24,6 +24,9 @@ def parse_args(args: list[str]) -> Options:
     help_msg = "File to import rather than default.nix. Examples, ./release.nix"
     parser.add_argument("-f", "--file", default="./.", help=help_msg)
     parser.add_argument(
+        "-q", "--quiet", action="store_true", help="Hide informational messages"
+    )
+    parser.add_argument(
         "-F", "--flake", action="store_true", help="Update a flake attribute instead"
     )
     parser.add_argument("--build", action="store_true", help="build the package")
@@ -52,6 +55,11 @@ def parse_args(args: list[str]) -> Options:
     parser.add_argument(
         "--url",
         help="URL to the repository to check for a release instead of using the URL in the src attribute of the package",
+    )
+    parser.add_argument(
+        "--print-commit-message",
+        action="store_true",
+        help="Print commit message to stdout (implies --quiet)",
     )
     parser.add_argument(
         "--write-commit-message",
@@ -138,6 +146,7 @@ def parse_args(args: list[str]) -> Options:
 
     return Options(
         import_path=os.path.realpath(a.file),
+        quiet=a.quiet or a.print_commit_message,
         flake=a.flake,
         build=a.build,
         commit=a.commit,
@@ -145,6 +154,7 @@ def parse_args(args: list[str]) -> Options:
         update_script_args=a.update_script_args,
         subpackages=a.subpackage,
         url=a.url,
+        print_commit_message=a.print_commit_message,
         write_commit_message=a.write_commit_message,
         run=a.run,
         shell=a.shell,
@@ -175,6 +185,7 @@ def nix_shell(options: Options) -> None:
             ],
             stdout=None,
             check=False,
+            quiet=options.quiet,
         )
     else:
         expr = f"let pkgs = import {options.escaped_import_path} {{}}; in pkgs.mkShell {{ buildInputs = [ pkgs.{options.escaped_attribute} ]; }}"
@@ -182,12 +193,15 @@ def nix_shell(options: Options) -> None:
             path = Path(d) / "default.nix"
             path.write_text(expr)
             run(
-                ["nix-shell", str(path), *options.extra_flags], stdout=None, check=False
+                ["nix-shell", str(path), *options.extra_flags],
+                stdout=None,
+                check=False,
+                quiet=options.quiet,
             )
 
 
-def git_has_diff(git_dir: str, package: Package) -> bool:
-    diff = run(["git", "-C", git_dir, "diff", "--", package.filename])
+def git_has_diff(git_dir: str, package: Package, quiet: bool) -> bool:
+    diff = run(["git", "-C", git_dir, "diff", "--", package.filename], quiet=quiet)
     return len(diff.stdout) > 0
 
 
@@ -207,7 +221,7 @@ def format_commit_message(package: Package) -> str:
     return msg
 
 
-def git_commit(git_dir: str, package: Package) -> None:
+def git_commit(git_dir: str, package: Package, quiet: bool) -> None:
     msg = format_commit_message(package)
     new_version = package.new_version
     files_changed = [package.filename]
@@ -229,6 +243,7 @@ def git_commit(git_dir: str, package: Package) -> None:
                 *files_changed,
             ],
             stdout=None,
+            quiet=quiet,
         )
     else:
         with tempfile.NamedTemporaryFile(mode="w") as f:
@@ -246,7 +261,13 @@ def git_commit(git_dir: str, package: Package) -> None:
                     *files_changed,
                 ],
                 stdout=None,
+                quiet=quiet,
             )
+
+
+def print_commit_message(package: Package) -> None:
+    print(format_commit_message(package))
+    print("\n")
 
 
 def write_commit_message(path: str, package: Package) -> None:
@@ -291,6 +312,7 @@ def nix_run(options: Options) -> None:
         cmd,
         stdout=None,
         check=False,
+        quiet=options.quiet,
     )
 
 
@@ -307,7 +329,7 @@ def nix_build(options: Options) -> None:
         cmd.append(f"{options.import_path}#{options.attribute}")
     else:
         cmd.extend(["-f", options.import_path, options.attribute])
-    run(cmd, stdout=None)
+    run(cmd, stdout=None, quiet=options.quiet)
 
 
 def nix_test(opts: Options, package: Package) -> None:
@@ -366,10 +388,11 @@ def main(args: list[str] = sys.argv[1:]) -> None:
     if not git_dir:
         git_dir = find_git_root(options.import_path)
 
-    changes_detected = not git_dir or git_has_diff(git_dir, package)
+    changes_detected = not git_dir or git_has_diff(git_dir, package, options.quiet)
 
     if not changes_detected:
-        print("No changes detected, skipping remaining steps")
+        if not options.quiet:
+            print("No changes detected, skipping remaining steps")
         return
 
     if options.test:
@@ -382,14 +405,17 @@ def main(args: list[str] = sys.argv[1:]) -> None:
             nixpkgs_review()
 
     if options.format:
-        run(["nixfmt", package.filename], stdout=None)
+        run(["nixfmt", package.filename], stdout=None, quiet=options.quiet)
 
     if options.commit:
         assert git_dir is not None
         if package.changelog:
             # If we have a changelog we will re-eval the package in case it has changed
             package.changelog = eval_attr(options).changelog
-        git_commit(git_dir, package)
+        git_commit(git_dir, package, quiet=options.quiet)
+
+    if options.print_commit_message:
+        print_commit_message(package)
 
     if options.write_commit_message is not None:
         write_commit_message(options.write_commit_message, package)

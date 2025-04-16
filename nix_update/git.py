@@ -33,10 +33,11 @@ def old_version_from_diff(diff: str, linenumber: int, new_version: str) -> str |
 
 
 def old_version_from_git(
-    filename: str, linenumber: int, new_version: str
+    filename: str, linenumber: int, new_version: str, quiet: bool
 ) -> str | None:
     proc = run(
         ["git", "diff", "--color=never", "--word-diff=porcelain", "--", filename],
+        quiet=quiet,
     )
     assert proc.stdout is not None
     if len(proc.stdout) == 0:

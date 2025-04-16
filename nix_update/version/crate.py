@@ -7,13 +7,13 @@ from nix_update.utils import info
 from .version import Version
 
 
-def fetch_crate_versions(url: ParseResult) -> list[Version]:
+def fetch_crate_versions(url: ParseResult, quiet: bool) -> list[Version]:
     if url.netloc != "crates.io":
         return []
     parts = url.path.split("/")
     package = parts[4]
     crate_url = f"https://crates.io/api/v1/crates/{package}/versions"
-    info(f"fetch {crate_url}")
+    info(f"fetch {crate_url}", quiet)
     resp = urllib.request.urlopen(crate_url)
     data = json.loads(resp.read())
     return [

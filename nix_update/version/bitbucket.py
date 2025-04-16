@@ -5,7 +5,7 @@ from urllib.request import urlopen
 from .version import Version
 
 
-def fetch_bitbucket_versions(url: ParseResult) -> list[Version]:
+def fetch_bitbucket_versions(url: ParseResult, quiet: bool) -> list[Version]:
     if url.netloc not in ["bitbucket.org", "bitbucket.io"]:
         return []
 
@@ -17,7 +17,9 @@ def fetch_bitbucket_versions(url: ParseResult) -> list[Version]:
     return [Version(tag["name"]) for tag in tags]
 
 
-def fetch_bitbucket_snapshots(url: ParseResult, branch: str) -> list[Version]:
+def fetch_bitbucket_snapshots(
+    url: ParseResult, branch: str, quiet: bool
+) -> list[Version]:
     if url.netloc not in ["bitbucket.org", "bitbucket.io"]:
         return []
 
@@ -27,7 +29,7 @@ def fetch_bitbucket_snapshots(url: ParseResult, branch: str) -> list[Version]:
     resp = urlopen(commits_url)
     ref = json.loads(resp.read())["values"][0]["target"]
 
-    versions = fetch_bitbucket_versions(url)
+    versions = fetch_bitbucket_versions(url, quiet)
     latest_version = versions[0].number if versions else "0"
 
     date = ref["date"][:10]  # to YYYY-MM-DD

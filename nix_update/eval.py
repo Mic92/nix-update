@@ -220,7 +220,7 @@ def eval_attr(opts: Options) -> Package:
         opts.override_filename,
     )
     cmd = ["nix", "eval", "--json", "--impure", "--expr", expr, *opts.extra_flags]
-    res = run(cmd)
+    res = run(cmd, quiet=opts.quiet)
     out = json.loads(res.stdout)
     if opts.override_filename is not None:
         out["filename"] = opts.override_filename
