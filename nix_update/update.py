@@ -7,6 +7,7 @@ import sys
 import tempfile
 import textwrap
 import tomllib
+from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from copy import deepcopy
@@ -46,11 +47,11 @@ def replace_version(package: Package) -> bool:
                         break
         with fileinput.FileInput(package.filename, inplace=True) as f:
             for i, line in enumerate(f, 1):
-                if package.rev is not None and package.new_version.rev:
+                if old_rev_tag is not None and package.new_version.rev:
                     line = line.replace(old_rev_tag, package.new_version.rev)
-                if (
-                    not version_string_in_version_declaration
-                    or package.version_position.line == i
+                if not version_string_in_version_declaration or (
+                    package.version_position is not None
+                    and package.version_position.line == i
                 ):
                     line = line.replace(f'"{old_version}"', f'"{new_version}"')
                 print(line, end="")
@@ -286,7 +287,7 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
         """
 
     @contextmanager
-    def disable_copystat():
+    def disable_copystat() -> Iterator[None]:
         _orig = shutil.copystat
         shutil.copystat = lambda *args, **kwargs: None
         try:

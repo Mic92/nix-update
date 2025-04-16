@@ -96,6 +96,7 @@ def fetch_latest_version(
     filtered: list[str] = []
     used_fetchers = fetchers
     if preference == VersionPreference.BRANCH:
+        assert branch is not None
         used_fetchers = [partial(f, branch=branch) for f in branch_snapshots_fetchers]
     for fetcher in used_fetchers:
         versions = fetcher(url)

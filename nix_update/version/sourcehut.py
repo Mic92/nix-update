@@ -24,9 +24,17 @@ def snapshot_from_entry(entry: Element, url: ParseResult) -> Version:
     versions = fetch_sourcehut_versions(url)
     latest_version = versions[0].number if versions else "0"
     pub_date = entry.find("pubDate")
-    date = parsedate_to_datetime(pub_date.text).date()
+    if pub_date is None:
+        raise VersionError("No pubDate found in atom feed {url}")
+    parsed = parsedate_to_datetime(pub_date.text)
+    if parsed is None:
+        raise VersionError(f"Invalid pubDate format: {pub_date.text}")
+    date = parsed.date()
     date_str = date.isoformat()
-    rev = entry.find("link").text.split("/")[-1]
+    node = entry.find("link")
+    if node is None or node.text is None:
+        raise VersionError("No link found in atom feed {url}")
+    rev = node.text.split("/")[-1]
     return Version(f"{latest_version}-unstable-{date_str}", rev=rev)
 
 
@@ -54,4 +62,7 @@ def fetch_sourcehut_snapshots(url: ParseResult, branch: str) -> list[Version]:
     resp = urllib.request.urlopen(feed_url)
     tree = ET.fromstring(resp.read())
     latest_commit = tree.find(".//item")
+    if latest_commit is None:
+        msg = f"No commit found in atom feed {url}"
+        raise VersionError(msg)
     return [snapshot_from_entry(latest_commit, url)]
