@@ -1,8 +1,11 @@
 import json
 import re
+from http.client import HTTPMessage
+from typing import IO
+from urllib import request
 from urllib.error import URLError
 from urllib.parse import ParseResult
-from urllib.request import urlopen
+from urllib.request import Request, urlopen
 
 from .version import Version
 
@@ -14,6 +17,22 @@ def is_gitea_host(host: str) -> bool:
         return True
     endpoint = f"https://{host}/api/v1/signing-key.gpg"
     try:
+        # do not follow UI login redirects
+        class NoRedirect(request.HTTPRedirectHandler):
+            def redirect_request(
+                self,
+                req: Request,
+                fp: IO[bytes],
+                code: int,
+                msg: str,
+                headers: HTTPMessage,
+                newurl: str,
+            ) -> Request | None:
+                return None
+
+        opener = request.build_opener(NoRedirect)
+        request.install_opener(opener)
+
         resp = urlopen(endpoint)
         return resp.status == 200
     except URLError:
