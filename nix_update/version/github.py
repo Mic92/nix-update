@@ -61,8 +61,12 @@ def fetch_github_versions(url: ParseResult) -> list[Version]:
     if not urlmatch:
         return []
     owner, repo = urlmatch.group("owner"), urlmatch.group("repo")
+    server = url.netloc
+    # unfortunately github requires this if condition
+    if url.netloc == "api.github.com":
+        server = "github.com"
     # TODO fallback to tags?
-    feed_url = f"https://{url.netloc}/{owner}/{repo}/releases.atom"
+    feed_url = f"https://{server}/{owner}/{repo}/releases.atom"
     info(f"fetch {feed_url}")
     resp = _dorequest(url, feed_url)
     tree = ET.fromstring(resp)
@@ -81,8 +85,12 @@ def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
     )
     if not urlmatch:
         return []
+    server = url.netloc
+    # unfortunately github requires this if condition
+    if url.netloc == "api.github.com":
+        server = "github.com"
     owner, repo = urlmatch.group("owner"), urlmatch.group("repo")
-    feed_url = f"https://{url.netloc}/{owner}/{repo}/commits/{branch}.atom"
+    feed_url = f"https://{server}/{owner}/{repo}/commits/{branch}.atom"
     info(f"fetch {feed_url}")
     resp = _dorequest(url, feed_url)
     tree = ET.fromstring(resp)

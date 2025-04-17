@@ -15,7 +15,7 @@ let
       name = "source";
 
       revWithTag = if tag != null then "refs/tags/${tag}" else rev;
-      url = "https://${githubBase}/${owner}/${repo}/archive/${revWithTag}.tar.gz";
+      url = "https://${githubBase}/repos/${owner}/${repo}/tarball/${revWithTag}";
       src = builtins.fetchTree {
         type = "tarball";
         url = url;
@@ -40,7 +40,7 @@ stdenv.mkDerivation rec {
   version = "8.0.0";
 
   src = fetchFromInternalGitHub {
-    githubBase = "github.com";
+    githubBase = "api.github.com";
     owner = "sharkdp";
     repo = pname;
     rev = "v${version}";
