@@ -13,11 +13,11 @@ from .version import Version
 
 # https://github.com/NixOS/nixpkgs/blob/13ae608185b2430ebffc8b181fa9a854cd241007/pkgs/build-support/fetchgithub/default.nix#L133-L143
 GITHUB_PUBLIC = re.compile(
-    r"^/(?P<owner>[^/]+)/(?P<repo>[^/]+)(.git)?/archive/(?P<revWithTag>.+).tar.gz$"
+    r"^/(?P<owner>[^~/]+)/(?P<repo>[^/]+)(.git)?/archive/(?P<revWithTag>.+).tar.gz$"
 )
-GITHUB_PUBLIC_GENERAL = re.compile(r"^/(?P<owner>[^/]+)/(?P<repo>[^/]+)(.git)?")
+GITHUB_PUBLIC_GENERAL = re.compile(r"^/(?P<owner>[^/~]+)/(?P<repo>[^/]+)(.git)?")
 GITHUB_PRIVATE = re.compile(
-    r"^(/api/v3)?/repos/(?P<owner>[^/]+)/(?P<repo>[^/]+)/tarball/(?P<revWithTag>.+)$"
+    r"^(/api/v3)?/repos/(?P<owner>[^/~]+)/(?P<repo>[^/]+)/tarball/(?P<revWithTag>.+)$"
 )
 
 
@@ -50,9 +50,7 @@ def _dorequest(url: ParseResult, feed_url: str) -> str:
 
 
 def fetch_github_versions(url: ParseResult) -> list[Version]:
-    # sourcehut and github share the same /archive/xxx.tar.gz path structure
-    if url.netloc == "git.sr.ht":
-        return []
+    # sourcehut and github share the same /archive/xxx.tar.gz path structure that matches our previous regex. We therefore need to filter it out here.
     urlmatch = (
         GITHUB_PUBLIC.match(url.path)
         or GITHUB_PRIVATE.match(url.path)
@@ -76,8 +74,6 @@ def fetch_github_versions(url: ParseResult) -> list[Version]:
 
 def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
     # sourcehut and github share the same /archive/xxx.tar.gz path structure
-    if url.netloc == "git.sr.ht":
-        return []
     urlmatch = (
         GITHUB_PUBLIC.match(url.path)
         or GITHUB_PRIVATE.match(url.path)
