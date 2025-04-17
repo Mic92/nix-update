@@ -50,7 +50,6 @@ def _dorequest(url: ParseResult, feed_url: str) -> str:
 
 
 def fetch_github_versions(url: ParseResult) -> list[Version]:
-    # sourcehut and github share the same /archive/xxx.tar.gz path structure that matches our previous regex. We therefore need to filter it out here.
     urlmatch = (
         GITHUB_PUBLIC.match(url.path)
         or GITHUB_PRIVATE.match(url.path)
@@ -73,7 +72,6 @@ def fetch_github_versions(url: ParseResult) -> list[Version]:
 
 
 def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
-    # sourcehut and github share the same /archive/xxx.tar.gz path structure
     urlmatch = (
         GITHUB_PUBLIC.match(url.path)
         or GITHUB_PRIVATE.match(url.path)
