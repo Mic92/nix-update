@@ -13,10 +13,11 @@ from .version import Version
 
 # https://github.com/NixOS/nixpkgs/blob/13ae608185b2430ebffc8b181fa9a854cd241007/pkgs/build-support/fetchgithub/default.nix#L133-L143
 GITHUB_PUBLIC = re.compile(
-    r"/(?P<owner>[^/]+)/(?P<repo>[^/]+)/archive/(?P<revWithTag>.+).tar.gz$"
+    r"^/(?P<owner>[^/]+)/(?P<repo>[^/]+)(.git)?/archive/(?P<revWithTag>.+).tar.gz$"
 )
+GITHUB_PUBLIC_GENERAL = re.compile(r"^/(?P<owner>[^/]+)/(?P<repo>[^/]+)(.git)?")
 GITHUB_PRIVATE = re.compile(
-    r"(/api/v3)?/repos/(?P<owner>[^/]+)/(?P<repo>[^/]+)/tarball/(?P<revWithTag>.+)$"
+    r"^(/api/v3)?/repos/(?P<owner>[^/]+)/(?P<repo>[^/]+)/tarball/(?P<revWithTag>.+)$"
 )
 
 
@@ -49,19 +50,17 @@ def _dorequest(url: ParseResult, feed_url: str) -> str:
 
 
 def fetch_github_versions(url: ParseResult) -> list[Version]:
-    if (
-        # sourcehut and github share the same /archive/xxx.tar.gz path structure
-        url.netloc == "git.sr.ht"
-        or (
-            url.netloc != "github.com"
-            and not GITHUB_PUBLIC.match(url.path)
-            and not GITHUB_PRIVATE.match(url.path)
-        )
-    ):
+    # sourcehut and github share the same /archive/xxx.tar.gz path structure
+    if url.netloc == "git.sr.ht":
         return []
-    parts = url.path.split("/")
-    owner, repo = parts[1], parts[2]
-    repo = re.sub(r"\.git$", "", repo)
+    urlmatch = (
+        GITHUB_PUBLIC.match(url.path)
+        or GITHUB_PRIVATE.match(url.path)
+        or (url.netloc == "github.com" and GITHUB_PUBLIC_GENERAL.match(url.path))
+    )
+    if not urlmatch:
+        return []
+    owner, repo = urlmatch.group("owner"), urlmatch.group("repo")
     # TODO fallback to tags?
     feed_url = f"https://{url.netloc}/{owner}/{repo}/releases.atom"
     info(f"fetch {feed_url}")
@@ -72,19 +71,17 @@ def fetch_github_versions(url: ParseResult) -> list[Version]:
 
 
 def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
-    if (
-        # sourcehut and github share the same /archive/xxx.tar.gz path structure
-        url.netloc == "git.sr.ht"
-        or (
-            url.netloc != "github.com"
-            and not GITHUB_PUBLIC.match(url.path)
-            and not GITHUB_PRIVATE.match(url.path)
-        )
-    ):
+    # sourcehut and github share the same /archive/xxx.tar.gz path structure
+    if url.netloc == "git.sr.ht":
         return []
-    parts = url.path.split("/")
-    owner, repo = parts[1], parts[2]
-    repo = re.sub(r"\.git$", "", repo)
+    urlmatch = (
+        GITHUB_PUBLIC.match(url.path)
+        or GITHUB_PRIVATE.match(url.path)
+        or (url.netloc == "github.com" and GITHUB_PUBLIC_GENERAL.match(url.path))
+    )
+    if not urlmatch:
+        return []
+    owner, repo = urlmatch.group("owner"), urlmatch.group("repo")
     feed_url = f"https://{url.netloc}/{owner}/{repo}/commits/{branch}.atom"
     info(f"fetch {feed_url}")
     resp = _dorequest(url, feed_url)
