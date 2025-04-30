@@ -6,21 +6,22 @@
     { pkgs, ... }:
     {
       treefmt = {
+        flakeCheck = pkgs.hostPlatform.system != "riscv64-linux";
+
         # Used to find the project root
         projectRootFile = "flake.lock";
 
-        programs.deno.enable =
-          pkgs.hostPlatform.system != "x86_64-darwin" && pkgs.hostPlatform.system != "riscv64-linux";
+        programs.deno.enable = pkgs.hostPlatform.system != "x86_64-darwin";
         programs.mypy.enable = true;
 
         programs.yamlfmt.enable = true;
 
-        programs.nixfmt.enable = pkgs.hostPlatform.system != "riscv64-linux";
+        programs.nixfmt.enable = true;
         programs.deadnix.enable = true;
         programs.ruff.format = true;
         programs.ruff.check = true;
 
-        programs.shellcheck.enable = pkgs.hostPlatform.system != "riscv64-linux";
+        programs.shellcheck.enable = true;
         programs.shfmt.enable = true;
         settings.formatter.shfmt.includes = [ "*.envrc" ];
       };
