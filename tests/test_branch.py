@@ -3,6 +3,7 @@ import unittest.mock
 from pathlib import Path
 from typing import BinaryIO
 from urllib.parse import urlparse
+from urllib.request import Request
 
 import conftest
 
@@ -12,7 +13,8 @@ from nix_update.version.version import VersionPreference
 TEST_ROOT = Path(__file__).parent.resolve()
 
 
-def fake_urlopen(url: str) -> BinaryIO:
+def fake_urlopen(req: Request) -> BinaryIO:
+    url = req.get_full_url()
     if url.endswith("releases.atom"):
         return open(TEST_ROOT.joinpath("test_branch_releases.atom"), "rb")
     return open(TEST_ROOT.joinpath("test_branch_commits_master.atom"), "rb")
