@@ -1,14 +1,14 @@
 { rustPlatform, fetchFromGitHub }:
 
 rustPlatform.buildRustPackage rec {
-  pname = "nurl";
-  version = "0.3.7";
+  pname = "cntr";
+  version = "1.4.0";
 
   src = fetchFromGitHub {
-    owner = "nix-community";
-    repo = "nurl";
-    rev = "v${version}";
-    hash = "sha256-TtH0sfWFWe3oYK/8jJslqjrEY5rR7HGAVDD5iQ2+spY=";
+    owner = "Mic92";
+    repo = "cntr";
+    rev = version;
+    hash = "sha256-rIDAPtDMth/5S+zwTk1tN5BQzFdv7Qq3yNe9wBGnrkk=";
   };
 
   cargoLock.lockFile = ./Cargo.lock;
