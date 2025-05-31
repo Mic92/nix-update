@@ -15,7 +15,7 @@ def test_main(helpers: conftest.Helpers) -> None:
                 "--commit",
                 "net-news-wire",
                 "--version-regex",
-                "^mac-(\\d+\\.\\d+\\.\\d+)$",
+                "^mac-(\\d+\\.\\d+\\.\\d+(?:b\\d+)?)$",
             ]
         )
         version = get_nix_value(path, "net-news-wire.version")
