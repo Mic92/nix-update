@@ -1,6 +1,6 @@
 import json
-import os
 from dataclasses import dataclass, field
+from pathlib import Path
 
 from .version.version import VersionPreference
 
@@ -13,7 +13,7 @@ class Options:
     version: str = "stable"
     version_preference: VersionPreference = VersionPreference.STABLE
     version_regex: str = "(.*)"
-    import_path: str = os.getcwd()
+    import_path: str = str(Path.cwd())
     subpackages: list[str] | None = None
     override_filename: str | None = None
     url: str | None = None

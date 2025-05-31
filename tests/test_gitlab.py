@@ -1,8 +1,7 @@
 import subprocess
 
-import conftest
-
 from nix_update import main
+from tests import conftest
 
 
 def test_main(helpers: conftest.Helpers) -> None:

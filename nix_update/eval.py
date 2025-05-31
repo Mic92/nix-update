@@ -96,7 +96,7 @@ class Package:
         if raw_cargo_lock is None:
             self.cargo_lock = NoCargoLock()
         elif raw_cargo_lock is False or not os.path.realpath(raw_cargo_lock).startswith(
-            import_path
+            import_path,
         ):
             self.cargo_lock = CargoLockInStore()
         else:

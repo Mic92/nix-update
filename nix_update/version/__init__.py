@@ -6,8 +6,8 @@ from urllib.parse import ParseResult
 from urllib.request import build_opener, install_opener
 
 from nix_update.errors import VersionError
+from nix_update.version_info import VERSION
 
-from ..VERSION import VERSION
 from .bitbucket import fetch_bitbucket_snapshots, fetch_bitbucket_versions
 from .crate import fetch_crate_versions
 from .gitea import fetch_gitea_snapshots, fetch_gitea_versions
@@ -108,7 +108,8 @@ def fetch_latest_version(
             if extracted is None:
                 filtered.append(version.number)
             elif preference == VersionPreference.STABLE and is_unstable(
-                version, extracted.number
+                version,
+                extracted.number,
             ):
                 unstable.append(extracted.number)
             else:
@@ -136,7 +137,7 @@ def fetch_latest_version(
     if filtered:
         raise VersionError(
             "Not version matched the regex. The following versions were found:\n"
-            + "\n".join(filtered)
+            + "\n".join(filtered),
         )
 
     if unstable:

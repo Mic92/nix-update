@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import IO, Any
 
 HAS_TTY = sys.stdout.isatty()
-ROOT = Path(os.path.dirname(os.path.realpath(__file__)))
+ROOT = Path(__file__).parent
 
 
 class LogLevel:
@@ -47,5 +47,11 @@ def run(
     env = os.environ.copy()
     env.update(extra_env)
     return subprocess.run(
-        command, cwd=cwd, check=check, text=True, stdout=stdout, stderr=stderr, env=env
+        command,
+        cwd=cwd,
+        check=check,
+        text=True,
+        stdout=stdout,
+        stderr=stderr,
+        env=env,
     )

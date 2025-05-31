@@ -2,11 +2,12 @@ import subprocess
 from datetime import date
 from urllib.parse import urlparse
 
-import conftest
+import pytest
 
 from nix_update.options import Options
 from nix_update.update import update
 from nix_update.version import VersionPreference, fetch_latest_version
+from tests import conftest
 
 
 def test_update(helpers: conftest.Helpers) -> None:
@@ -31,7 +32,8 @@ def test_update(helpers: conftest.Helpers) -> None:
         assert tuple(map(int, version.split("."))) >= (0, 3, 6)
 
 
-def test_branch(helpers: conftest.Helpers) -> None:
+@pytest.mark.usefixtures("helpers")
+def test_branch() -> None:
     version = fetch_latest_version(
         urlparse("https://git.sr.ht/~jcc/addr-book-combine"),
         VersionPreference.BRANCH,

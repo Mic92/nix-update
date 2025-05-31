@@ -1,8 +1,7 @@
 import subprocess
 
-import conftest
-
 from nix_update import main
+from tests import conftest
 
 
 # integration test for bitbucket versions (fetch_bitbucket_versions), mostly
@@ -50,7 +49,7 @@ def test_snapshot(helpers: conftest.Helpers) -> None:
                 "--commit",
                 "--version=branch=master",
                 "bitbucket-snapshot",
-            ]
+            ],
         )
         version = subprocess.run(
             [

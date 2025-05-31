@@ -1,8 +1,7 @@
 import subprocess
 
-import conftest
-
 from nix_update import main
+from tests import conftest
 
 
 def test_rust_package(helpers: conftest.Helpers) -> None:
@@ -15,7 +14,7 @@ def test_rust_package(helpers: conftest.Helpers) -> None:
                 "cargoVendorDeps.rustPackage",
                 "--version",
                 "0.7.3",
-            ]
+            ],
         )
         subprocess.run(
             [
@@ -53,7 +52,7 @@ def test_non_rust_package(helpers: conftest.Helpers) -> None:
                 "cargoVendorDeps.nonRustPackage",
                 "--version",
                 "v1.3.3",
-            ]
+            ],
         )
         subprocess.run(
             [

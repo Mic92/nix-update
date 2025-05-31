@@ -1,14 +1,13 @@
 import subprocess
 
-import conftest
-
 from nix_update import main
+from tests import conftest
 
 
 def test_main(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
         main(
-            ["--file", str(path), "--commit", "cargoLock.expand", "--version", "1.5.3"]
+            ["--file", str(path), "--commit", "cargoLock.expand", "--version", "1.5.3"],
         )
         subprocess.run(
             [

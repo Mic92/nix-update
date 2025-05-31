@@ -1,14 +1,15 @@
 import os
 import subprocess
 
-import conftest
 import pytest
 
 from nix_update import main
+from tests import conftest
 
 
 @pytest.mark.skipif(
-    "GITHUB_TOKEN" not in os.environ, reason="No GITHUB_TOKEN environment variable set"
+    "GITHUB_TOKEN" not in os.environ,
+    reason="No GITHUB_TOKEN environment variable set",
 )
 def test_fixed_version_no_prefix(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
@@ -20,7 +21,7 @@ def test_fixed_version_no_prefix(helpers: conftest.Helpers) -> None:
                 "--version",
                 "5.1.0",
                 "fetchurl-github-release",
-            ]
+            ],
         )
         commit = subprocess.run(
             ["git", "-C", path, "log", "-1"],
@@ -32,7 +33,8 @@ def test_fixed_version_no_prefix(helpers: conftest.Helpers) -> None:
 
 
 @pytest.mark.skipif(
-    "GITHUB_TOKEN" not in os.environ, reason="No GITHUB_TOKEN environment variable set"
+    "GITHUB_TOKEN" not in os.environ,
+    reason="No GITHUB_TOKEN environment variable set",
 )
 def test_fixed_version_yes_prefix(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
@@ -44,7 +46,7 @@ def test_fixed_version_yes_prefix(helpers: conftest.Helpers) -> None:
                 "--version",
                 "v5.1.0",
                 "fetchurl-github-release",
-            ]
+            ],
         )
         commit = subprocess.run(
             ["git", "-C", path, "log", "-1"],
@@ -56,7 +58,8 @@ def test_fixed_version_yes_prefix(helpers: conftest.Helpers) -> None:
 
 
 @pytest.mark.skipif(
-    "GITHUB_TOKEN" not in os.environ, reason="No GITHUB_TOKEN environment variable set"
+    "GITHUB_TOKEN" not in os.environ,
+    reason="No GITHUB_TOKEN environment variable set",
 )
 def test_auto_version(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
@@ -66,7 +69,7 @@ def test_auto_version(helpers: conftest.Helpers) -> None:
                 str(path),
                 "--commit",
                 "fetchurl-github-release",
-            ]
+            ],
         )
         commit = subprocess.run(
             ["git", "-C", path, "log", "-1"],

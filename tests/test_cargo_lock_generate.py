@@ -1,8 +1,7 @@
 import subprocess
 
-import conftest
-
 from nix_update import main
+from tests import conftest
 
 
 def test_simple(helpers: conftest.Helpers) -> None:
@@ -16,7 +15,7 @@ def test_simple(helpers: conftest.Helpers) -> None:
                 "--version",
                 "v0.9.8",
                 "--generate-lockfile",
-            ]
+            ],
         )
         subprocess.run(
             [
@@ -58,7 +57,7 @@ def test_with_lockfile_metadata_path(helpers: conftest.Helpers) -> None:
                 "--generate-lockfile",
                 "--lockfile-metadata-path",
                 "python",
-            ]
+            ],
         )
         subprocess.run(
             [
@@ -108,7 +107,7 @@ def test_with_lockfile_metadata_path_outside_workspace(
                 "--generate-lockfile",
                 "--lockfile-metadata-path",
                 "python",
-            ]
+            ],
         )
         subprocess.run(
             [
