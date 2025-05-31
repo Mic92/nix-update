@@ -1,8 +1,7 @@
 import subprocess
 
-import conftest
-
 from nix_update import main
+from tests import conftest
 
 
 def test_update(helpers: conftest.Helpers) -> None:
@@ -16,7 +15,7 @@ def test_update(helpers: conftest.Helpers) -> None:
                 "--version",
                 "v2.6.0",
                 "--generate-lockfile",
-            ]
+            ],
         )
         npm_deps_name = subprocess.run(
             [

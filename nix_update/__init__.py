@@ -25,21 +25,33 @@ def parse_args(args: list[str]) -> Options:
     help_msg = "File to import rather than default.nix. Examples, ./release.nix"
     parser.add_argument("-f", "--file", default="./.", help=help_msg)
     parser.add_argument(
-        "-q", "--quiet", action="store_true", help="Hide informational messages"
+        "-q",
+        "--quiet",
+        action="store_true",
+        help="Hide informational messages",
     )
     parser.add_argument(
-        "-F", "--flake", action="store_true", help="Update a flake attribute instead"
+        "-F",
+        "--flake",
+        action="store_true",
+        help="Update a flake attribute instead",
     )
     parser.add_argument("--build", action="store_true", help="build the package")
     parser.add_argument(
-        "--test", action="store_true", help="Run package's `passthru.tests`"
+        "--test",
+        action="store_true",
+        help="Run package's `passthru.tests`",
     )
     parser.add_argument(
-        "--review", action="store_true", help="Run `nixpkgs-review wip`"
+        "--review",
+        action="store_true",
+        help="Run `nixpkgs-review wip`",
     )
     parser.add_argument("--format", action="store_true", help="Run `nixfmt`")
     parser.add_argument(
-        "--commit", action="store_true", help="Commit the updated package"
+        "--commit",
+        action="store_true",
+        help="Commit the updated package",
     )
     parser.add_argument(
         "-u",
@@ -79,7 +91,9 @@ def parse_args(args: list[str]) -> Options:
         help="provide a shell based on `nix run` with the package in $PATH",
     )
     parser.add_argument(
-        "--shell", action="store_true", help="provide a shell with the package"
+        "--shell",
+        action="store_true",
+        help="provide a shell with the package",
     )
     parser.add_argument(
         "--version",
@@ -268,7 +282,7 @@ def print_commit_message(package: Package) -> None:
 
 
 def write_commit_message(path: str, package: Package) -> None:
-    with open(path, "w") as f:
+    with Path(path).open("w") as f:
         f.write(format_commit_message(package))
         f.write("\n")
 
@@ -277,20 +291,21 @@ def find_git_root(path: str) -> str | None:
     prefix = [path]
     release_nix = [".git"]
     while True:
-        root_path = os.path.join(*prefix)
-        release_nix_path = os.path.join(root_path, *release_nix)
-        if os.path.exists(release_nix_path):
-            return root_path
-        if os.path.abspath(root_path) == "/":
+        root_path = Path(*prefix)
+        release_nix_path = root_path.joinpath(*release_nix)
+        if release_nix_path.exists():
+            return str(root_path)
+        if root_path.resolve() == Path("/"):
             return None
         prefix.append("..")
 
 
 def validate_git_dir(import_path: str) -> str:
-    if os.path.isdir(import_path):
+    path = Path(import_path)
+    if path.is_dir():
         git_dir = find_git_root(import_path)
     else:
-        git_dir = find_git_root(os.path.dirname(import_path))
+        git_dir = find_git_root(str(path.parent))
 
     if git_dir is None:
         die(f"Could not find a git repository relative to {import_path}")
@@ -335,8 +350,12 @@ def nix_test(opts: Options, package: Package) -> None:
     cmd = [nix_build_tool(), "build", "-L", *opts.extra_flags]
 
     if opts.flake:
-        for t in package.tests:
-            cmd.append(f"{opts.import_path}#{package.attribute}.tests.{t}")
+        cmd.extend(
+            [
+                f"{opts.import_path}#{package.attribute}.tests.{t}"
+                for t in package.tests
+            ],
+        )
     else:
         cmd.extend(["-f", opts.import_path])
         for t in package.tests:
@@ -358,7 +377,7 @@ def main(args: list[str] = sys.argv[1:]) -> None:
     if options.quiet:
         utils.LOG_LEVEL = utils.LogLevel.WARNING
 
-    if not os.path.exists(options.import_path):
+    if not Path(options.import_path).exists():
         die(f"path {options.import_path} does not exist")
 
     git_dir = None
@@ -372,7 +391,7 @@ def main(args: list[str] = sys.argv[1:]) -> None:
         for maintainer in package.maintainers:
             print(
                 f"  - {maintainer['name']}"
-                + (f" (@{maintainer['github']})" if "github" in maintainer else "")
+                + (f" (@{maintainer['github']})" if "github" in maintainer else ""),
             )
 
     if options.build:

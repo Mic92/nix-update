@@ -24,7 +24,9 @@ class Helpers:
         with tempfile.TemporaryDirectory() as _tmpdirname:
             tmpdirname = Path(_tmpdirname)
             shutil.copytree(
-                Helpers.root().joinpath("testpkgs"), tmpdirname, dirs_exist_ok=True
+                Helpers.root().joinpath("testpkgs"),
+                tmpdirname,
+                dirs_exist_ok=True,
             )
             if init_git:
                 os.environ["GIT_AUTHOR_NAME"] = "nix-update"
@@ -45,6 +47,6 @@ class Helpers:
             yield Path(tmpdirname)
 
 
-@pytest.fixture  # type: ignore
+@pytest.fixture  # type: ignore[misc]
 def helpers() -> type[Helpers]:
     return Helpers

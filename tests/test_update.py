@@ -1,14 +1,15 @@
 import os
 import subprocess
 
-import conftest
 import pytest
 
 from nix_update import main
+from tests import conftest
 
 
 @pytest.mark.skipif(
-    "GITHUB_TOKEN" not in os.environ, reason="No GITHUB_TOKEN environment variable set"
+    "GITHUB_TOKEN" not in os.environ,
+    reason="No GITHUB_TOKEN environment variable set",
 )
 def test_multiple_sources(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
@@ -58,7 +59,8 @@ def test_multiple_sources(helpers: conftest.Helpers) -> None:
 
 
 @pytest.mark.skipif(
-    "GITHUB_TOKEN" not in os.environ, reason="No GITHUB_TOKEN environment variable set"
+    "GITHUB_TOKEN" not in os.environ,
+    reason="No GITHUB_TOKEN environment variable set",
 )
 def test_let_bound_version(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:

@@ -1,9 +1,8 @@
 import json
 import subprocess
 
-import conftest
-
 from nix_update import main
+from tests import conftest
 
 
 def test_update(helpers: conftest.Helpers) -> None:
@@ -16,7 +15,7 @@ def test_update(helpers: conftest.Helpers) -> None:
                 "nuget-deps-generate",
                 "--version",
                 "v1.1.1",
-            ]
+            ],
         )
 
         nuget_deps_raw = subprocess.run(

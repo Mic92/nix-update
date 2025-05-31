@@ -33,7 +33,9 @@ def old_version_from_diff(diff: str, linenumber: int, new_version: str) -> str |
 
 
 def old_version_from_git(
-    filename: str, linenumber: int, new_version: str
+    filename: str,
+    linenumber: int,
+    new_version: str,
 ) -> str | None:
     proc = run(
         ["git", "diff", "--color=never", "--word-diff=porcelain", "--", filename],

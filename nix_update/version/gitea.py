@@ -15,9 +15,10 @@ def is_gitea_host(host: str) -> bool:
     endpoint = f"https://{host}/api/v1/signing-key.gpg"
     try:
         resp = urlopen(endpoint)
-        return resp.status == 200
     except URLError:
         return False
+    else:
+        return resp.status == 200
 
 
 def fetch_gitea_versions(url: ParseResult) -> list[Version]:

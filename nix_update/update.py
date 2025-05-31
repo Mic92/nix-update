@@ -11,7 +11,6 @@ from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from copy import deepcopy
-from os import path
 from pathlib import Path
 
 from .errors import UpdateError
@@ -39,21 +38,28 @@ def replace_version(package: Package) -> bool:
         info(f"Update {old_version} -> {new_version} in {package.filename}")
         version_string_in_version_declaration = False
         if package.version_position is not None:
-            with open(package.filename) as f:
+            with Path(package.filename).open() as f:
                 for i, line in enumerate(f, 1):
                     if package.version_position.line == i:
                         version_string_in_version_declaration = old_version in line
                         break
         with fileinput.FileInput(package.filename, inplace=True) as f:
-            for i, line in enumerate(f, 1):
+            for i, original_line in enumerate(f, 1):
+                modified_line = original_line
                 if old_rev_tag is not None and package.new_version.rev:
-                    line = line.replace(old_rev_tag, package.new_version.rev)
+                    modified_line = modified_line.replace(
+                        old_rev_tag,
+                        package.new_version.rev,
+                    )
                 if not version_string_in_version_declaration or (
                     package.version_position is not None
                     and package.version_position.line == i
                 ):
-                    line = line.replace(f'"{old_version}"', f'"{new_version}"')
-                print(line, end="")
+                    modified_line = modified_line.replace(
+                        f'"{old_version}"',
+                        f'"{new_version}"',
+                    )
+                print(modified_line, end="")
     else:
         info(f"Not updating version, already {old_version}")
 
@@ -92,9 +98,9 @@ def replace_hash(filename: str, current: str, target: str) -> None:
     normalized_hash = to_sri(target)
     if to_sri(current) != normalized_hash:
         with fileinput.FileInput(filename, inplace=True) as f:
-            for line in f:
-                line = line.replace(current, normalized_hash)
-                print(line, end="")
+            for original_line in f:
+                modified_line = original_line.replace(current, normalized_hash)
+                print(modified_line, end="")
 
 
 def get_package(opts: Options) -> str:
@@ -177,14 +183,18 @@ def update_cargo_deps_hash(opts: Options, filename: str, current_hash: str) -> N
 
 
 def update_cargo_vendor_deps_hash(
-    opts: Options, filename: str, current_hash: str
+    opts: Options,
+    filename: str,
+    current_hash: str,
 ) -> None:
     target_hash = nix_prefetch(opts, "cargoDeps.vendorStaging")
     replace_hash(filename, current_hash, target_hash)
 
 
 def update_cargo_lock(
-    opts: Options, filename: str, dst: CargoLockInSource | CargoLockInStore
+    opts: Options,
+    filename: str,
+    dst: CargoLockInSource | CargoLockInStore,
 ) -> None:
     with tempfile.TemporaryDirectory() as tempdir:
         res = run(
@@ -204,9 +214,9 @@ def update_cargo_lock(
         if not src.is_file():
             return
 
-        with open(src, "rb") as f:
+        with Path(src).open("rb") as f:
             if isinstance(dst, CargoLockInSource):
-                with open(dst.path, "wb") as fdst:
+                with Path(dst.path).open("wb") as fdst:
                     shutil.copyfileobj(f, fdst)
                     f.seek(0)
 
@@ -215,14 +225,14 @@ def update_cargo_lock(
             regex = re.compile(r"git\+([^?]+)(\?(rev|tag|branch)=.*)?#(.*)")
             git_deps = {}
             for pkg in lock["package"]:
-                if source := pkg.get("source"):
-                    if match := regex.fullmatch(source):
-                        rev = match[4]
-                        if rev not in git_deps:
-                            git_deps[rev] = f"{pkg['name']}-{pkg['version']}", match[1]
+                if (source := pkg.get("source")) and (match := regex.fullmatch(source)):
+                    rev = match[4]
+                    if rev not in git_deps:
+                        git_deps[rev] = f"{pkg['name']}-{pkg['version']}", match[1]
 
-            for k, v in ThreadPoolExecutor().map(git_prefetch, git_deps.items()):
-                hashes[k] = v
+            hashes.update(
+                dict(ThreadPoolExecutor().map(git_prefetch, git_deps.items())),
+            )
 
     with fileinput.FileInput(filename, inplace=True) as f:
         short = re.compile(r"(\s*)cargoLock\.lockFile\s*=\s*(.+)\s*;\s*")
@@ -236,8 +246,8 @@ def update_cargo_lock(
                 print(f"{indent}  lockFile = {path};")
                 print_hashes(hashes, f"{indent}  ")
                 print(f"{indent}}};")
-                for line in f:
-                    print(line, end="")
+                for remaining_line in f:
+                    print(remaining_line, end="")
                 return
             if match := expanded.fullmatch(line):
                 indent = match[1]
@@ -245,23 +255,23 @@ def update_cargo_lock(
                 print(line, end="")
                 print_hashes(hashes, indent)
                 brace = 0
-                for line in f:
-                    for c in line:
+                for next_line in f:
+                    for c in next_line:
                         if c == "{":
                             brace -= 1
                         if c == "}":
                             brace += 1
                         if brace == 1:
-                            print(line, end="")
-                            for line in f:
-                                print(line, end="")
+                            print(next_line, end="")
+                            for final_line in f:
+                                print(final_line, end="")
                             return
             else:
                 print(line, end="")
 
 
-def generate_lockfile(opts: Options, filename: str, type: str) -> None:
-    if type == "cargo":
+def generate_lockfile(opts: Options, filename: str, lockfile_type: str) -> None:
+    if lockfile_type == "cargo":
         cmd = [
             "generate-lockfile",
             "--manifest-path",
@@ -273,7 +283,7 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
           cargoDeps = null;
           cargoVendorDir = ".";
         """
-    elif type == "npm":
+    elif lockfile_type == "npm":
         cmd = [
             "install",
             "--package-lock-only",
@@ -290,13 +300,13 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
     @contextmanager
     def disable_copystat() -> Iterator[None]:
         _orig = shutil.copystat
-        shutil.copystat = lambda *args, **kwargs: None
+        shutil.copystat = lambda *_args, **_kwargs: None
         try:
             yield
         finally:
             shutil.copystat = _orig
 
-    getSrcAndBin = textwrap.dedent(
+    get_src_and_bin = textwrap.dedent(
         f"""
       {get_package(opts)}.overrideAttrs (old: {{
         {extra_nix_override}
@@ -312,7 +322,7 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
         outputs = [ "out" ];
         separateDebugInfo = false;
       }})
-    """
+    """,
     )
 
     res = run(
@@ -324,7 +334,7 @@ def generate_lockfile(opts: Options, filename: str, type: str) -> None:
             "--impure",
             "--print-out-paths",
             "--expr",
-            getSrcAndBin,
+            get_src_and_bin,
             *opts.extra_flags,
         ],
     )
@@ -359,7 +369,9 @@ def update_composer_deps_hash(opts: Options, filename: str, current_hash: str) -
 
 
 def update_composer_deps_hash_old(
-    opts: Options, filename: str, current_hash: str
+    opts: Options,
+    filename: str,
+    current_hash: str,
 ) -> None:
     target_hash = nix_prefetch(opts, "composerRepository")
     replace_hash(filename, current_hash, target_hash)
@@ -457,7 +469,9 @@ def update_version(
     position = package.version_position
     if new_version.number == package.old_version and position:
         recovered_version = old_version_from_git(
-            position.file, position.line, new_version.number
+            position.file,
+            position.line,
+            new_version.number,
         )
         if recovered_version:
             package.old_version = recovered_version
@@ -518,7 +532,7 @@ def run_update_script(package: Package, opts: Options) -> None:
         run(
             [
                 "nix-shell",
-                path.join(opts.import_path, "maintainers/scripts/update.nix"),
+                str(Path(opts.import_path) / "maintainers/scripts/update.nix"),
                 "--argstr",
                 "package",
                 opts.attribute,
@@ -562,7 +576,7 @@ def run_update_script(package: Package, opts: Options) -> None:
                     f"UPDATE_NIX_OLD_VERSION={package.old_version}",
                     f"UPDATE_NIX_ATTR_PATH={package.attribute}",
                     update_script,
-                ]
+                ],
             ),
             *opts.update_script_args,
         ],
@@ -577,7 +591,9 @@ def update(opts: Options) -> Package:
         run_update_script(package, opts)
         new_package = eval_attr(opts)
         package.new_version = Version(
-            new_package.old_version, rev=new_package.rev, tag=new_package.tag
+            new_package.old_version,
+            rev=new_package.rev,
+            tag=new_package.tag,
         )
 
         return package
@@ -621,7 +637,9 @@ def update(opts: Options) -> Package:
 
         if package.cargo_vendor_deps:
             update_cargo_vendor_deps_hash(
-                opts, package.filename, package.cargo_vendor_deps
+                opts,
+                package.filename,
+                package.cargo_vendor_deps,
             )
 
         if package.composer_deps:
@@ -629,7 +647,9 @@ def update(opts: Options) -> Package:
 
         if package.composer_deps_old:
             update_composer_deps_hash_old(
-                opts, package.filename, package.composer_deps_old
+                opts,
+                package.filename,
+                package.composer_deps_old,
             )
 
         if package.npm_deps:

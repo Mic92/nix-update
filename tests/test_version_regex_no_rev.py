@@ -1,9 +1,8 @@
 import subprocess
 from pathlib import Path
 
-import conftest
-
 from nix_update import main
+from tests import conftest
 
 
 def test_main(helpers: conftest.Helpers) -> None:
@@ -16,7 +15,7 @@ def test_main(helpers: conftest.Helpers) -> None:
                 "net-news-wire",
                 "--version-regex",
                 "^mac-(\\d+\\.\\d+\\.\\d+(?:b\\d+)?)$",
-            ]
+            ],
         )
         version = get_nix_value(path, "net-news-wire.version")
         src = get_nix_value(path, "net-news-wire.src")

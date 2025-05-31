@@ -2,11 +2,11 @@ import subprocess
 import urllib.error
 import urllib.request
 
-import conftest
 import pytest
 
 from nix_update.options import Options
 from nix_update.update import update
+from tests import conftest
 
 
 def test_update(helpers: conftest.Helpers) -> None:
@@ -16,7 +16,7 @@ def test_update(helpers: conftest.Helpers) -> None:
             timeout=5,
         )
         response.read()
-    except Exception:
+    except (urllib.error.URLError, TimeoutError, ConnectionError):
         # savannah's api seems to have issues lately
         pytest.xfail("Savana is taking too long to respond")
 

@@ -1,8 +1,7 @@
 import subprocess
 
-import conftest
-
 from nix_update import main
+from tests import conftest
 
 
 def test_main(helpers: conftest.Helpers) -> None:
@@ -53,7 +52,7 @@ def test_update_script(helpers: conftest.Helpers) -> None:
                 "--test",
                 "--use-update-script",
                 "crate",
-            ]
+            ],
         )
         version = subprocess.run(
             [

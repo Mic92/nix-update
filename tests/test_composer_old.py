@@ -1,10 +1,9 @@
 import subprocess
 
-import conftest
-
 from nix_update.options import Options
 from nix_update.update import update
 from nix_update.version.version import VersionPreference
+from tests import conftest
 
 
 def test_update(helpers: conftest.Helpers) -> None:
