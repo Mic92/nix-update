@@ -4,7 +4,7 @@ import re
 import urllib.request
 import xml.etree.ElementTree as ET
 from urllib.parse import ParseResult, unquote, urlparse
-from xml.etree.ElementTree import Element
+from xml.etree.ElementTree import Element, ParseError
 
 from nix_update.errors import VersionError
 from nix_update.utils import info
@@ -45,6 +45,9 @@ def _dorequest(url: ParseResult, feed_url: str) -> str:
             request.add_header("Authorization", f"Basic {encodedcreds}")
     except FileNotFoundError:
         pass
+    except NetrcParseError:
+        info("unable to parse netrc file, please verify content / owner-only permissions (chmod 600)")
+        pass
 
     return urllib.request.urlopen(request).read()
 
@@ -66,7 +69,11 @@ def fetch_github_versions(url: ParseResult) -> list[Version]:
     feed_url = f"https://{server}/{owner}/{repo}/releases.atom"
     info(f"fetch {feed_url}")
     resp = _dorequest(url, feed_url)
-    tree = ET.fromstring(resp)
+    try:
+        tree = ET.fromstring(resp)
+    except ParseError:
+        info("unable to parse github response, ignoring")
+        return []
     releases = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
     return [version_from_entry(x) for x in releases]
 
@@ -87,7 +94,11 @@ def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
     feed_url = f"https://{server}/{owner}/{repo}/commits/{branch}.atom"
     info(f"fetch {feed_url}")
     resp = _dorequest(url, feed_url)
-    tree = ET.fromstring(resp)
+    try:
+        tree = ET.fromstring(resp)
+    except ParseError:
+        info("unable to parse github response, ignoring")
+        return []
     commits = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
 
     versions = fetch_github_versions(url)
