@@ -45,8 +45,10 @@ def _dorequest(url: ParseResult, feed_url: str) -> str:
             request.add_header("Authorization", f"Basic {encodedcreds}")
     except FileNotFoundError:
         pass
-    except NetrcParseError:
-        info("unable to parse netrc file, please verify content / owner-only permissions (chmod 600)")
+    except netrc.NetrcParseError:
+        info(
+            "unable to parse netrc file, please verify content / owner-only permissions (chmod 600)"
+        )
         pass
 
     return urllib.request.urlopen(request).read()
