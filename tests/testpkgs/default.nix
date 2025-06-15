@@ -41,4 +41,6 @@
   set = pkgs.callPackage ./set.nix { };
   let-bound-version = pkgs.callPackage ./let-bound-version.nix { };
   subpackage = pkgs.callPackage ./subpackage.nix { };
+  pubspec-lock-update = pkgs.callPackage ./pubspec-lock-update { };
+  pubspec-lock-generate = pkgs.callPackage ./pubspec-lock-generate { };
 }
