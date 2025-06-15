@@ -21,12 +21,12 @@ def is_gitea_host(host: str) -> bool:
         class NoRedirect(request.HTTPRedirectHandler):
             def redirect_request(
                 self,
-                req: Request,
-                fp: IO[bytes],
-                code: int,
-                msg: str,
-                headers: HTTPMessage,
-                newurl: str,
+                _req: Request,
+                _fp: IO[bytes],
+                _code: int,
+                _msg: str,
+                _headers: HTTPMessage,
+                _newurl: str,
             ) -> Request | None:
                 return None
 
