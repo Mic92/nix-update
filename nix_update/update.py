@@ -344,6 +344,19 @@ def generate_lockfile(opts: Options, filename: str, lockfile_type: str) -> None:
         with disable_copystat():
             shutil.copytree(src, tempdir, dirs_exist_ok=True, copy_function=shutil.copy)
 
+        if (
+            lockfile_in_subdir := Path(tempdir)
+            / opts.lockfile_metadata_path
+            / lockfile_name
+        ).exists():
+            lockfile = lockfile_in_subdir
+        else:
+            lockfile = Path(tempdir) / lockfile_name
+
+        if lockfile.exists():
+            # adding writeable bit to the lockfile
+            lockfile.chmod(lockfile.stat().st_mode | 0o200)
+
         bin_path = (src / "nix-support" / f"{bin_name}-bin").read_text().rstrip("\n")
 
         run(
