@@ -270,6 +270,104 @@ def update_cargo_lock(
                 print(line, end="")
 
 
+def update_pubspec_lock(opts: Options, filename: str) -> None:
+    with tempfile.TemporaryDirectory() as tempdir:
+        with Path(filename).open() as f:
+            match = re.search(
+                r"pubspecLock\s*=\s*lib\.importJSON\s+([^;]+)\s*;",
+                f.read(),
+            )
+            if match is None:
+                return
+            dst = Path(match.group(1))
+            if not dst.is_absolute():
+                dst = Path(filename).resolve().parent / dst
+                dst = dst.resolve()
+        if opts.generate_lockfile:
+            generate_lockfile(opts, filename, "pubspec")
+            pubspec_lock = Path(filename).resolve().parent / "pubspec.lock"
+        else:
+            res = run(
+                [
+                    "nix",
+                    "build",
+                    "--out-link",
+                    f"{tempdir}/result",
+                    "--impure",
+                    "--print-out-paths",
+                    "--expr",
+                    f"\n{get_package(opts)}.overrideAttrs (old: {{\n  postUnpack = ''\n    cp \"$sourceRoot/pubspec.lock\" $out\n    exit\n  '';\n  outputs = [ \"out\" ];\n     separateDebugInfo = false;\n}})\n",
+                    *opts.extra_flags,
+                ],
+            )
+            pubspec_lock = Path(res.stdout.strip())
+        with Path.open(
+            Path(tempdir) / "pubspec.lock.json",
+            "w",
+            encoding="utf-8",
+        ) as f:
+            run(
+                [
+                    "nix",
+                    "run",
+                    "-L",
+                    "--impure",
+                    *opts.extra_flags,
+                    "github:NixOS/nixpkgs/nixos-unstable#yq",
+                    "--",
+                    ".",
+                    str(
+                        pubspec_lock.resolve(),
+                    ),
+                ],
+                stdout=f,
+            )
+        if opts.generate_lockfile:
+            pubspec_lock.unlink()
+        src = Path(tempdir) / "pubspec.lock.json"
+        if not src.is_file():
+            return
+
+        with Path.open(src, "rb") as f:
+            with Path.open(dst, "wb") as fdst:
+                shutil.copyfileobj(f, fdst)
+                f.seek(0)
+
+            lock = json.load(f)
+            git_deps = {}
+            for name, pkg in lock["packages"].items():
+                if pkg["source"] == "git":
+                    git_deps[pkg["description"]["resolved-ref"]] = (
+                        f"{name}",
+                        pkg["description"]["url"],
+                    )
+
+            hashes = dict(ThreadPoolExecutor().map(git_prefetch, git_deps.items()))
+
+    if hashes:
+        start_pattern = re.compile(r"^(?P<indent>\s*)gitHashes(?:\.[\w-]+)*\s*=")
+        end_pattern = re.compile(r"^(?P<indent>\s*)}\s*;\s*$")
+        in_block = False
+        indent = ""
+        lines = Path(filename).read_text(encoding="utf-8").splitlines(keepends=True)
+        new_lines = []
+        for line in lines:
+            if not in_block:
+                match = start_pattern.match(line)
+                if match:
+                    indent = match.group("indent")
+                    new_lines.append(f"{indent}gitHashes = {{\n")
+                    for k, v in hashes.items():
+                        new_lines.append(f'{indent}  {k} = "{v}";\n')
+                    new_lines.append(f"{indent}}};\n")
+                    if "{" in line and not line.strip().endswith("};"):
+                        in_block = True
+                else:
+                    new_lines.append(line)
+            elif end_pattern.match(line):
+                in_block = False
+
+
 def generate_lockfile(opts: Options, filename: str, lockfile_type: str) -> None:
     if lockfile_type == "cargo":
         cmd = [
@@ -296,6 +394,15 @@ def generate_lockfile(opts: Options, filename: str, lockfile_type: str) -> None:
           npmDeps = null;
           npmDepsHash = null;
         """
+    elif lockfile_type == "pubspec":
+        cmd = [
+            "pub",
+            "get",
+        ]
+        bin_name = "flutter"
+        lockfile_name = "pubspec.lock"
+        extra_nix_override = """
+        """
 
     @contextmanager
     def disable_copystat() -> Iterator[None]:
@@ -311,8 +418,9 @@ def generate_lockfile(opts: Options, filename: str, lockfile_type: str) -> None:
       {get_package(opts)}.overrideAttrs (old: {{
         {extra_nix_override}
         postUnpack = ''
-          cp -pr --reflink=auto -- $sourceRoot $out
+          cp -pr --reflink=auto -- . $out
           mkdir -p "$out/nix-support"
+          echo "$sourceRoot" > $out/nix-support/source-root-path
           command -v {bin_name} > $out/nix-support/{bin_name}-bin || {{
             echo "no {bin_name} executable found in native build inputs" >&2
             exit 1
@@ -342,23 +450,33 @@ def generate_lockfile(opts: Options, filename: str, lockfile_type: str) -> None:
 
     with tempfile.TemporaryDirectory() as tempdir:
         with disable_copystat():
-            shutil.copytree(src, tempdir, dirs_exist_ok=True, copy_function=shutil.copy)
+            shutil.copystat = lambda *_args, **_kwargs: None
+            shutil.copytree(
+                src,
+                tempdir,
+                dirs_exist_ok=True,
+                copy_function=shutil.copyfile,
+            )
 
         bin_path = (src / "nix-support" / f"{bin_name}-bin").read_text().rstrip("\n")
+        source_root_path = (
+            (src / "nix-support" / "source-root-path").read_text().rstrip("\n")
+        )
 
         run(
             [bin_path, *cmd],
-            cwd=tempdir,
+            cwd=(Path(tempdir) / source_root_path),
         )
 
         if (
             lockfile_in_subdir := Path(tempdir)
+            / source_root_path
             / opts.lockfile_metadata_path
             / lockfile_name
         ).exists():
             lockfile = lockfile_in_subdir
         else:
-            lockfile = Path(tempdir) / lockfile_name
+            lockfile = Path(tempdir) / source_root_path / lockfile_name
 
         shutil.copy(lockfile, Path(filename).parent / lockfile_name)
 
@@ -680,5 +798,8 @@ def update(opts: Options) -> Package:
                 generate_lockfile(opts, package.filename, "cargo")
             else:
                 update_cargo_lock(opts, package.filename, package.cargo_lock)
+
+        if package.has_pubspec_lock:
+            update_pubspec_lock(opts, package.filename)
 
     return package
