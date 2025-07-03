@@ -144,6 +144,11 @@ def parse_args(args: list[str]) -> Options:
         action="store_true",
     )
     parser.add_argument(
+        "--use-github-releases",
+        action="store_true",
+        help="Use GitHub releases API instead of ATOM feed to determine the newest version",
+    )
+    parser.add_argument(
         "--option",
         help="Nix option to set",
         action="append",
@@ -185,6 +190,7 @@ def parse_args(args: list[str]) -> Options:
         generate_lockfile=a.generate_lockfile,
         lockfile_metadata_path=a.lockfile_metadata_path,
         src_only=a.src_only,
+        use_github_releases=a.use_github_releases,
         extra_flags=extra_flags,
     )
 

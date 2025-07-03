@@ -1,8 +1,11 @@
 import base64
+import json
 import netrc
+import os
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
+from typing import Any
 from urllib.parse import ParseResult, unquote, urlparse
 from xml.etree.ElementTree import Element, ParseError
 
@@ -33,8 +36,12 @@ def version_from_entry(entry: Element) -> Version:
     return Version(unquote(url.path.split("/")[-1]))
 
 
-def _dorequest(url: ParseResult, feed_url: str) -> str:
-    request = urllib.request.Request(feed_url)
+def _dorequest(
+    url: ParseResult,
+    feed_url: str,
+    extra_headers: dict[str, str] | None = None,
+) -> str:
+    request = urllib.request.Request(feed_url, headers=extra_headers or {})
 
     try:
         netrccreds = netrc.netrc().authenticators(url.netloc)
@@ -53,7 +60,10 @@ def _dorequest(url: ParseResult, feed_url: str) -> str:
     return urllib.request.urlopen(request).read()
 
 
-def fetch_github_versions(url: ParseResult) -> list[Version]:
+def fetch_github_versions(
+    url: ParseResult,
+    extra_args: dict[str, Any] | None = None,
+) -> list[Version]:
     urlmatch = (
         GITHUB_PUBLIC.match(url.path)
         or GITHUB_PRIVATE.match(url.path)
@@ -62,6 +72,36 @@ def fetch_github_versions(url: ParseResult) -> list[Version]:
     if not urlmatch:
         return []
     owner, repo = urlmatch.group("owner"), urlmatch.group("repo")
+    if extra_args is not None and extra_args.get("use_github_releases"):
+        return fetch_github_versions_from_releases(url, owner, repo)
+    return fetch_github_versions_from_feed(url, owner, repo)
+
+
+def fetch_github_versions_from_releases(
+    url: ParseResult,
+    owner: str,
+    repo: str,
+) -> list[Version]:
+    # TODO: pagination?
+    github_url = f"https://api.github.com/repos/{owner}/{repo}/releases?per_page=100"
+    token = os.environ.get("GITHUB_TOKEN")
+    extra_headers = {} if token is None else {"Authorization": f"Bearer {token}"}
+
+    info(f"fetch {github_url}")
+    resp = _dorequest(url, github_url, extra_headers)
+    try:
+        releases = json.loads(resp)
+    except json.JSONDecodeError:
+        info("unable to parse github response, ignoring")
+        return []
+    return [Version(r["tag_name"], r["prerelease"]) for r in releases]
+
+
+def fetch_github_versions_from_feed(
+    url: ParseResult,
+    owner: str,
+    repo: str,
+) -> list[Version]:
     server = url.netloc
     # unfortunately github requires this if condition
     if url.netloc == "api.github.com":
@@ -79,7 +119,11 @@ def fetch_github_versions(url: ParseResult) -> list[Version]:
     return [version_from_entry(x) for x in releases]
 
 
-def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
+def fetch_github_snapshots(
+    url: ParseResult,
+    branch: str,
+    extra_args: dict[str, Any] | None = None,
+) -> list[Version]:
     urlmatch = (
         GITHUB_PUBLIC.match(url.path)
         or GITHUB_PRIVATE.match(url.path)
@@ -102,7 +146,12 @@ def fetch_github_snapshots(url: ParseResult, branch: str) -> list[Version]:
         return []
     commits = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
 
-    versions = fetch_github_versions(url)
+    version_fetcher = (
+        fetch_github_versions_from_releases
+        if extra_args is not None and extra_args.get("use_github_releases")
+        else fetch_github_versions_from_feed
+    )
+    versions = version_fetcher(url, owner, repo)
     latest_version = versions[0].number if versions else "0"
 
     for entry in commits:
