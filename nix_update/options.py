@@ -32,6 +32,7 @@ class Options:
     generate_lockfile: bool = False
     lockfile_metadata_path: str = "."
     src_only: bool = False
+    use_github_releases: bool = False
     extra_flags: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
