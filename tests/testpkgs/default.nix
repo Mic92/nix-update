@@ -41,4 +41,5 @@
   set = pkgs.callPackage ./set.nix { };
   let-bound-version = pkgs.callPackage ./let-bound-version.nix { };
   subpackage = pkgs.callPackage ./subpackage.nix { };
+  postgresql = pkgs.callPackage ./postgresql.nix { };
 }
