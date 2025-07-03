@@ -464,6 +464,7 @@ def update_version(
             branch,
             old_rev_tag,
             version_prefix,
+            fetcher_args={"use_github_releases": opts.use_github_releases},
         )
     package.new_version = new_version
     position = package.version_position
