@@ -77,13 +77,15 @@ def extract_version(version: Version, version_regex: str) -> Version | None:
     pattern = re.compile(version_regex)
     match = re.match(pattern, version.number)
     if match is not None:
-        group = match.group(1)
-        if group is not None:
+        # Filter non-matched groups which come back as None.
+        groups = [g for g in match.groups() if g]
+        if len(groups) > 0:
+            number = ".".join(groups)
             return Version(
-                group,
+                number,
                 prerelease=version.prerelease,
                 rev=version.rev
-                or (None if version.number == group else version.number),
+                or (None if version.number == number else version.number),
             )
     return None
 
