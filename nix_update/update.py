@@ -270,6 +270,94 @@ def update_cargo_lock(
                 print(line, end="")
 
 
+def update_pubspec_lock(opts: Options, filename: str) -> None:
+    with tempfile.TemporaryDirectory() as tempdir:
+        with Path(filename).open() as f:
+            match = re.search(
+                r"pubspecLock\s*=\s*lib\.importJSON\s+([^;]+)\s*;",
+                f.read(),
+            )
+            if match is None:
+                return
+            dst = Path(match.group(1))
+            if not dst.is_absolute():
+                dst = Path(filename).resolve().parent / dst
+                dst = dst.resolve()
+        if opts.generate_lockfile:
+            generate_lockfile(opts, filename, "pubspec")
+            pubspec_lock = Path(filename).resolve().parent / "pubspec.lock"
+            res = run(
+                [
+                    "nix",
+                    "build",
+                    "--out-link",
+                    f"{tempdir}/result",
+                    "--impure",
+                    "--print-out-paths",
+                    "--expr",
+                    f"\n{get_package(opts)}.overrideAttrs (old: {{\n     pubspec_lock_file = {pubspec_lock.resolve()!s};\n  postUnpack = ''\n    yq . \"$pubspec_lock_file\" > $out\n    exit\n  '';\n  outputs = [ \"out\" ];\n     separateDebugInfo = false;\n}})\n",
+                    *opts.extra_flags,
+                ],
+            )
+            pubspec_lock.unlink()
+        else:
+            res = run(
+                [
+                    "nix",
+                    "build",
+                    "--out-link",
+                    f"{tempdir}/result",
+                    "--impure",
+                    "--print-out-paths",
+                    "--expr",
+                    f"\n{get_package(opts)}.overrideAttrs (old: {{\n  postUnpack = ''\n    yq . \"$sourceRoot/pubspec.lock\" > $out\n    exit\n  '';\n  outputs = [ \"out\" ];\n     separateDebugInfo = false;\n}})\n",
+                    *opts.extra_flags,
+                ],
+            )
+        src = Path(res.stdout.strip())
+        if not src.is_file():
+            return
+
+        with Path.open(src, "rb") as f:
+            with Path.open(dst, "wb") as fdst:
+                shutil.copyfileobj(f, fdst)
+                f.seek(0)
+
+            lock = json.load(f)
+            git_deps = {}
+            for name, pkg in lock["packages"].items():
+                if pkg["source"] == "git":
+                    git_deps[pkg["description"]["resolved-ref"]] = (
+                        f"{name}",
+                        pkg["description"]["url"],
+                    )
+
+            hashes = dict(ThreadPoolExecutor().map(git_prefetch, git_deps.items()))
+
+    if hashes:
+        start_pattern = re.compile(r"^(?P<indent>\s*)gitHashes(?:\.[\w-]+)*\s*=")
+        end_pattern = re.compile(r"^(?P<indent>\s*)}\s*;\s*$")
+        in_block = False
+        indent = ""
+        lines = Path(filename).read_text(encoding="utf-8").splitlines(keepends=True)
+        new_lines = []
+        for line in lines:
+            if not in_block:
+                match = start_pattern.match(line)
+                if match:
+                    indent = match.group("indent")
+                    new_lines.append(f"{indent}gitHashes = {{\n")
+                    for k, v in hashes.items():
+                        new_lines.append(f'{indent}  {k} = "{v}";\n')
+                    new_lines.append(f"{indent}}};\n")
+                    if "{" in line and not line.strip().endswith("};"):
+                        in_block = True
+                else:
+                    new_lines.append(line)
+            elif end_pattern.match(line):
+                in_block = False
+
+
 def generate_lockfile(opts: Options, filename: str, lockfile_type: str) -> None:
     if lockfile_type == "cargo":
         cmd = [
@@ -295,6 +383,15 @@ def generate_lockfile(opts: Options, filename: str, lockfile_type: str) -> None:
         extra_nix_override = """
           npmDeps = null;
           npmDepsHash = null;
+        """
+    elif lockfile_type == "pubspec":
+        cmd = [
+            "pub",
+            "get",
+        ]
+        bin_name = "flutter"
+        lockfile_name = "pubspec.lock"
+        extra_nix_override = """
         """
 
     @contextmanager
@@ -680,5 +777,8 @@ def update(opts: Options) -> Package:
                 generate_lockfile(opts, package.filename, "cargo")
             else:
                 update_cargo_lock(opts, package.filename, package.cargo_lock)
+
+        if package.has_pubspec_lock:
+            update_pubspec_lock(opts, package.filename)
 
     return package
