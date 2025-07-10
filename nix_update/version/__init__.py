@@ -1,7 +1,8 @@
 import re
 from collections.abc import Callable
 from functools import partial
-from typing import Protocol
+from inspect import signature
+from typing import Any, Protocol, cast
 from urllib.parse import ParseResult
 from urllib.request import build_opener, install_opener
 
@@ -38,7 +39,17 @@ class SnapshotFetcher(Protocol):
     def __call__(self, url: ParseResult, branch: str) -> list[Version]: ...
 
 
-fetchers: list[Callable[[ParseResult], list[Version]]] = [
+class FetcherWithArgs(Protocol):
+    def __call__(
+        self,
+        url: ParseResult,
+        extra_args: dict[str, Any] | None = None,
+    ) -> list[Version]: ...
+
+
+Fetcher = Callable[[ParseResult], list[Version]] | FetcherWithArgs
+
+fetchers: list[Fetcher] = [
     fetch_crate_versions,
     fetch_npm_versions,
     fetch_pypi_versions,
@@ -91,6 +102,7 @@ def fetch_latest_version(
     branch: str | None = None,
     old_rev_tag: str | None = None,
     version_prefix: str = "",
+    fetcher_args: dict[str, Any] | None = None,
 ) -> Version:
     unstable: list[str] = []
     filtered: list[str] = []
@@ -98,6 +110,16 @@ def fetch_latest_version(
     if preference == VersionPreference.BRANCH:
         assert branch is not None
         used_fetchers = [partial(f, branch=branch) for f in branch_snapshots_fetchers]
+
+    used_fetchers = [
+        (
+            partial(cast("FetcherWithArgs", fetcher), extra_args=fetcher_args)
+            if "extra_args" in signature(fetcher).parameters
+            else fetcher
+        )
+        for fetcher in used_fetchers
+    ]
+
     for fetcher in used_fetchers:
         versions = fetcher(url)
         if versions == []:
