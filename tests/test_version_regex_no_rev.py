@@ -32,6 +32,25 @@ def test_main(helpers: conftest.Helpers) -> None:
         assert "net-news-wire: 6.1.5 ->" in commit
 
 
+def test_groups(helpers: conftest.Helpers) -> None:
+    with helpers.testpkgs(init_git=True) as path:
+        main(
+            [
+                "--file",
+                str(path),
+                "postgresql",
+                "--version-regex",
+                "^REL_(\\d+)_(\\d+)(?:_(\\d+))?$",
+            ],
+        )
+        version = get_nix_value(path, "postgresql.version")
+        print(version)
+        assert version != "17.0"
+        assert version != "17."
+        assert version != "17"
+        assert "17." in version
+
+
 def get_nix_value(path: Path, key: str) -> str:
     return subprocess.run(
         [
