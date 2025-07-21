@@ -158,7 +158,7 @@ def fetch_latest_version(
 
     if filtered:
         raise VersionError(
-            "Not version matched the regex. The following versions were found:\n"
+            "No version matched the regex. The following versions were found:\n"
             + "\n".join(filtered),
         )
 
