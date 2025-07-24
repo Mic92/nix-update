@@ -5,17 +5,15 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import textwrap
 import tomllib
-from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
-from contextlib import contextmanager
 from copy import deepcopy
 from pathlib import Path
 
 from .errors import UpdateError
 from .eval import CargoLockInSource, CargoLockInStore, Package, eval_attr
 from .git import old_version_from_git
+from .lockfile import generate_lockfile
 from .options import Options
 from .utils import info, run
 from .version import fetch_latest_version
@@ -268,112 +266,6 @@ def update_cargo_lock(
                             return
             else:
                 print(line, end="")
-
-
-def generate_lockfile(opts: Options, filename: str, lockfile_type: str) -> None:
-    if lockfile_type == "cargo":
-        cmd = [
-            "generate-lockfile",
-            "--manifest-path",
-            f"{opts.lockfile_metadata_path}/Cargo.toml",
-        ]
-        bin_name = "cargo"
-        lockfile_name = "Cargo.lock"
-        extra_nix_override = """
-          cargoDeps = null;
-          cargoVendorDir = ".";
-        """
-    elif lockfile_type == "npm":
-        cmd = [
-            "install",
-            "--package-lock-only",
-            "--prefix",
-            opts.lockfile_metadata_path,
-        ]
-        bin_name = "npm"
-        lockfile_name = "package-lock.json"
-        extra_nix_override = """
-          npmDeps = null;
-          npmDepsHash = null;
-        """
-
-    @contextmanager
-    def disable_copystat() -> Iterator[None]:
-        _orig = shutil.copystat
-        shutil.copystat = lambda *_args, **_kwargs: None
-        try:
-            yield
-        finally:
-            shutil.copystat = _orig
-
-    get_src_and_bin = textwrap.dedent(
-        f"""
-      {get_package(opts)}.overrideAttrs (old: {{
-        {extra_nix_override}
-        postUnpack = ''
-          cp -pr --reflink=auto -- $sourceRoot $out
-          mkdir -p "$out/nix-support"
-          command -v {bin_name} > $out/nix-support/{bin_name}-bin || {{
-            echo "no {bin_name} executable found in native build inputs" >&2
-            exit 1
-          }}
-          exit
-        '';
-        outputs = [ "out" ];
-        separateDebugInfo = false;
-      }})
-    """,
-    )
-
-    res = run(
-        [
-            "nix",
-            "build",
-            "-L",
-            "--no-link",
-            "--impure",
-            "--print-out-paths",
-            "--expr",
-            get_src_and_bin,
-            *opts.extra_flags,
-        ],
-    )
-    src = Path(res.stdout.strip())
-
-    with tempfile.TemporaryDirectory() as tempdir:
-        with disable_copystat():
-            shutil.copytree(src, tempdir, dirs_exist_ok=True, copy_function=shutil.copy)
-
-        if (
-            lockfile_in_subdir := Path(tempdir)
-            / opts.lockfile_metadata_path
-            / lockfile_name
-        ).exists():
-            lockfile = lockfile_in_subdir
-        else:
-            lockfile = Path(tempdir) / lockfile_name
-
-        if lockfile.exists():
-            # adding writeable bit to the lockfile
-            lockfile.chmod(lockfile.stat().st_mode | 0o200)
-
-        bin_path = (src / "nix-support" / f"{bin_name}-bin").read_text().rstrip("\n")
-
-        run(
-            [bin_path, *cmd],
-            cwd=tempdir,
-        )
-
-        if (
-            lockfile_in_subdir := Path(tempdir)
-            / opts.lockfile_metadata_path
-            / lockfile_name
-        ).exists():
-            lockfile = lockfile_in_subdir
-        else:
-            lockfile = Path(tempdir) / lockfile_name
-
-        shutil.copy(lockfile, Path(filename).parent / lockfile_name)
 
 
 def update_composer_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
@@ -667,7 +559,7 @@ def update(opts: Options) -> Package:
 
         if package.npm_deps:
             if opts.generate_lockfile:
-                generate_lockfile(opts, package.filename, "npm")
+                generate_lockfile(opts, package.filename, "npm", get_package(opts))
             update_npm_deps_hash(opts, package.filename, package.npm_deps)
 
         if package.pnpm_deps:
@@ -690,7 +582,7 @@ def update(opts: Options) -> Package:
 
         if isinstance(package.cargo_lock, CargoLockInSource | CargoLockInStore):
             if opts.generate_lockfile:
-                generate_lockfile(opts, package.filename, "cargo")
+                generate_lockfile(opts, package.filename, "cargo", get_package(opts))
             else:
                 update_cargo_lock(opts, package.filename, package.cargo_lock)
 
