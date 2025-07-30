@@ -37,10 +37,11 @@ def test_update(helpers: conftest.Helpers) -> None:
         assert len(nuget_deps) > 0
 
         diff = subprocess.run(
-            ["git", "-C", path, "log"],
+            ["git", "-C", path, "show"],
             text=True,
             stdout=subprocess.PIPE,
             check=True,
         ).stdout.strip()
         print(diff)
         assert "https://github.com/ExOK/Celeste64/compare/v1.1.0...v1.1.1" in diff
+        assert "a/nuget-deps-generate/deps.json" in diff
