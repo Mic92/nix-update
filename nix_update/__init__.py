@@ -221,7 +221,14 @@ def nix_shell(options: Options) -> None:
 
 def git_has_diff(git_dir: str, package: Package) -> bool:
     diff = run(["git", "-C", git_dir, "diff", "--", package.filename])
-    return len(diff.stdout) > 0
+    if len(diff.stdout) > 0:
+        return True
+
+    # Check for other uncommitted changes in the package directory
+    # This catches files modified by update scripts
+    package_dir = str(Path(package.filename).parent)
+    status = run(["git", "-C", git_dir, "diff", "--name-only", "--", package_dir])
+    return len(status.stdout) > 0
 
 
 def format_commit_message(package: Package) -> str:
@@ -246,6 +253,18 @@ def git_commit(git_dir: str, package: Package) -> None:
     files_changed = [package.filename]
     if isinstance(package.cargo_lock, CargoLockInSource):
         files_changed.append(package.cargo_lock.path)
+
+    # Get modified files in the package directory (including those changed by update scripts)
+    package_dir = str(Path(package.filename).parent)
+    modified_files = run(
+        ["git", "-C", git_dir, "diff", "--name-only", "--", package_dir],
+    )
+    additional_files = modified_files.stdout.strip().splitlines()
+    # Add any modified files from the package directory that aren't already in the list
+    for file in additional_files:
+        if file not in files_changed:
+            files_changed.append(file)
+
     if new_version and (
         package.old_version != new_version.number
         or (new_version.rev and new_version.rev != package.rev)
