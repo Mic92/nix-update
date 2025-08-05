@@ -219,16 +219,21 @@ def nix_shell(options: Options) -> None:
             )
 
 
-def git_has_diff(git_dir: str, package: Package) -> bool:
-    diff = run(["git", "-C", git_dir, "diff", "--", package.filename])
-    if len(diff.stdout) > 0:
-        return True
+def get_package_directories(package: Package) -> set[str]:
+    """Get all directories that may contain files modified during package update."""
+    dirs = {str(Path(package.filename).parent)}
 
-    # Check for other uncommitted changes in the package directory
-    # This catches files modified by update scripts
-    package_dir = str(Path(package.filename).parent)
-    status = run(["git", "-C", git_dir, "diff", "--name-only", "--", package_dir])
-    return len(status.stdout) > 0
+    # Add Cargo.lock directory if it exists and is different
+    if isinstance(package.cargo_lock, CargoLockInSource):
+        dirs.add(str(Path(package.cargo_lock.path).parent))
+
+    return dirs
+
+
+def git_has_diff(git_dir: str, package: Package) -> bool:
+    # Check all paths in a single git diff command
+    diff = run(["git", "-C", git_dir, "diff", "--", *get_package_directories(package)])
+    return len(diff.stdout) > 0
 
 
 def format_commit_message(package: Package) -> str:
@@ -250,20 +255,8 @@ def format_commit_message(package: Package) -> str:
 def git_commit(git_dir: str, package: Package) -> None:
     msg = format_commit_message(package)
     new_version = package.new_version
-    files_changed = [package.filename]
-    if isinstance(package.cargo_lock, CargoLockInSource):
-        files_changed.append(package.cargo_lock.path)
-
-    # Get modified files in the package directory (including those changed by update scripts)
-    package_dir = str(Path(package.filename).parent)
-    modified_files = run(
-        ["git", "-C", git_dir, "diff", "--name-only", "--", package_dir],
-    )
-    additional_files = modified_files.stdout.strip().splitlines()
-    # Add any modified files from the package directory that aren't already in the list
-    for file in additional_files:
-        if file not in files_changed:
-            files_changed.append(file)
+    # Get all directories that may have changes
+    files_changed = get_package_directories(package)
 
     if new_version and (
         package.old_version != new_version.number
