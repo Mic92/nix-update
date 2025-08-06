@@ -26,6 +26,7 @@
   github-tag = pkgs.callPackage ./github-tag.nix { };
   github-fetchtree = pkgs.callPackage ./github-fetchtree.nix { };
   github-fetchtree-private = pkgs.callPackage ./github-fetchtree-private.nix { };
+  github-forcefetchgit = pkgs.callPackage ./github-forcefetchgit.nix { };
   gitlab = pkgs.callPackage ./gitlab.nix { };
   pypi = pkgs.python3.pkgs.callPackage ./pypi.nix { };
   sourcehut = pkgs.python3.pkgs.callPackage ./sourcehut.nix { };
