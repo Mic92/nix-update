@@ -16,11 +16,11 @@ from .version import Version
 
 # https://github.com/NixOS/nixpkgs/blob/13ae608185b2430ebffc8b181fa9a854cd241007/pkgs/build-support/fetchgithub/default.nix#L133-L143
 GITHUB_PUBLIC = re.compile(
-    r"^/(?P<owner>[^~/]+)/(?P<repo>[^/]+)(.git)?/archive/(?P<revWithTag>.+).tar.gz$",
+    r"^/(?P<owner>[^~]+?)/(?P<repo>.+?)(\.git)?/archive/(?P<revWithTag>.+).tar.gz$",
 )
-GITHUB_PUBLIC_GENERAL = re.compile(r"^/(?P<owner>[^/~]+)/(?P<repo>[^/]+)(.git)?")
+GITHUB_PUBLIC_GENERAL = re.compile(r"^/(?P<owner>[^~]+?)/(?P<repo>.+?)(\.git)?(/|$)")
 GITHUB_PRIVATE = re.compile(
-    r"^(/api/v3)?/repos/(?P<owner>[^/~]+)/(?P<repo>[^/]+)/tarball/(?P<revWithTag>.+)$",
+    r"^(/api/v3)?/repos/(?P<owner>[^~]+?)/(?P<repo>.+?)/tarball/(?P<revWithTag>.+)$",
 )
 
 
