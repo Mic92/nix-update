@@ -1,19 +1,27 @@
 {
   stdenv,
   fetchurl,
-  gamin,
+  glib,
+  gtk2,
+  pkg-config,
+  hamlib,
 }:
-
 stdenv.mkDerivation rec {
-  pname = "fileschanged";
-  version = "0.6.8";
+  pname = "xlog";
+  version = "2.0.24";
 
   src = fetchurl {
-    url = "mirror://savannah/fileschanged/fileschanged-${version}.tar.gz";
-    sha256 = "0ajc9h023vzpnlqqjli4wbvs0q36nr5p9msc3wzbic8rk687qcxc";
+    url = "mirror://savannah/${pname}/${pname}-${version}.tar.gz";
+    hash = "sha256-NYC3LgoLXnJQURcZTc2xHOzOleotrWtOETMBgadf2qU=";
   };
 
-  buildInputs = [ gamin ];
+  # glib-2.62 deprecations
+  env.NIX_CFLAGS_COMPILE = "-DGLIB_DISABLE_DEPRECATION_WARNINGS";
 
-  doCheck = true;
+  nativeBuildInputs = [ pkg-config ];
+  buildInputs = [
+    glib
+    gtk2
+    hamlib
+  ];
 }
