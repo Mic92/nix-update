@@ -153,7 +153,7 @@ def fetch_github_snapshots(
         else fetch_github_versions_from_feed
     )
     versions = version_fetcher(url, owner, repo)
-    latest_version = versions[0].number if versions else "0"
+    version_numbers = [version.number for version in versions] + ["0"]
 
     for entry in commits:
         link = entry.find("{http://www.w3.org/2005/Atom}link")
@@ -168,6 +168,9 @@ def fetch_github_snapshots(
         url = urlparse(link.attrib["href"])
         commit = url.path.rsplit("/", maxsplit=1)[-1]
         date = updated.text.split("T", maxsplit=1)[0]
-        return [Version(f"{latest_version}-unstable-{date}", rev=commit)]
+        return [
+            Version(f"{version}-unstable-{date}", rev=commit)
+            for version in version_numbers
+        ]
 
     return []
