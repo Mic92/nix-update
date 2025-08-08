@@ -12,7 +12,7 @@ from tests import conftest
 def test_update(helpers: conftest.Helpers) -> None:
     try:
         response = urllib.request.urlopen(
-            "https://download.savannah.nongnu.org/releases/fileschanged/?C=M&O=D",
+            "https://download.savannah.nongnu.org/releases/xlog/?C=M&O=D",
             timeout=5,
         )
         response.read()
@@ -38,4 +38,4 @@ def test_update(helpers: conftest.Helpers) -> None:
             stdout=subprocess.PIPE,
             check=False,
         ).stdout.strip()
-        assert tuple(map(int, version.split("."))) >= (0, 6, 8)
+        assert tuple(map(int, version.split("."))) >= (2, 0, 24)
