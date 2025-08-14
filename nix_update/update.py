@@ -138,7 +138,6 @@ def nix_prefetch(opts: Options, attr: str) -> str:
         for line in stderr.split("\n"):
             if match := regex.fullmatch(line):
                 got = match[2]
-                break
     finally:
         if tempdir:
             tempdir.cleanup()
