@@ -301,6 +301,11 @@ def update_npm_deps_hash(opts: Options, filename: str, current_hash: str) -> Non
     replace_hash(filename, current_hash, target_hash)
 
 
+def update_zig_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
+    target_hash = nix_prefetch(opts, "zigDeps")
+    replace_hash(filename, current_hash, target_hash)
+
+
 def update_yarn_deps_hash(opts: Options, filename: str, current_hash: str) -> None:
     target_hash = nix_prefetch(opts, "yarnOfflineCache")
     replace_hash(filename, current_hash, target_hash)
@@ -586,6 +591,9 @@ def update(opts: Options) -> Package:
 
         if package.has_nuget_deps:
             update_nuget_deps(opts)
+
+        if package.zig_deps:
+            update_zig_deps_hash(opts, package.filename, package.zig_deps)
 
         if isinstance(package.cargo_lock, CargoLockInSource | CargoLockInStore):
             if opts.generate_lockfile:
