@@ -521,7 +521,7 @@ def update(opts: Options) -> Package:
             opts.version_regex,
         )
 
-    if package.hash and update_hash:
+    if package.hash and update_hash and opts.update_src:
         update_src_hash(opts, package.filename, package.hash)
 
     if opts.subpackages:
