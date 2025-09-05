@@ -40,7 +40,7 @@ def _dorequest(
     url: ParseResult,
     feed_url: str,
     extra_headers: dict[str, str] | None = None,
-) -> bytes:
+) -> bytes | None:
     request = urllib.request.Request(feed_url, headers=extra_headers or {})
 
     try:
@@ -57,8 +57,14 @@ def _dorequest(
             "unable to parse netrc file, please verify content / owner-only permissions (chmod 600)",
         )
 
-    with urllib.request.urlopen(request) as response:
-        return response.read()
+    try:
+        with urllib.request.urlopen(request) as response:
+            return response.read()
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            info(f"HTTP 404: {feed_url} not found")
+            return None
+        raise
 
 
 def fetch_github_versions(
@@ -90,6 +96,8 @@ def fetch_github_versions_from_releases(
 
     info(f"fetch {github_url}")
     resp = _dorequest(url, github_url, extra_headers)
+    if resp is None:
+        return []
     try:
         releases = json.loads(resp)
     except json.JSONDecodeError:
@@ -111,6 +119,8 @@ def fetch_github_versions_from_feed(
     feed_url = f"https://{server}/{owner}/{repo}/releases.atom"
     info(f"fetch {feed_url}")
     resp = _dorequest(url, feed_url)
+    if resp is None:
+        return []
     try:
         tree = ET.fromstring(resp)
     except ParseError:
@@ -140,6 +150,8 @@ def fetch_github_snapshots(
     feed_url = f"https://{server}/{owner}/{repo}/commits/{branch}.atom"
     info(f"fetch {feed_url}")
     resp = _dorequest(url, feed_url)
+    if resp is None:
+        return []
     try:
         tree = ET.fromstring(resp)
     except ParseError:
