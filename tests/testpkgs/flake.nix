@@ -7,6 +7,9 @@
     {
       packages = nixpkgs.lib.genAttrs nixpkgs.lib.systems.flakeExposed (system: {
         crate = nixpkgs.legacyPackages.${system}.callPackage (self + "/crate.nix") { };
+        flake-use-update-script = nixpkgs.legacyPackages.${system}.callPackage (
+          self + "/flake-use-update-script.nix"
+        ) { };
       });
     };
 }
