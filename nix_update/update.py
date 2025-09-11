@@ -461,8 +461,8 @@ def run_update_script(package: Package, opts: Options) -> None:
     update_script = run(
         [
             "nix",
-            *opts.extra_flags,
             "build",
+            *opts.extra_flags,
             "--print-out-paths",
             "--impure",
             "--expr",
