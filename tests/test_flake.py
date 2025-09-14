@@ -38,7 +38,7 @@ def test_main(helpers: conftest.Helpers) -> None:
             check=True,
         ).stdout.strip()
         print(diff)
-        assert "https://diff.rs/fd-find/8.0.0/10.2.0" in diff
+        assert f"https://diff.rs/fd-find/8.0.0/{version}" in diff
 
 
 def test_update_script(helpers: conftest.Helpers) -> None:
