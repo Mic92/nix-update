@@ -395,7 +395,13 @@ def update_version(
         old_rev_tag = package.tag or package.rev
         if package.parsed_url.netloc == "registry.npmjs.org":
             parts = package.parsed_url.path.split("/")
-            package.diff_url = f"https://npmdiff.dev/{parts[1]}/{package.old_version}/{new_version.number}"
+            # Handle scoped packages like @scope/package
+            if parts[1].startswith("@"):
+                # URL-encode the scoped package name for npmdiff.dev
+                package_name = f"{parts[1]}%2F{parts[2]}"
+            else:
+                package_name = parts[1]
+            package.diff_url = f"https://npmdiff.dev/{package_name}/{package.old_version}/{new_version.number}"
         elif package.parsed_url.netloc == "github.com":
             _, owner, repo, *_ = package.parsed_url.path.split("/")
 
