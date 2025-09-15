@@ -19,6 +19,7 @@
   composer-old = pkgs.callPackage ./composer-old.nix { };
   crate = pkgs.callPackage ./crate.nix { };
   fetchurl-github-release = pkgs.callPackage ./fetchurl-github-release.nix { };
+  flake-use-update-script = pkgs.callPackage ./flake-use-update-script.nix { };
   nuget-deps-generate = pkgs.callPackage ./nuget-deps-generate { };
   gitea = pkgs.callPackage ./gitea.nix { };
   github = pkgs.callPackage ./github.nix { };

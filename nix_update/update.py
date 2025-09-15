@@ -460,7 +460,7 @@ def run_update_script(package: Package, opts: Options) -> None:
             "--print-out-paths",
             "--impure",
             "--expr",
-            f'with import <nixpkgs> {{}}; let pkg = {get_package(opts)}; in (pkgs.writeScript "updateScript" (builtins.toString (map builtins.toString (pkgs.lib.toList (pkg.updateScript.command or pkg.updateScript)))))',
+            f'with import <nixpkgs> {{}}; let pkg = {get_package(opts)}; in (pkgs.writeScript "updateScript" (lib.escapeShellArgs (pkgs.lib.toList (pkg.updateScript.command or pkg.updateScript))))',
         ],
     ).stdout.strip()
 

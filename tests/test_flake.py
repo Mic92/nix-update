@@ -6,7 +6,18 @@ from tests import conftest
 
 def test_main(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
-        main(["--file", str(path), "--flake", "--commit", "--test", "crate"])
+        main(
+            [
+                "--file",
+                str(path),
+                "--flake",
+                "--commit",
+                "--test",
+                "--version",
+                "10.2.0",
+                "crate",
+            ],
+        )
         version = subprocess.run(
             [
                 "nix",
