@@ -19,7 +19,7 @@ def fetch_rubygem_versions(url: ParseResult) -> list[Version]:
         return []
     parts = url.path.split("/")
     gem = parts[-1]
-    gem_name, _ = gem.rsplit("-")
+    gem_name, _ = gem.rsplit("-", 1)
     versions_url = f"https://rubygems.org/api/v1/versions/{gem_name}.json"
     info(f"fetch {versions_url}")
     with urllib.request.urlopen(versions_url, timeout=DEFAULT_TIMEOUT) as resp:
