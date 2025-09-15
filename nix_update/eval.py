@@ -64,6 +64,7 @@ class Package:
     composer_deps_old: str | None
     maven_deps: str | None
     mix_deps: str | None
+    zig_deps: str | None
     has_nuget_deps: bool
     tests: list[str]
     has_update_script: bool
@@ -203,6 +204,7 @@ in {{
   maven_deps = pkg.fetchedMavenDeps.outputHash or null;
   has_nuget_deps = pkg ? nugetDeps;
   mix_deps = pkg.mixFodDeps.outputHash or null;
+  zig_deps = pkg.zigDeps.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or {{}});
   has_update_script = {has_update_script};
   src_homepage = pkg.src.meta.homepage or null;
