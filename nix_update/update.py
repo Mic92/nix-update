@@ -409,19 +409,38 @@ def fetch_new_version(
 
 
 def create_crates_diff_url(package: Package, new_version: Version) -> str:
+    crates_path_min_parts = 5
+
     if package.parsed_url is None:
         msg = "Package parsed_url is None"
-        raise ValueError(msg)
+        raise UpdateError(msg)
     parts = package.parsed_url.path.split("/")
-    return f"https://diff.rs/{parts[4]}/{package.old_version}/{new_version.number}"
+    if len(parts) < crates_path_min_parts:
+        msg = f"Unexpected crates.io URL path structure: {package.parsed_url.path}"
+        raise UpdateError(msg)
+    return f"https://diff.rs/{parts[crates_path_min_parts - 1]}/{package.old_version}/{new_version.number}"
 
 
 def create_npm_diff_url(package: Package, new_version: Version) -> str:
+    npm_path_min_parts = 2
+    npm_scoped_path_min_parts = 3
+    npm_package_index = 1
+    npm_scoped_name_index = 2
+
     if package.parsed_url is None:
         msg = "Package parsed_url is None"
-        raise ValueError(msg)
+        raise UpdateError(msg)
     parts = package.parsed_url.path.split("/")
-    package_name = f"{parts[1]}%2F{parts[2]}" if parts[1].startswith("@") else parts[1]
+    if len(parts) < npm_path_min_parts:
+        msg = f"Unexpected npm URL path structure: {package.parsed_url.path}"
+        raise UpdateError(msg)
+    if parts[npm_package_index].startswith("@"):
+        if len(parts) < npm_scoped_path_min_parts:
+            msg = f"Unexpected scoped npm package URL structure: {package.parsed_url.path}"
+            raise UpdateError(msg)
+        package_name = f"{parts[npm_package_index]}%2F{parts[npm_scoped_name_index]}"
+    else:
+        package_name = parts[npm_package_index]
     return (
         f"https://npmdiff.dev/{package_name}/{package.old_version}/{new_version.number}"
     )
