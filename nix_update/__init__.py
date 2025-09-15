@@ -396,6 +396,62 @@ def nixpkgs_review() -> None:
     run(cmd, stdout=None)
 
 
+def print_maintainers(package: Package) -> None:
+    if package.maintainers:
+        print("Package maintainers:")
+        for maintainer in package.maintainers:
+            print(
+                f"  - {maintainer['name']}"
+                + (f" (@{maintainer['github']})" if "github" in maintainer else ""),
+            )
+
+
+def run_nix_commands(options: Options) -> None:
+    if options.build:
+        nix_build(options)
+
+    if options.run:
+        nix_run(options)
+
+    if options.shell:
+        nix_shell(options)
+
+
+def run_post_update_checks(options: Options, package: Package) -> None:
+    if options.test:
+        nix_test(options, package)
+
+    if options.review:
+        if options.flake:
+            print("--review is unsupported with --flake")
+        else:
+            nixpkgs_review()
+
+    if options.format:
+        run(["nixfmt", package.filename], stdout=None)
+
+
+def handle_commit_operations(
+    options: Options,
+    package: Package,
+    git_dir: str | None,
+) -> None:
+    if options.commit:
+        if git_dir is None:
+            msg = "Git directory not found, cannot commit changes"
+            raise RuntimeError(msg)
+        if package.changelog:
+            # If we have a changelog we will re-eval the package in case it has changed
+            package.changelog = eval_attr(options).changelog
+        git_commit(git_dir, package)
+
+    if options.print_commit_message:
+        print_commit_message(package)
+
+    if options.write_commit_message is not None:
+        write_commit_message(options.write_commit_message, package)
+
+
 def main(args: list[str] = sys.argv[1:]) -> None:
     options = parse_args(args)
     if options.quiet:
@@ -410,22 +466,8 @@ def main(args: list[str] = sys.argv[1:]) -> None:
 
     package = update(options)
 
-    if package.maintainers:
-        print("Package maintainers:")
-        for maintainer in package.maintainers:
-            print(
-                f"  - {maintainer['name']}"
-                + (f" (@{maintainer['github']})" if "github" in maintainer else ""),
-            )
-
-    if options.build:
-        nix_build(options)
-
-    if options.run:
-        nix_run(options)
-
-    if options.shell:
-        nix_shell(options)
+    print_maintainers(package)
+    run_nix_commands(options)
 
     if not git_dir:
         git_dir = find_git_root(options.import_path)
@@ -436,30 +478,8 @@ def main(args: list[str] = sys.argv[1:]) -> None:
         info("No changes detected, skipping remaining steps")
         return
 
-    if options.test:
-        nix_test(options, package)
-
-    if options.review:
-        if options.flake:
-            print("--review is unsupported with --flake")
-        else:
-            nixpkgs_review()
-
-    if options.format:
-        run(["nixfmt", package.filename], stdout=None)
-
-    if options.commit:
-        assert git_dir is not None
-        if package.changelog:
-            # If we have a changelog we will re-eval the package in case it has changed
-            package.changelog = eval_attr(options).changelog
-        git_commit(git_dir, package)
-
-    if options.print_commit_message:
-        print_commit_message(package)
-
-    if options.write_commit_message is not None:
-        write_commit_message(options.write_commit_message, package)
+    run_post_update_checks(options, package)
+    handle_commit_operations(options, package, git_dir)
 
 
 if __name__ == "__main__":

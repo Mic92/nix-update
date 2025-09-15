@@ -5,6 +5,7 @@ import os
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
+from http import HTTPStatus
 from typing import Any
 from urllib.parse import ParseResult, unquote, urlparse
 from xml.etree.ElementTree import Element, ParseError
@@ -29,7 +30,9 @@ def version_from_entry(entry: Element) -> Version:
         msg = "No release found"
         raise VersionError(msg)
     link = entry.find("{http://www.w3.org/2005/Atom}link")
-    assert link is not None
+    if link is None:
+        msg = "Cannot parse ATOM feed: missing link element"
+        raise VersionError(msg)
     href = link.attrib["href"]
     url = urlparse(href)
     # TODO: set pre-release flag
@@ -61,7 +64,7 @@ def _dorequest(
         with urllib.request.urlopen(request) as response:
             return response.read()
     except urllib.error.HTTPError as e:
-        if e.code == 404:
+        if e.code == HTTPStatus.NOT_FOUND:
             info(f"HTTP 404: {feed_url} not found")
             return None
         raise
@@ -174,13 +177,17 @@ def fetch_github_snapshots(
 
     for entry in commits:
         link = entry.find("{http://www.w3.org/2005/Atom}link")
-        assert link is not None, "cannot parse ATOM feed: missing link"
+        if link is None:
+            msg = "Cannot parse ATOM feed: missing link"
+            raise VersionError(msg)
 
         updated = entry.find("{http://www.w3.org/2005/Atom}updated")
-        assert updated is not None, "cannot parse ATOM feed: missing updated element"
-        assert updated.text is not None, (
-            "cannot parse ATOM feed: updated element has no text"
-        )
+        if updated is None:
+            msg = "Cannot parse ATOM feed: missing updated element"
+            raise VersionError(msg)
+        if updated.text is None:
+            msg = "Cannot parse ATOM feed: updated element has no text"
+            raise VersionError(msg)
 
         url = urlparse(link.attrib["href"])
         commit = url.path.rsplit("/", maxsplit=1)[-1]

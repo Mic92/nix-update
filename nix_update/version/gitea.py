@@ -1,5 +1,6 @@
 import json
 import re
+from http import HTTPStatus
 from http.client import HTTPMessage
 from typing import IO
 from urllib import request
@@ -37,7 +38,7 @@ def is_gitea_host(host: str) -> bool:
     except URLError:
         return False
     else:
-        return resp.status == 200
+        return resp.status == HTTPStatus.OK
 
 
 def fetch_gitea_versions(url: ParseResult) -> list[Version]:

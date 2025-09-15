@@ -40,7 +40,9 @@ def old_version_from_git(
     proc = run(
         ["git", "diff", "--color=never", "--word-diff=porcelain", "--", filename],
     )
-    assert proc.stdout is not None
+    if proc.stdout is None:
+        msg = "Failed to get stdout from git diff command"
+        raise RuntimeError(msg)
     if len(proc.stdout) == 0:
         return None
     return old_version_from_diff(proc.stdout, linenumber, new_version)

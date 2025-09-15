@@ -17,6 +17,8 @@ def fetch_pypi_versions(url: ParseResult) -> list[Version]:
     resp = urllib.request.urlopen(pypi_url)
     data = json.loads(resp.read())
     version = data["info"]["version"]
-    assert isinstance(version, str)
+    if not isinstance(version, str):
+        msg = f"Expected version to be string, got {type(version)}"
+        raise TypeError(msg)
     # TODO look at info->releases instead
     return [Version(version)]
