@@ -396,20 +396,7 @@ def nixpkgs_review() -> None:
     run(cmd, stdout=None)
 
 
-def main(args: list[str] = sys.argv[1:]) -> None:
-    options = parse_args(args)
-    if options.quiet:
-        utils.LOG_LEVEL = utils.LogLevel.WARNING
-
-    if not Path(options.import_path).exists():
-        die(f"path {options.import_path} does not exist")
-
-    git_dir = None
-    if options.commit or options.review:
-        git_dir = validate_git_dir(options.import_path)
-
-    package = update(options)
-
+def print_maintainers(package: Package) -> None:
     if package.maintainers:
         print("Package maintainers:")
         for maintainer in package.maintainers:
@@ -418,6 +405,8 @@ def main(args: list[str] = sys.argv[1:]) -> None:
                 + (f" (@{maintainer['github']})" if "github" in maintainer else ""),
             )
 
+
+def run_nix_commands(options: Options) -> None:
     if options.build:
         nix_build(options)
 
@@ -427,15 +416,8 @@ def main(args: list[str] = sys.argv[1:]) -> None:
     if options.shell:
         nix_shell(options)
 
-    if not git_dir:
-        git_dir = find_git_root(options.import_path)
 
-    changes_detected = not git_dir or git_has_diff(git_dir, package)
-
-    if not changes_detected:
-        info("No changes detected, skipping remaining steps")
-        return
-
+def run_post_update_checks(options: Options, package: Package) -> None:
     if options.test:
         nix_test(options, package)
 
@@ -448,6 +430,12 @@ def main(args: list[str] = sys.argv[1:]) -> None:
     if options.format:
         run(["nixfmt", package.filename], stdout=None)
 
+
+def handle_commit_operations(
+    options: Options,
+    package: Package,
+    git_dir: str | None,
+) -> None:
     if options.commit:
         if git_dir is None:
             msg = "Git directory not found, cannot commit changes"
@@ -462,6 +450,36 @@ def main(args: list[str] = sys.argv[1:]) -> None:
 
     if options.write_commit_message is not None:
         write_commit_message(options.write_commit_message, package)
+
+
+def main(args: list[str] = sys.argv[1:]) -> None:
+    options = parse_args(args)
+    if options.quiet:
+        utils.LOG_LEVEL = utils.LogLevel.WARNING
+
+    if not Path(options.import_path).exists():
+        die(f"path {options.import_path} does not exist")
+
+    git_dir = None
+    if options.commit or options.review:
+        git_dir = validate_git_dir(options.import_path)
+
+    package = update(options)
+
+    print_maintainers(package)
+    run_nix_commands(options)
+
+    if not git_dir:
+        git_dir = find_git_root(options.import_path)
+
+    changes_detected = not git_dir or git_has_diff(git_dir, package)
+
+    if not changes_detected:
+        info("No changes detected, skipping remaining steps")
+        return
+
+    run_post_update_checks(options, package)
+    handle_commit_operations(options, package, git_dir)
 
 
 if __name__ == "__main__":

@@ -54,8 +54,6 @@ lint.ignore = [
   "PLR0913",
   "PLR0912", # Too many branches
   "PLR0911", # Too many return statements
-  # $X is too complex
-  "C901",
 
   # Found commented-out code
   "ERA001",

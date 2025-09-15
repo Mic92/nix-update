@@ -97,6 +97,54 @@ def is_unstable(version: Version, extracted: str) -> bool:
     return re.search(pattern, extracted, re.IGNORECASE) is not None
 
 
+def prepare_fetchers(
+    preference: VersionPreference,
+    branch: str | None,
+    fetcher_args: dict[str, Any] | None,
+) -> list:
+    used_fetchers = fetchers
+    if preference == VersionPreference.BRANCH:
+        if branch is None:
+            msg = "Branch must be specified when using BRANCH preference"
+            raise ValueError(msg)
+        used_fetchers = [partial(f, branch=branch) for f in branch_snapshots_fetchers]
+
+    return [
+        (
+            partial(cast("FetcherWithArgs", fetcher), extra_args=fetcher_args)
+            if "extra_args" in signature(fetcher).parameters
+            else fetcher
+        )
+        for fetcher in used_fetchers
+    ]
+
+
+def find_prefixed_version(
+    final_versions: list,
+    version_prefix: str,
+    old_rev_tag: str | None,
+) -> Version | None:
+    if version_prefix == "":
+        return None
+
+    ver = next(
+        (
+            Version(
+                version.number.removeprefix(version_prefix),
+                prerelease=version.prerelease,
+                rev=version.rev or version.number,
+            )
+            for version in final_versions
+            if version.number.startswith(version_prefix)
+        ),
+        None,
+    )
+
+    if ver is not None and ver.rev != old_rev_tag:
+        return ver
+    return None
+
+
 def fetch_latest_version(
     url: ParseResult,
     preference: VersionPreference,
@@ -106,29 +154,19 @@ def fetch_latest_version(
     version_prefix: str = "",
     fetcher_args: dict[str, Any] | None = None,
 ) -> Version:
-    unstable: list[str] = []
-    filtered: list[str] = []
-    used_fetchers = fetchers
-    if preference == VersionPreference.BRANCH:
-        if branch is None:
-            msg = "Branch must be specified when using BRANCH preference"
-            raise ValueError(msg)
-        used_fetchers = [partial(f, branch=branch) for f in branch_snapshots_fetchers]
-
-    used_fetchers = [
-        (
-            partial(cast("FetcherWithArgs", fetcher), extra_args=fetcher_args)
-            if "extra_args" in signature(fetcher).parameters
-            else fetcher
-        )
-        for fetcher in used_fetchers
-    ]
+    used_fetchers = prepare_fetchers(preference, branch, fetcher_args)
+    all_unstable: list[str] = []
+    all_filtered: list[str] = []
 
     for fetcher in used_fetchers:
         versions = fetcher(url)
-        if versions == []:
+        if not versions:
             continue
+
         final = []
+        unstable = []
+        filtered = []
+
         for version in versions:
             extracted = extract_version(version, version_regex)
             if extracted is None:
@@ -140,34 +178,23 @@ def fetch_latest_version(
                 unstable.append(extracted.number)
             else:
                 final.append(extracted)
-        if final != []:
-            if version_prefix != "":
-                ver = next(
-                    (
-                        Version(
-                            version.number.removeprefix(version_prefix),
-                            prerelease=version.prerelease,
-                            rev=version.rev or version.number,
-                        )
-                        for version in final
-                        if version.number.startswith(version_prefix)
-                    ),
-                    None,
-                )
+        all_unstable.extend(unstable)
+        all_filtered.extend(filtered)
 
-                if ver is not None and ver.rev != old_rev_tag:
-                    return ver
-
+        if final:
+            prefixed_version = find_prefixed_version(final, version_prefix, old_rev_tag)
+            if prefixed_version is not None:
+                return prefixed_version
             return final[0]
 
-    if filtered:
+    if all_filtered:
         raise VersionError(
             "No version matched the regex. The following versions were found:\n"
-            + "\n".join(filtered),
+            + "\n".join(all_filtered),
         )
 
-    if unstable:
-        msg = f"Found an unstable version {unstable[0]}, which is being ignored. To update to unstable version, please use '--version=unstable'"
+    if all_unstable:
+        msg = f"Found an unstable version {all_unstable[0]}, which is being ignored. To update to unstable version, please use '--version=unstable'"
         raise VersionError(msg)
 
     msg = "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/pypi/savannah/sourcehut/rubygems/npm projects right now"
