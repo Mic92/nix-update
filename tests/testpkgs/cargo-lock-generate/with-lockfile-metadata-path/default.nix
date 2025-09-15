@@ -7,6 +7,7 @@
 python3Packages.buildPythonPackage rec {
   pname = "lancedb";
   version = "0.11.0";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "lancedb";
@@ -15,7 +16,8 @@ python3Packages.buildPythonPackage rec {
     hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
+    python3Packages.setuptools
     rustPlatform.cargoSetupHook
     rustPlatform.maturinBuildHook
   ];

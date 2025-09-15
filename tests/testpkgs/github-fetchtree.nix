@@ -1,4 +1,4 @@
-{ stdenv, fetchFromGitHub }:
+{ stdenv }:
 
 let
   fetchFromInternalGitHub =

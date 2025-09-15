@@ -7,6 +7,7 @@
 python3Packages.buildPythonPackage rec {
   pname = "pycrdt";
   version = "0.9.6";
+  pyproject = true;
 
   src = fetchFromGitHub {
     owner = "jupyter-server";
@@ -15,7 +16,8 @@ python3Packages.buildPythonPackage rec {
     hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 
-  nativeBuildInputs = [
+  build-system = [
+    python3Packages.setuptools
     rustPlatform.cargoSetupHook
     rustPlatform.maturinBuildHook
   ];
