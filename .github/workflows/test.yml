@@ -19,7 +19,8 @@ jobs:
       - name: build
         run: nix build
       - name: Run tests
-        run: nix develop -c pytest -s .
+        # we use 4 extra cores over the 4 cpus, because we are doing a lot of blocking I/O
+        run: nix develop -c pytest -n 8 -s .
         env:
           # used by nix-update tests
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
