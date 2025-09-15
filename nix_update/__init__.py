@@ -144,6 +144,11 @@ def parse_args(args: list[str]) -> Options:
         action="store_true",
     )
     parser.add_argument(
+        "--no-src",
+        help="Do not update the source, only update dependencies such as npmDeps, cargoDeps or nugetDeps",
+        action="store_true",
+    )
+    parser.add_argument(
         "--use-github-releases",
         action="store_true",
         help="Use GitHub releases API instead of ATOM feed to determine the newest version",
@@ -192,6 +197,7 @@ def parse_args(args: list[str]) -> Options:
         src_only=a.src_only,
         use_github_releases=a.use_github_releases,
         extra_flags=extra_flags,
+        update_src=not a.no_src,
     )
 
 
