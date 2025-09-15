@@ -39,8 +39,6 @@ lint.ignore = [
   # Logging statement uses f-string
   "G004",
 
-  # Use of `assert` detected
-  "S101",
   # `subprocess` call: check for execution of untrusted input
   "S603",
   # Starting a process with a partial executable path
@@ -71,6 +69,9 @@ lint.ignore = [
   "T201",    # `print` found
   "PLR2004", # Magic value used in comparison
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101"]  # Allow assert in test files
 
 [tool.mypy]
 python_version = "3.11"

@@ -449,7 +449,9 @@ def main(args: list[str] = sys.argv[1:]) -> None:
         run(["nixfmt", package.filename], stdout=None)
 
     if options.commit:
-        assert git_dir is not None
+        if git_dir is None:
+            msg = "Git directory not found, cannot commit changes"
+            raise RuntimeError(msg)
         if package.changelog:
             # If we have a changelog we will re-eval the package in case it has changed
             package.changelog = eval_attr(options).changelog

@@ -25,8 +25,12 @@ def fetch_rubygem_versions(url: ParseResult) -> list[Version]:
     versions: list[Version] = []
     for version in json_versions:
         number = version["number"]
-        assert isinstance(number, str)
+        if not isinstance(number, str):
+            msg = f"Expected version number to be string, got {type(number)}"
+            raise TypeError(msg)
         prerelease = version["prerelease"]
-        assert isinstance(prerelease, bool)
+        if not isinstance(prerelease, bool):
+            msg = f"Expected prerelease to be bool, got {type(prerelease)}"
+            raise TypeError(msg)
         versions.append(Version(number, prerelease=prerelease))
     return versions

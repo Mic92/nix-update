@@ -15,7 +15,9 @@ def version_from_entry(entry: Element) -> Version:
         msg = "No release found"
         raise VersionError(msg)
     link = entry.find("link")
-    assert link is not None
+    if link is None:
+        msg = "Cannot parse feed: missing link element"
+        raise VersionError(msg)
     url = urlparse(str(link.text))
     return Version(url.path.split("/")[-1])
 

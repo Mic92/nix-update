@@ -22,7 +22,9 @@ from .version.version import Version, VersionPreference
 
 
 def replace_version(package: Package) -> bool:
-    assert package.new_version is not None
+    if package.new_version is None:
+        msg = "Package new_version is None, cannot replace version"
+        raise ValueError(msg)
     old_rev_tag = package.rev or package.tag
     old_version = package.old_version
     new_version = package.new_version.number
@@ -364,7 +366,11 @@ def update_version(
             # fallback
             branch = "HEAD"
         else:
-            assert version.startswith("branch=")
+            if not version.startswith("branch="):
+                msg = f"Invalid version format: {version}, expected 'branch=' prefix"
+                raise ValueError(
+                    msg,
+                )
             branch = version[7:]
         old_rev_tag = package.rev or package.tag
         new_version = fetch_latest_version(
