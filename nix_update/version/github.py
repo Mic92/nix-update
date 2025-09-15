@@ -40,7 +40,7 @@ def _dorequest(
     url: ParseResult,
     feed_url: str,
     extra_headers: dict[str, str] | None = None,
-) -> str:
+) -> bytes:
     request = urllib.request.Request(feed_url, headers=extra_headers or {})
 
     try:
@@ -57,7 +57,8 @@ def _dorequest(
             "unable to parse netrc file, please verify content / owner-only permissions (chmod 600)",
         )
 
-    return urllib.request.urlopen(request).read()
+    with urllib.request.urlopen(request) as response:
+        return response.read()
 
 
 def fetch_github_versions(
