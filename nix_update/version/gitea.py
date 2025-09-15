@@ -2,19 +2,27 @@ from __future__ import annotations
 
 import re
 from http import HTTPStatus
-from typing import IO, TYPE_CHECKING
+from typing import TYPE_CHECKING
 from urllib import request
 from urllib.error import URLError
-from urllib.request import Request, urlopen
 
 from .http import DEFAULT_TIMEOUT, fetch_json
 from .version import Version
 
 if TYPE_CHECKING:
-    from http.client import HTTPMessage
     from urllib.parse import ParseResult
+    from urllib.request import Request
 
 KNOWN_GITEA_HOSTS = ["codeberg.org", "gitea.com", "akkoma.dev"]
+
+
+# do not follow UI login redirects
+class NoRedirect(request.HTTPRedirectHandler):
+    def redirect_request(self, *_args: object) -> Request | None:
+        return None
+
+
+OPENER = request.build_opener(NoRedirect)
 
 
 def is_gitea_host(host: str) -> bool:
@@ -22,23 +30,7 @@ def is_gitea_host(host: str) -> bool:
         return True
     endpoint = f"https://{host}/api/v1/signing-key.gpg"
     try:
-        # do not follow UI login redirects
-        class NoRedirect(request.HTTPRedirectHandler):
-            def redirect_request(
-                self,
-                req: Request,
-                fp: IO[bytes],
-                code: int,
-                msg: str,
-                headers: HTTPMessage,
-                newurl: str,
-            ) -> Request | None:
-                return None
-
-        opener = request.build_opener(NoRedirect)
-        request.install_opener(opener)
-
-        resp = urlopen(endpoint, timeout=DEFAULT_TIMEOUT)
+        resp = OPENER.open(endpoint, timeout=DEFAULT_TIMEOUT)
     except URLError:
         return False
     else:
