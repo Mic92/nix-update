@@ -582,7 +582,7 @@ def run_update_script(package: Package, opts: Options) -> None:
     )
 
 
-def update_dependency_hashes(  # noqa: C901
+def update_dependency_hashes(  # noqa: C901, PLR0912
     opts: Options,
     package: Package,
     *,
