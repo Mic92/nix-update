@@ -22,10 +22,6 @@ class CargoLock:
     pass
 
 
-class NoCargoLock(CargoLock):
-    pass
-
-
 class CargoLockInSource(CargoLock):
     def __init__(self, path: str) -> None:
         self.path = path
@@ -65,7 +61,7 @@ class Package:
     maven_deps: str | None
     mix_deps: str | None
     zig_deps: str | None
-    has_nuget_deps: bool
+    nuget_deps: str | None  # Path to nugetDeps file if present
     tests: list[str]
     has_update_script: bool
 
@@ -75,7 +71,7 @@ class Package:
     parsed_url: ParseResult | None = None
     new_version: Version | None = None
     version_position: Position | None = field(init=False)
-    cargo_lock: CargoLock = field(init=False)
+    cargo_lock: CargoLock | None = field(init=False)
     diff_url: str | None = None
 
     def __post_init__(
@@ -95,7 +91,7 @@ class Package:
                 self.version_position.file = self.filename
 
         if raw_cargo_lock is None:
-            self.cargo_lock = NoCargoLock()
+            self.cargo_lock = None
         elif raw_cargo_lock is False or not os.path.realpath(raw_cargo_lock).startswith(
             import_path,
         ):
@@ -203,7 +199,7 @@ in {{
   yarn_deps = pkg.yarnOfflineCache.outputHash or null;
   yarn_deps_old = pkg.offlineCache.outputHash or null;
   maven_deps = pkg.fetchedMavenDeps.outputHash or null;
-  has_nuget_deps = pkg ? nugetDeps;
+  nuget_deps = if pkg ? nugetDeps then toString pkg.nugetDeps else null;
   mix_deps = pkg.mixFodDeps.outputHash or null;
   zig_deps = pkg.zigDeps.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or {{}});

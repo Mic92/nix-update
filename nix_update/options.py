@@ -39,3 +39,11 @@ class Options:
     def __post_init__(self) -> None:
         self.escaped_attribute = ".".join(map(json.dumps, self.attribute.split(".")))
         self.escaped_import_path = json.dumps(self.import_path)
+
+    def get_package(self) -> str:
+        """Get the Nix expression for the package."""
+        if self.flake:
+            return f"(let flake = builtins.getFlake {self.escaped_import_path}; in flake.packages.${{builtins.currentSystem}}.{self.escaped_attribute} or flake.{self.escaped_attribute})"
+        # Need to disable check meta for non-flake packages
+        disable_check_meta = f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {self.escaped_import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
+        return f"(import {self.escaped_import_path} {disable_check_meta}).{self.escaped_attribute}"

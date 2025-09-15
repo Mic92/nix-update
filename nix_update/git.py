@@ -1,5 +1,7 @@
+import json
 import re
 
+from .hashes import to_sri
 from .utils import run
 
 
@@ -46,3 +48,10 @@ def old_version_from_git(
     if len(proc.stdout) == 0:
         return None
     return old_version_from_diff(proc.stdout, linenumber, new_version)
+
+
+def git_prefetch(x: tuple[str, tuple[str, str]]) -> tuple[str, str]:
+    """Prefetch a git repository and return the SRI hash."""
+    rev, (key, url) = x
+    res = run(["nix-prefetch-git", url, rev, "--fetch-submodules"])
+    return key, to_sri(json.loads(res.stdout)["sha256"])
