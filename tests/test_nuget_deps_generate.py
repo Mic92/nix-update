@@ -44,4 +44,4 @@ def test_update(helpers: conftest.Helpers) -> None:
         ).stdout.strip()
         print(diff)
         assert "https://github.com/ExOK/Celeste64/compare/v1.1.0...v1.1.1" in diff
-        assert "a/nuget-deps-generate/deps.json" in diff
+        assert "nuget-deps-generate/deps.json" in diff

@@ -61,7 +61,7 @@ class Package:
     maven_deps: str | None
     mix_deps: str | None
     zig_deps: str | None
-    nuget_deps: str | None  # Path to nugetDeps file if present
+    has_nuget_deps: bool
     tests: list[str]
     has_update_script: bool
 
@@ -199,7 +199,7 @@ in {{
   yarn_deps = pkg.yarnOfflineCache.outputHash or null;
   yarn_deps_old = pkg.offlineCache.outputHash or null;
   maven_deps = pkg.fetchedMavenDeps.outputHash or null;
-  nuget_deps = if pkg ? nugetDeps then toString pkg.nugetDeps else null;
+  has_nuget_deps = pkg ? nugetDeps;
   mix_deps = pkg.mixFodDeps.outputHash or null;
   zig_deps = pkg.zigDeps.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or {{}});

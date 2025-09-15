@@ -83,12 +83,8 @@ def update_hash_with_prefetch(
 update_src_hash = partial(update_hash_with_prefetch, "src")
 
 
-def update_nuget_deps(opts: Options, _filename: str, _nuget_deps_path: str) -> None:
-    """Update NuGet dependencies.
-
-    The _filename and _nuget_deps_path parameters are included for API compatibility.
-    _nuget_deps_path contains the path to the deps file, but we regenerate it entirely.
-    """
+def update_nuget_deps(opts: Options) -> None:
+    """Update NuGet dependencies."""
     fetch_deps_script_path = run(
         [
             "nix-build",
@@ -99,6 +95,7 @@ def update_nuget_deps(opts: Options, _filename: str, _nuget_deps_path: str) -> N
         ],
     ).stdout.strip()
 
+    # Run the fetch-deps script without arguments - it determines the path itself
     run([fetch_deps_script_path])
 
 
@@ -130,7 +127,6 @@ def update_dependency_hashes(
         "maven_deps": partial(update_hash_with_prefetch, "fetchedMavenDeps"),
         "mix_deps": partial(update_hash_with_prefetch, "mixFodDeps"),
         "zig_deps": partial(update_hash_with_prefetch, "zigDeps"),
-        "nuget_deps": update_nuget_deps,
         "cargo_lock": update_cargo_lock,
     }
 
@@ -139,3 +135,7 @@ def update_dependency_hashes(
         dep_value = getattr(package, attr_name, None)
         if dep_value:
             updater(opts, package.filename, dep_value)
+
+    # Handle nuget deps separately since it's a boolean
+    if package.has_nuget_deps:
+        update_nuget_deps(opts)
