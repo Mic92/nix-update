@@ -27,7 +27,7 @@ def snapshot_from_entry(entry: Element, url: ParseResult) -> Version:
     latest_version = versions[0].number if versions else "0"
     pub_date = entry.find("pubDate")
     if pub_date is None:
-        msg = "No pubDate found in atom feed {url}"
+        msg = f"No pubDate found in atom feed {url}"
         raise VersionError(msg)
     parsed = parsedate_to_datetime(pub_date.text)
     if parsed is None:
@@ -37,7 +37,7 @@ def snapshot_from_entry(entry: Element, url: ParseResult) -> Version:
     date_str = date.isoformat()
     node = entry.find("link")
     if node is None or node.text is None:
-        msg = "No link found in atom feed {url}"
+        msg = f"No link found in atom feed {url}"
         raise VersionError(msg)
     rev = node.text.split("/")[-1]
     return Version(f"{latest_version}-unstable-{date_str}", rev=rev)
