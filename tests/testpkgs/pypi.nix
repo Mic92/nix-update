@@ -3,7 +3,6 @@
   fetchPypi,
   setuptools,
   twisted,
-  mock,
   pytestCheckHook,
 }:
 
@@ -19,13 +18,14 @@ buildPythonPackage rec {
 
   build-system = [ setuptools ];
 
-  checkInputs = [
+  nativeCheckInputs = [
     pytestCheckHook
     twisted
-    mock
   ];
 
   pytestFlagsArray = [ "mpd/tests.py" ];
+
+  pythonImportsCheck = [ "mpd" ];
 
   meta.changelog = "https://github.com/Mic92/python-mpd2/blob/${version}/doc/changes.rst";
 }
