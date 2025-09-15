@@ -2,7 +2,7 @@ import os
 import shlex
 import subprocess
 import sys
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import IO, Any
 
@@ -34,7 +34,7 @@ info = color_text(32)
 
 
 def run(  # noqa: PLR0913
-    command: list[str],
+    command: Sequence[str],
     *,
     cwd: Path | str | None = None,
     stdout: None | int | IO[Any] = subprocess.PIPE,
