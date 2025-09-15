@@ -1,13 +1,18 @@
+from __future__ import annotations
+
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
+from typing import TYPE_CHECKING
 from urllib.parse import ParseResult, urljoin, urlparse
-from xml.etree.ElementTree import Element
 
 from nix_update.utils import info
 
 from .http import DEFAULT_TIMEOUT
 from .version import Version
+
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
 
 filename_regex = re.compile(r"-(\d+(?:\.\d+)*(?:-[^-.]+)?)\.tar\.[^.]+$")
 

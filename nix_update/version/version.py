@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from enum import StrEnum, auto
 
@@ -18,7 +20,7 @@ class VersionPreference(StrEnum):
     BRANCH = auto()
 
     @staticmethod
-    def from_str(version: str) -> "VersionPreference":
+    def from_str(version: str) -> VersionPreference:
         # auto is deprecated
         if version in ("auto", "stable"):
             return VersionPreference.STABLE

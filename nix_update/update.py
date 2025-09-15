@@ -1,16 +1,21 @@
+from __future__ import annotations
+
 import fileinput
 from copy import deepcopy
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .dependency_hashes import update_dependency_hashes, update_src_hash
 from .diff_urls import generate_diff_url
 from .errors import UpdateError
 from .eval import Package, eval_attr
 from .git import old_version_from_git
-from .options import Options
 from .utils import info, run
 from .version import VersionFetchConfig, fetch_latest_version
 from .version.version import Version, VersionPreference
+
+if TYPE_CHECKING:
+    from .options import Options
 
 
 def replace_version(package: Package) -> bool:

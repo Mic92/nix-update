@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import subprocess
 from datetime import date
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 import pytest
@@ -11,7 +14,9 @@ from nix_update.version import (
     VersionPreference,
     fetch_latest_version,
 )
-from tests import conftest
+
+if TYPE_CHECKING:
+    from tests import conftest
 
 
 def test_update(helpers: conftest.Helpers) -> None:

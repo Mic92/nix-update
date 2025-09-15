@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import subprocess
+from typing import TYPE_CHECKING
 
 from nix_update.options import Options
 from nix_update.update import update
 from nix_update.version.version import VersionPreference
-from tests import conftest
+
+if TYPE_CHECKING:
+    from tests import conftest
 
 
 def test_update(helpers: conftest.Helpers) -> None:

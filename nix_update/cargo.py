@@ -1,5 +1,7 @@
 """Cargo lock update functionality for nix-update."""
 
+from __future__ import annotations
+
 import fileinput
 import re
 import shutil
@@ -18,7 +20,7 @@ if TYPE_CHECKING:
     from .options import Options
 
 
-def _build_cargo_lock(opts: "Options", tempdir: str) -> Path | None:
+def _build_cargo_lock(opts: Options, tempdir: str) -> Path | None:
     res = run(
         [
             "nix",
@@ -92,7 +94,7 @@ def _print_hashes(hashes: dict[str, str], indent: str) -> None:
 
 
 def _update_cargo_lock(
-    opts: "Options",
+    opts: Options,
     filename: str,
     dst: CargoLockInSource | CargoLockInStore,
 ) -> None:
@@ -134,7 +136,7 @@ def _update_cargo_lock(
 
 
 def update_cargo_lock(
-    opts: "Options",
+    opts: Options,
     filename: str,
     cargo_lock: CargoLock | None,
 ) -> None:

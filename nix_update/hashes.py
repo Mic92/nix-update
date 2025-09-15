@@ -1,5 +1,7 @@
 """Hash utility functions for nix-update."""
 
+from __future__ import annotations
+
 from subprocess import run as subprocess_run
 
 # Hash length constants for SRI format conversion

@@ -1,11 +1,16 @@
 """Module for generating diff URLs for various package repositories."""
 
+from __future__ import annotations
+
 import re
+from typing import TYPE_CHECKING
 
 from .errors import UpdateError
 from .eval import Package, eval_attr
-from .options import Options
-from .version.version import Version
+
+if TYPE_CHECKING:
+    from .options import Options
+    from .version.version import Version
 
 GITLAB_API = re.compile(r"https://(gitlab.com|([^/]+)/api/v4)/")
 

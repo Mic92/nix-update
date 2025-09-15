@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import fileinput
 import re
 import subprocess
@@ -9,12 +11,13 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from .eval import Package
+    from .options import Options
+
 from .cargo import update_cargo_lock
 from .errors import UpdateError
-from .eval import Package
 from .hashes import to_sri
 from .lockfile import generate_lockfile
-from .options import Options
 from .utils import run
 
 

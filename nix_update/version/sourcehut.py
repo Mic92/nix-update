@@ -1,14 +1,19 @@
+from __future__ import annotations
+
 import urllib.request
 import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
+from typing import TYPE_CHECKING
 from urllib.parse import ParseResult, urlparse
-from xml.etree.ElementTree import Element
 
 from nix_update.errors import VersionError
 from nix_update.utils import info
 
 from .http import DEFAULT_TIMEOUT
 from .version import Version
+
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
 
 
 def version_from_entry(entry: Element) -> Version:

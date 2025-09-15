@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 import os
 import subprocess
+from typing import TYPE_CHECKING
 
 import pytest
 
 from nix_update import main
-from tests import conftest
+
+if TYPE_CHECKING:
+    from tests import conftest
 
 
 @pytest.mark.skipif(

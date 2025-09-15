@@ -1,16 +1,22 @@
 """Lockfile generation utilities for nix-update."""
 
+from __future__ import annotations
+
 import shutil
 import tempfile
 import textwrap
-from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from .errors import UpdateError
-from .options import Options
 from .utils import run
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from .options import Options
 
 
 @dataclass

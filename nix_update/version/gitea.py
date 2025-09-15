@@ -1,15 +1,19 @@
+from __future__ import annotations
+
 import json
 import re
 from http import HTTPStatus
-from http.client import HTTPMessage
-from typing import IO
+from typing import IO, TYPE_CHECKING
 from urllib import request
 from urllib.error import URLError
-from urllib.parse import ParseResult
 from urllib.request import Request, urlopen
 
 from .http import DEFAULT_TIMEOUT
 from .version import Version
+
+if TYPE_CHECKING:
+    from http.client import HTTPMessage
+    from urllib.parse import ParseResult
 
 KNOWN_GITEA_HOSTS = ["codeberg.org", "gitea.com", "akkoma.dev"]
 

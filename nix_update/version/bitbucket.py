@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import json
-from urllib.parse import ParseResult
+from typing import TYPE_CHECKING
 from urllib.request import urlopen
 
 from .http import DEFAULT_TIMEOUT
 from .version import Version
+
+if TYPE_CHECKING:
+    from urllib.parse import ParseResult
 
 
 def fetch_bitbucket_versions(url: ParseResult) -> list[Version]:

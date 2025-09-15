@@ -1,12 +1,17 @@
+from __future__ import annotations
+
 import unittest.mock
 from pathlib import Path
-from typing import BinaryIO
+from typing import TYPE_CHECKING, BinaryIO
 from urllib.parse import urlparse
-from urllib.request import Request
 
 from nix_update.version import VersionFetchConfig, fetch_latest_version
 from nix_update.version.version import VersionPreference
-from tests import conftest
+
+if TYPE_CHECKING:
+    from urllib.request import Request
+
+    from tests import conftest
 
 TEST_ROOT = Path(__file__).parent.resolve()
 

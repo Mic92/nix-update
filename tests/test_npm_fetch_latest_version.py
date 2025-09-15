@@ -1,10 +1,15 @@
+from __future__ import annotations
+
 import io
 import unittest.mock
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
 from nix_update.version import VersionFetchConfig, fetch_latest_version
 from nix_update.version.version import VersionPreference
-from tests import conftest
+
+if TYPE_CHECKING:
+    from tests import conftest
 
 
 def fake_npm_urlopen(url: str, timeout: float | None = None) -> io.BytesIO:

@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 import json
 import urllib.request
-from urllib.parse import ParseResult
+from typing import TYPE_CHECKING
 
 from nix_update.utils import info
 
 from .http import DEFAULT_TIMEOUT
 from .version import Version
+
+if TYPE_CHECKING:
+    from urllib.parse import ParseResult
 
 
 def fetch_crate_versions(url: ParseResult) -> list[Version]:
