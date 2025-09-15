@@ -20,7 +20,7 @@ class Helpers:
 
     @staticmethod
     @contextmanager
-    def testpkgs(init_git: bool = False) -> Iterator[Path]:
+    def testpkgs(*, init_git: bool = False) -> Iterator[Path]:
         with tempfile.TemporaryDirectory() as _tmpdirname:
             tmpdirname = Path(_tmpdirname)
             shutil.copytree(

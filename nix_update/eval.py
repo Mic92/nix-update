@@ -107,6 +107,7 @@ class Package:
 def eval_expression(
     escaped_import_path: str,
     attr: str,
+    *,
     flake: bool,
     system: str | None,
     override_filename: str | None,
@@ -217,9 +218,9 @@ def eval_attr(opts: Options) -> Package:
     expr = eval_expression(
         opts.escaped_import_path,
         opts.escaped_attribute,
-        opts.flake,
-        opts.system,
-        opts.override_filename,
+        flake=opts.flake,
+        system=opts.system,
+        override_filename=opts.override_filename,
     )
     cmd = ["nix", "eval", "--json", "--impure", "--expr", expr, *opts.extra_flags]
     res = run(cmd)

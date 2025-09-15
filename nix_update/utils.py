@@ -35,6 +35,7 @@ info = color_text(32)
 
 def run(
     command: list[str],
+    *,
     cwd: Path | str | None = None,
     stdout: None | int | IO[Any] = subprocess.PIPE,
     stderr: None | int | IO[Any] = None,
