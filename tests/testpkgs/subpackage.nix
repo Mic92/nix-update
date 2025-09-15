@@ -36,6 +36,7 @@ let
         src
         sourceRoot
         ;
+      fetcherVersion = 2;
       hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
     };
 
