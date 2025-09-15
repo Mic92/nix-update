@@ -110,7 +110,7 @@ def parse_args(args: list[str]) -> Options:
     )
     parser.add_argument(
         "--system",
-        help="The system used to to calculate the hash and run other nix commands",
+        help="The system used to calculate the hash and run other nix commands",
         default=None,
     )
 
