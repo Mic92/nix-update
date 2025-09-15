@@ -25,7 +25,7 @@ def fake_npm_urlopen(url: str, timeout: float | None = None) -> io.BytesIO:
 
 def test_scoped_npm(helpers: conftest.Helpers) -> None:
     del helpers
-    with unittest.mock.patch("urllib.request.urlopen", fake_npm_urlopen):
+    with unittest.mock.patch("nix_update.version.http.urlopen", fake_npm_urlopen):
         assert (
             fetch_latest_version(
                 urlparse(
@@ -42,7 +42,7 @@ def test_scoped_npm(helpers: conftest.Helpers) -> None:
 
 def test_regular_npm(helpers: conftest.Helpers) -> None:
     del helpers
-    with unittest.mock.patch("urllib.request.urlopen", fake_npm_urlopen):
+    with unittest.mock.patch("nix_update.version.http.urlopen", fake_npm_urlopen):
         assert (
             fetch_latest_version(
                 urlparse("https://registry.npmjs.org/express/-/express-4.21.1.tgz"),

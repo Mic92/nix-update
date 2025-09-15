@@ -36,8 +36,7 @@ class VersionFetchConfig:
 
 
 # def find_repology_release(attr) -> str:
-#    resp = urllib.request.urlopen(f"https://repology.org/api/v1/projects/{attr}/")
-#    data = json.loads(resp.read())
+#    data = fetch_json(f"https://repology.org/api/v1/projects/{attr}/")
 #    for name, pkg in data.items():
 #        for repo in pkg:
 #            if repo["status"] == "newest":

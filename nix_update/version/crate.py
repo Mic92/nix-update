@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import json
-import urllib.request
 from typing import TYPE_CHECKING
 
 from nix_update.utils import info
 
-from .http import DEFAULT_TIMEOUT
+from .http import fetch_json
 from .version import Version
 
 if TYPE_CHECKING:
@@ -20,8 +18,7 @@ def fetch_crate_versions(url: ParseResult) -> list[Version]:
     package = parts[4]
     crate_url = f"https://crates.io/api/v1/crates/{package}/versions"
     info(f"fetch {crate_url}")
-    with urllib.request.urlopen(crate_url, timeout=DEFAULT_TIMEOUT) as resp:
-        data = json.load(resp)
+    data = fetch_json(crate_url)
     return [
         Version(version["num"]) for version in data["versions"] if not version["yanked"]
     ]

@@ -1,17 +1,13 @@
-
-
 from __future__ import annotations
 
-import json
 import re
-import urllib.request
 from datetime import datetime
 from urllib.parse import ParseResult, quote_plus
 
 from nix_update.errors import VersionError
 from nix_update.utils import info
 
-from .http import DEFAULT_TIMEOUT
+from .http import fetch_json
 from .version import Version
 
 GITLAB_API = re.compile(
@@ -27,8 +23,7 @@ def fetch_gitlab_versions(url: ParseResult) -> list[Version]:
     project_id = match.group("project_id")
     gitlab_url = f"https://{domain}/api/v4/projects/{project_id}/repository/tags"
     info(f"fetch {gitlab_url}")
-    with urllib.request.urlopen(gitlab_url, timeout=DEFAULT_TIMEOUT) as resp:
-        json_tags = json.load(resp)
+    json_tags = fetch_json(gitlab_url)
     if len(json_tags) == 0:
         msg = "No git tags found"
         raise VersionError(msg)
@@ -58,8 +53,7 @@ def fetch_gitlab_snapshots(url: ParseResult, branch: str) -> list[Version]:
     project_id = match.group("project_id")
     gitlab_url = f"https://{domain}/api/v4/projects/{project_id}/repository/commits?ref_name={quote_plus(branch)}"
     info(f"fetch {gitlab_url}")
-    with urllib.request.urlopen(gitlab_url, timeout=DEFAULT_TIMEOUT) as resp:
-        commits = json.load(resp)
+    commits = fetch_json(gitlab_url)
 
     try:
         versions = fetch_gitlab_versions(url)

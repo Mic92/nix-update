@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import json
 import re
 from http import HTTPStatus
 from typing import IO, TYPE_CHECKING
@@ -8,7 +7,7 @@ from urllib import request
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 
-from .http import DEFAULT_TIMEOUT
+from .http import DEFAULT_TIMEOUT, fetch_json
 from .version import Version
 
 if TYPE_CHECKING:
@@ -53,8 +52,7 @@ def fetch_gitea_versions(url: ParseResult) -> list[Version]:
     _, owner, repo, *_ = url.path.split("/")
     repo = re.sub(r"\.git$", "", repo)
     tags_url = f"https://{url.netloc}/api/v1/repos/{owner}/{repo}/tags"
-    with urlopen(tags_url, timeout=DEFAULT_TIMEOUT) as resp:
-        tags = json.load(resp)
+    tags = fetch_json(tags_url)
     return [Version(tag["name"]) for tag in tags]
 
 
@@ -65,8 +63,7 @@ def fetch_gitea_snapshots(url: ParseResult, branch: str) -> list[Version]:
     _, owner, repo, *_ = url.path.split("/")
     repo = re.sub(r"\.git$", "", repo)
     commits_url = f"https://{url.netloc}/api/v1/repos/{owner}/{repo}/commits?sha={branch}&limit=1&stat=false&verification=false&files=false"
-    with urlopen(commits_url, timeout=DEFAULT_TIMEOUT) as resp:
-        commits = json.load(resp)
+    commits = fetch_json(commits_url)
 
     commit = next(iter(commits), None)
     if commit is None:

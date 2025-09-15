@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import json
-import urllib.request
 from typing import TYPE_CHECKING
 
 from nix_update.utils import info
 
-from .http import DEFAULT_TIMEOUT
+from .http import fetch_json
 from .version import Version
 
 if TYPE_CHECKING:
@@ -20,8 +18,7 @@ def fetch_pypi_versions(url: ParseResult) -> list[Version]:
     package = parts[2]
     pypi_url = f"https://pypi.org/pypi/{package}/json"
     info(f"fetch {pypi_url}")
-    with urllib.request.urlopen(pypi_url, timeout=DEFAULT_TIMEOUT) as resp:
-        data = json.load(resp)
+    data = fetch_json(pypi_url)
     version = data["info"]["version"]
     if not isinstance(version, str):
         msg = f"Expected version to be string, got {type(version)}"
