@@ -48,9 +48,6 @@ lint.ignore = [
   # Using `xml` to parse untrusted data
   "S314",
 
-  # Too many arguments in function definition
-  "PLR0913",
-
   # Found commented-out code
   "ERA001",
 

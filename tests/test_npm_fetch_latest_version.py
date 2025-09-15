@@ -2,7 +2,7 @@ import io
 import unittest.mock
 from urllib.parse import urlparse
 
-from nix_update.version import fetch_latest_version
+from nix_update.version import VersionFetchConfig, fetch_latest_version
 from nix_update.version.version import VersionPreference
 from tests import conftest
 
@@ -25,8 +25,10 @@ def test_scoped_npm(helpers: conftest.Helpers) -> None:
                 urlparse(
                     "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-1.0.42.tgz",
                 ),
-                VersionPreference.STABLE,
-                "(.*)",
+                VersionFetchConfig(
+                    preference=VersionPreference.STABLE,
+                    version_regex="(.*)",
+                ),
             ).number
             == "1.0.43"
         )
@@ -38,8 +40,10 @@ def test_regular_npm(helpers: conftest.Helpers) -> None:
         assert (
             fetch_latest_version(
                 urlparse("https://registry.npmjs.org/express/-/express-4.21.1.tgz"),
-                VersionPreference.STABLE,
-                "(.*)",
+                VersionFetchConfig(
+                    preference=VersionPreference.STABLE,
+                    version_regex="(.*)",
+                ),
             ).number
             == "4.21.2"
         )

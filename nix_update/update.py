@@ -16,7 +16,7 @@ from .git import old_version_from_git
 from .lockfile import generate_lockfile
 from .options import Options
 from .utils import info, run
-from .version import fetch_latest_version
+from .version import VersionFetchConfig, fetch_latest_version
 from .version.gitlab import GITLAB_API
 from .version.version import Version, VersionPreference
 
@@ -397,15 +397,15 @@ def fetch_new_version(
             raise ValueError(msg)
         branch = version[7:]
 
-    return fetch_latest_version(
-        package.parsed_url,
-        preference,
-        version_regex,
-        branch,
-        old_rev_tag,
-        version_prefix,
+    config = VersionFetchConfig(
+        preference=preference,
+        version_regex=version_regex,
+        branch=branch,
+        old_rev_tag=old_rev_tag,
+        version_prefix=version_prefix,
         fetcher_args={"use_github_releases": opts.use_github_releases},
     )
+    return fetch_latest_version(package.parsed_url, config)
 
 
 def create_crates_diff_url(package: Package, new_version: Version) -> str:

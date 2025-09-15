@@ -33,7 +33,7 @@ def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
 info = color_text(32)
 
 
-def run(
+def run(  # noqa: PLR0913
     command: list[str],
     *,
     cwd: Path | str | None = None,

@@ -6,7 +6,11 @@ import pytest
 
 from nix_update.options import Options
 from nix_update.update import update
-from nix_update.version import VersionPreference, fetch_latest_version
+from nix_update.version import (
+    VersionFetchConfig,
+    VersionPreference,
+    fetch_latest_version,
+)
 from tests import conftest
 
 
@@ -34,11 +38,14 @@ def test_update(helpers: conftest.Helpers) -> None:
 
 @pytest.mark.usefixtures("helpers")
 def test_branch() -> None:
+    config = VersionFetchConfig(
+        preference=VersionPreference.BRANCH,
+        version_regex="(.*)",
+        branch="master",
+    )
     version = fetch_latest_version(
         urlparse("https://git.sr.ht/~jcc/addr-book-combine"),
-        VersionPreference.BRANCH,
-        "(.*)",
-        "master",
+        config,
     ).number
     version_date = date.fromisoformat(version[-10:])
     assert version_date >= date(2022, 12, 14)

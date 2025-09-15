@@ -4,7 +4,7 @@ from typing import BinaryIO
 from urllib.parse import urlparse
 from urllib.request import Request
 
-from nix_update.version import fetch_latest_version
+from nix_update.version import VersionFetchConfig, fetch_latest_version
 from nix_update.version.version import VersionPreference
 from tests import conftest
 
@@ -26,9 +26,11 @@ def test_branch(helpers: conftest.Helpers) -> None:
         assert (
             fetch_latest_version(
                 urlparse("https://github.com/Mic92/nix-update"),
-                VersionPreference.BRANCH,
-                "(.*)",
-                "master",
+                VersionFetchConfig(
+                    preference=VersionPreference.BRANCH,
+                    version_regex="(.*)",
+                    branch="master",
+                ),
             ).number
             == "1.2.0-unstable-2024-02-19"
         )
@@ -40,10 +42,12 @@ def test_branch_releases(helpers: conftest.Helpers) -> None:
         assert (
             fetch_latest_version(
                 urlparse("https://github.com/Mic92/nix-update"),
-                VersionPreference.BRANCH,
-                "(.*)",
-                "master",
-                fetcher_args={"use_github_releases": True},
+                VersionFetchConfig(
+                    preference=VersionPreference.BRANCH,
+                    version_regex="(.*)",
+                    branch="master",
+                    fetcher_args={"use_github_releases": True},
+                ),
             ).number
             == "1.2.0-unstable-2024-02-19"
         )
