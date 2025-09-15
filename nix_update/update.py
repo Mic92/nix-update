@@ -444,6 +444,7 @@ def run_update_script(package: Package, opts: Options) -> None:
         run(
             [
                 "nix-shell",
+                *opts.extra_flags,
                 str(Path(opts.import_path) / "maintainers/scripts/update.nix"),
                 "--argstr",
                 "package",
@@ -460,9 +461,8 @@ def run_update_script(package: Package, opts: Options) -> None:
     update_script = run(
         [
             "nix",
-            "--extra-experimental-features",
-            "flakes nix-command",
             "build",
+            *opts.extra_flags,
             "--print-out-paths",
             "--impure",
             "--expr",
@@ -474,6 +474,7 @@ def run_update_script(package: Package, opts: Options) -> None:
         [
             "nix",
             "develop",
+            *opts.extra_flags,
             "--impure",
             "--expr",
             f"with import <nixpkgs> {{}}; pkgs.mkShell {{inputsFrom = [{get_package(opts)}];}}",
