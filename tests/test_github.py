@@ -1,10 +1,21 @@
+from __future__ import annotations
+
 import os
 import subprocess
+from typing import TYPE_CHECKING
 
 import pytest
 
 from nix_update import main
-from tests import conftest
+
+if TYPE_CHECKING:
+    from tests import conftest
+
+
+@pytest.fixture
+def invalid_github_token(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Fixture that sets an invalid GitHub token for testing."""
+    monkeypatch.setenv("GITHUB_TOKEN", "invalid_token")
 
 
 def test_github_feed(helpers: conftest.Helpers) -> None:
@@ -111,10 +122,9 @@ def test_github_empty_fallback(helpers: conftest.Helpers) -> None:
         )
 
 
+@pytest.mark.usefixtures("invalid_github_token")
 def test_github_tag(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
-        monkeypatch = pytest.MonkeyPatch()
-        monkeypatch.setenv("GITHUB_TOKEN", "invalid_token")
         main(["--file", str(path), "--commit", "github-tag"])
         version = subprocess.run(
             [
@@ -144,10 +154,11 @@ def test_github_tag(helpers: conftest.Helpers) -> None:
         assert "https://github.com/sharkdp/fd/compare/v8.0.0...v" in commit
 
 
-def test_github_feed_fallback(helpers: conftest.Helpers) -> None:
+@pytest.mark.usefixtures("invalid_github_token")
+def test_github_feed_fallback(
+    helpers: conftest.Helpers,
+) -> None:
     with helpers.testpkgs(init_git=True) as path:
-        monkeypatch = pytest.MonkeyPatch()
-        monkeypatch.setenv("GITHUB_TOKEN", "invalid_token")
         main(["--file", str(path), "--commit", "github"])
         version = subprocess.run(
             [
@@ -177,10 +188,11 @@ def test_github_feed_fallback(helpers: conftest.Helpers) -> None:
         assert "https://github.com/sharkdp/fd/compare/v8.0.0...v" in commit
 
 
-def test_github_fetchtree(helpers: conftest.Helpers) -> None:
+@pytest.mark.usefixtures("invalid_github_token")
+def test_github_fetchtree(
+    helpers: conftest.Helpers,
+) -> None:
     with helpers.testpkgs(init_git=True) as path:
-        monkeypatch = pytest.MonkeyPatch()
-        monkeypatch.setenv("GITHUB_TOKEN", "invalid_token")
         main(["--file", str(path), "--commit", "github-fetchtree"])
         version = subprocess.run(
             [
@@ -209,10 +221,9 @@ def test_github_fetchtree(helpers: conftest.Helpers) -> None:
         assert "github" in commit
 
 
+@pytest.mark.usefixtures("invalid_github_token")
 def test_github_fetchtree_private(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
-        monkeypatch = pytest.MonkeyPatch()
-        monkeypatch.setenv("GITHUB_TOKEN", "invalid_token")
         main(["--file", str(path), "--commit", "github-fetchtree-private"])
         version = subprocess.run(
             [

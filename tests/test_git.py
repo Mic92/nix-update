@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from nix_update.git import old_version_from_diff
-from tests import conftest
+
+if TYPE_CHECKING:
+    from tests import conftest
 
 TEST_ROOT = Path(__file__).parent.resolve()
 

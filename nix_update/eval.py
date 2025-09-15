@@ -1,14 +1,18 @@
+from __future__ import annotations
+
 import json
 import os
 from dataclasses import InitVar, dataclass, field
 from textwrap import dedent, indent
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import ParseResult, urlparse
 
 from .errors import UpdateError
-from .options import Options
 from .utils import run
 from .version.version import Version, VersionPreference
+
+if TYPE_CHECKING:
+    from .options import Options
 
 
 @dataclass
@@ -19,10 +23,6 @@ class Position:
 
 
 class CargoLock:
-    pass
-
-
-class NoCargoLock(CargoLock):
     pass
 
 
@@ -75,7 +75,7 @@ class Package:
     parsed_url: ParseResult | None = None
     new_version: Version | None = None
     version_position: Position | None = field(init=False)
-    cargo_lock: CargoLock = field(init=False)
+    cargo_lock: CargoLock | None = field(init=False)
     diff_url: str | None = None
 
     def __post_init__(
@@ -95,7 +95,7 @@ class Package:
                 self.version_position.file = self.filename
 
         if raw_cargo_lock is None:
-            self.cargo_lock = NoCargoLock()
+            self.cargo_lock = None
         elif raw_cargo_lock is False or not os.path.realpath(raw_cargo_lock).startswith(
             import_path,
         ):

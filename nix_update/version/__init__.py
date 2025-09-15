@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import re
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from functools import partial
 from inspect import signature
 from typing import Any, Protocol, cast
@@ -21,9 +24,19 @@ from .savannah import fetch_savannah_versions
 from .sourcehut import fetch_sourcehut_snapshots, fetch_sourcehut_versions
 from .version import Version, VersionPreference
 
+
+@dataclass
+class VersionFetchConfig:
+    preference: VersionPreference
+    version_regex: str
+    branch: str | None = None
+    old_rev_tag: str | None = None
+    version_prefix: str = ""
+    fetcher_args: dict[str, Any] | None = field(default_factory=dict)
+
+
 # def find_repology_release(attr) -> str:
-#    resp = urllib.request.urlopen(f"https://repology.org/api/v1/projects/{attr}/")
-#    data = json.loads(resp.read())
+#    data = fetch_json(f"https://repology.org/api/v1/projects/{attr}/")
 #    for name, pkg in data.items():
 #        for repo in pkg:
 #            if repo["status"] == "newest":
@@ -97,21 +110,19 @@ def is_unstable(version: Version, extracted: str) -> bool:
     return re.search(pattern, extracted, re.IGNORECASE) is not None
 
 
-def prepare_fetchers(
-    preference: VersionPreference,
-    branch: str | None,
-    fetcher_args: dict[str, Any] | None,
-) -> list:
+def prepare_fetchers(config: VersionFetchConfig) -> list:
     used_fetchers = fetchers
-    if preference == VersionPreference.BRANCH:
-        if branch is None:
+    if config.preference == VersionPreference.BRANCH:
+        if config.branch is None:
             msg = "Branch must be specified when using BRANCH preference"
             raise ValueError(msg)
-        used_fetchers = [partial(f, branch=branch) for f in branch_snapshots_fetchers]
+        used_fetchers = [
+            partial(f, branch=config.branch) for f in branch_snapshots_fetchers
+        ]
 
     return [
         (
-            partial(cast("FetcherWithArgs", fetcher), extra_args=fetcher_args)
+            partial(cast("FetcherWithArgs", fetcher), extra_args=config.fetcher_args)
             if "extra_args" in signature(fetcher).parameters
             else fetcher
         )
@@ -121,40 +132,34 @@ def prepare_fetchers(
 
 def find_prefixed_version(
     final_versions: list,
-    version_prefix: str,
-    old_rev_tag: str | None,
+    config: VersionFetchConfig,
 ) -> Version | None:
-    if version_prefix == "":
+    if config.version_prefix == "":
         return None
 
     ver = next(
         (
             Version(
-                version.number.removeprefix(version_prefix),
+                version.number.removeprefix(config.version_prefix),
                 prerelease=version.prerelease,
                 rev=version.rev or version.number,
             )
             for version in final_versions
-            if version.number.startswith(version_prefix)
+            if version.number.startswith(config.version_prefix)
         ),
         None,
     )
 
-    if ver is not None and ver.rev != old_rev_tag:
+    if ver is not None and ver.rev != config.old_rev_tag:
         return ver
     return None
 
 
 def fetch_latest_version(
     url: ParseResult,
-    preference: VersionPreference,
-    version_regex: str,
-    branch: str | None = None,
-    old_rev_tag: str | None = None,
-    version_prefix: str = "",
-    fetcher_args: dict[str, Any] | None = None,
+    config: VersionFetchConfig,
 ) -> Version:
-    used_fetchers = prepare_fetchers(preference, branch, fetcher_args)
+    used_fetchers = prepare_fetchers(config)
     all_unstable: list[str] = []
     all_filtered: list[str] = []
 
@@ -168,10 +173,10 @@ def fetch_latest_version(
         filtered = []
 
         for version in versions:
-            extracted = extract_version(version, version_regex)
+            extracted = extract_version(version, config.version_regex)
             if extracted is None:
                 filtered.append(version.number)
-            elif preference == VersionPreference.STABLE and is_unstable(
+            elif config.preference == VersionPreference.STABLE and is_unstable(
                 version,
                 extracted.number,
             ):
@@ -182,7 +187,7 @@ def fetch_latest_version(
         all_filtered.extend(filtered)
 
         if final:
-            prefixed_version = find_prefixed_version(final, version_prefix, old_rev_tag)
+            prefixed_version = find_prefixed_version(final, config)
             if prefixed_version is not None:
                 return prefixed_version
             return final[0]

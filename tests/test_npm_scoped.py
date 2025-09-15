@@ -1,7 +1,12 @@
+from __future__ import annotations
+
 import subprocess
+from typing import TYPE_CHECKING
 
 from nix_update import main
-from tests import conftest
+
+if TYPE_CHECKING:
+    from tests import conftest
 
 
 def test_scoped_package_update(helpers: conftest.Helpers) -> None:

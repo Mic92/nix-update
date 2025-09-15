@@ -1,13 +1,19 @@
+from __future__ import annotations
+
 import io
 import unittest.mock
+from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 
-from nix_update.version import fetch_latest_version
+from nix_update.version import VersionFetchConfig, fetch_latest_version
 from nix_update.version.version import VersionPreference
-from tests import conftest
+
+if TYPE_CHECKING:
+    from tests import conftest
 
 
-def fake_npm_urlopen(url: str) -> io.BytesIO:
+def fake_npm_urlopen(url: str, timeout: float | None = None) -> io.BytesIO:
+    del timeout  # Unused in test
     if url == "https://registry.npmjs.org/@anthropic-ai/claude-code/latest":
         return io.BytesIO(b'{"version": "1.0.43"}')
 
@@ -19,14 +25,16 @@ def fake_npm_urlopen(url: str) -> io.BytesIO:
 
 def test_scoped_npm(helpers: conftest.Helpers) -> None:
     del helpers
-    with unittest.mock.patch("urllib.request.urlopen", fake_npm_urlopen):
+    with unittest.mock.patch("nix_update.version.http.urlopen", fake_npm_urlopen):
         assert (
             fetch_latest_version(
                 urlparse(
                     "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-1.0.42.tgz",
                 ),
-                VersionPreference.STABLE,
-                "(.*)",
+                VersionFetchConfig(
+                    preference=VersionPreference.STABLE,
+                    version_regex="(.*)",
+                ),
             ).number
             == "1.0.43"
         )
@@ -34,12 +42,14 @@ def test_scoped_npm(helpers: conftest.Helpers) -> None:
 
 def test_regular_npm(helpers: conftest.Helpers) -> None:
     del helpers
-    with unittest.mock.patch("urllib.request.urlopen", fake_npm_urlopen):
+    with unittest.mock.patch("nix_update.version.http.urlopen", fake_npm_urlopen):
         assert (
             fetch_latest_version(
                 urlparse("https://registry.npmjs.org/express/-/express-4.21.1.tgz"),
-                VersionPreference.STABLE,
-                "(.*)",
+                VersionFetchConfig(
+                    preference=VersionPreference.STABLE,
+                    version_regex="(.*)",
+                ),
             ).number
             == "4.21.2"
         )

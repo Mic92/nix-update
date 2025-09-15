@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import os
 import shlex
 import subprocess
 import sys
-from collections.abc import Callable
 from pathlib import Path
-from typing import IO, Any
+from typing import IO, TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Sequence
 
 HAS_TTY = sys.stdout.isatty()
 ROOT = Path(__file__).parent
@@ -33,15 +37,15 @@ def color_text(code: int, file: IO[Any] = sys.stdout) -> Callable[[str], None]:
 info = color_text(32)
 
 
-def run(
-    command: list[str],
+def run(  # noqa: PLR0913
+    command: Sequence[str],
     *,
     cwd: Path | str | None = None,
     stdout: None | int | IO[Any] = subprocess.PIPE,
     stderr: None | int | IO[Any] = None,
     check: bool = True,
     extra_env: dict[str, str] | None = None,
-) -> "subprocess.CompletedProcess[str]":
+) -> subprocess.CompletedProcess[str]:
     if extra_env is None:
         extra_env = {}
     info("$ " + shlex.join(command))

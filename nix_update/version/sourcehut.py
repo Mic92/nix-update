@@ -1,13 +1,19 @@
+from __future__ import annotations
+
 import urllib.request
 import xml.etree.ElementTree as ET
 from email.utils import parsedate_to_datetime
+from typing import TYPE_CHECKING
 from urllib.parse import ParseResult, urlparse
-from xml.etree.ElementTree import Element
 
 from nix_update.errors import VersionError
 from nix_update.utils import info
 
+from .http import DEFAULT_TIMEOUT
 from .version import Version
+
+if TYPE_CHECKING:
+    from xml.etree.ElementTree import Element
 
 
 def version_from_entry(entry: Element) -> Version:
@@ -27,7 +33,7 @@ def snapshot_from_entry(entry: Element, url: ParseResult) -> Version:
     latest_version = versions[0].number if versions else "0"
     pub_date = entry.find("pubDate")
     if pub_date is None:
-        msg = "No pubDate found in atom feed {url}"
+        msg = f"No pubDate found in atom feed {url}"
         raise VersionError(msg)
     parsed = parsedate_to_datetime(pub_date.text)
     if parsed is None:
@@ -37,7 +43,7 @@ def snapshot_from_entry(entry: Element, url: ParseResult) -> Version:
     date_str = date.isoformat()
     node = entry.find("link")
     if node is None or node.text is None:
-        msg = "No link found in atom feed {url}"
+        msg = f"No link found in atom feed {url}"
         raise VersionError(msg)
     rev = node.text.split("/")[-1]
     return Version(f"{latest_version}-unstable-{date_str}", rev=rev)
@@ -51,8 +57,8 @@ def fetch_sourcehut_versions(url: ParseResult) -> list[Version]:
     # repo = re.sub(r"\.git$", "", repo)
     feed_url = f"https://git.sr.ht/{owner}/{repo}/refs/rss.xml"
     info(f"fetch {feed_url}")
-    resp = urllib.request.urlopen(feed_url)
-    tree = ET.fromstring(resp.read())
+    with urllib.request.urlopen(feed_url, timeout=DEFAULT_TIMEOUT) as resp:
+        tree = ET.fromstring(resp.read())
     releases = tree.findall(".//item")
     return [version_from_entry(x) for x in releases]
 
@@ -64,8 +70,8 @@ def fetch_sourcehut_snapshots(url: ParseResult, branch: str) -> list[Version]:
     owner, repo = parts[1], parts[2]
     feed_url = f"https://git.sr.ht/{owner}/{repo}/log/{branch}/rss.xml"
     info(f"fetch {feed_url}")
-    resp = urllib.request.urlopen(feed_url)
-    tree = ET.fromstring(resp.read())
+    with urllib.request.urlopen(feed_url, timeout=DEFAULT_TIMEOUT) as resp:
+        tree = ET.fromstring(resp.read())
     latest_commit = tree.find(".//item")
     if latest_commit is None:
         msg = f"No commit found in atom feed {url}"
