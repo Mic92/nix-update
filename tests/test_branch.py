@@ -11,7 +11,8 @@ from tests import conftest
 TEST_ROOT = Path(__file__).parent.resolve()
 
 
-def fake_urlopen(req: Request) -> BinaryIO:
+def fake_urlopen(req: Request, timeout: float | None = None) -> BinaryIO:
+    del timeout  # Unused in test
     url = req.get_full_url()
     if url.endswith("releases.atom"):
         return TEST_ROOT.joinpath("test_branch_releases.atom").open("rb")

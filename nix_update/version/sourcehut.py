@@ -7,6 +7,7 @@ from xml.etree.ElementTree import Element
 from nix_update.errors import VersionError
 from nix_update.utils import info
 
+from .http import DEFAULT_TIMEOUT
 from .version import Version
 
 
@@ -51,8 +52,8 @@ def fetch_sourcehut_versions(url: ParseResult) -> list[Version]:
     # repo = re.sub(r"\.git$", "", repo)
     feed_url = f"https://git.sr.ht/{owner}/{repo}/refs/rss.xml"
     info(f"fetch {feed_url}")
-    resp = urllib.request.urlopen(feed_url)
-    tree = ET.fromstring(resp.read())
+    with urllib.request.urlopen(feed_url, timeout=DEFAULT_TIMEOUT) as resp:
+        tree = ET.fromstring(resp.read())
     releases = tree.findall(".//item")
     return [version_from_entry(x) for x in releases]
 
@@ -64,8 +65,8 @@ def fetch_sourcehut_snapshots(url: ParseResult, branch: str) -> list[Version]:
     owner, repo = parts[1], parts[2]
     feed_url = f"https://git.sr.ht/{owner}/{repo}/log/{branch}/rss.xml"
     info(f"fetch {feed_url}")
-    resp = urllib.request.urlopen(feed_url)
-    tree = ET.fromstring(resp.read())
+    with urllib.request.urlopen(feed_url, timeout=DEFAULT_TIMEOUT) as resp:
+        tree = ET.fromstring(resp.read())
     latest_commit = tree.find(".//item")
     if latest_commit is None:
         msg = f"No commit found in atom feed {url}"

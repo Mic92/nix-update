@@ -7,7 +7,8 @@ from nix_update.version.version import VersionPreference
 from tests import conftest
 
 
-def fake_npm_urlopen(url: str) -> io.BytesIO:
+def fake_npm_urlopen(url: str, timeout: float | None = None) -> io.BytesIO:
+    del timeout  # Unused in test
     if url == "https://registry.npmjs.org/@anthropic-ai/claude-code/latest":
         return io.BytesIO(b'{"version": "1.0.43"}')
 

@@ -4,6 +4,7 @@ from urllib.parse import ParseResult
 
 from nix_update.utils import info
 
+from .http import DEFAULT_TIMEOUT
 from .version import Version
 
 
@@ -14,8 +15,8 @@ def fetch_crate_versions(url: ParseResult) -> list[Version]:
     package = parts[4]
     crate_url = f"https://crates.io/api/v1/crates/{package}/versions"
     info(f"fetch {crate_url}")
-    resp = urllib.request.urlopen(crate_url)
-    data = json.loads(resp.read())
+    with urllib.request.urlopen(crate_url, timeout=DEFAULT_TIMEOUT) as resp:
+        data = json.load(resp)
     return [
         Version(version["num"]) for version in data["versions"] if not version["yanked"]
     ]

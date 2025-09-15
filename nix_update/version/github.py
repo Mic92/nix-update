@@ -13,6 +13,7 @@ from xml.etree.ElementTree import Element, ParseError
 from nix_update.errors import VersionError
 from nix_update.utils import info
 
+from .http import DEFAULT_TIMEOUT
 from .version import Version
 
 # https://github.com/NixOS/nixpkgs/blob/13ae608185b2430ebffc8b181fa9a854cd241007/pkgs/build-support/fetchgithub/default.nix#L133-L143
@@ -61,7 +62,7 @@ def _dorequest(
         )
 
     try:
-        with urllib.request.urlopen(request) as response:
+        with urllib.request.urlopen(request, timeout=DEFAULT_TIMEOUT) as response:
             return response.read()
     except urllib.error.HTTPError as e:
         if e.code == HTTPStatus.NOT_FOUND:

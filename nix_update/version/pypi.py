@@ -4,6 +4,7 @@ from urllib.parse import ParseResult
 
 from nix_update.utils import info
 
+from .http import DEFAULT_TIMEOUT
 from .version import Version
 
 
@@ -14,8 +15,8 @@ def fetch_pypi_versions(url: ParseResult) -> list[Version]:
     package = parts[2]
     pypi_url = f"https://pypi.org/pypi/{package}/json"
     info(f"fetch {pypi_url}")
-    resp = urllib.request.urlopen(pypi_url)
-    data = json.loads(resp.read())
+    with urllib.request.urlopen(pypi_url, timeout=DEFAULT_TIMEOUT) as resp:
+        data = json.load(resp)
     version = data["info"]["version"]
     if not isinstance(version, str):
         msg = f"Expected version to be string, got {type(version)}"
