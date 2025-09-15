@@ -3,6 +3,9 @@ import subprocess
 from nix_update import main
 from tests import conftest
 
+# Minimum expected gitea version for testing
+MIN_GITEA_VERSION = 30
+
 
 def test_main(helpers: conftest.Helpers) -> None:
     with helpers.testpkgs(init_git=True) as path:
@@ -22,7 +25,7 @@ def test_main(helpers: conftest.Helpers) -> None:
             text=True,
             stdout=subprocess.PIPE,
         ).stdout.strip()
-        assert int(version) >= 30
+        assert int(version) >= MIN_GITEA_VERSION
         commit = subprocess.run(
             ["git", "-C", path, "log", "-1"],
             text=True,

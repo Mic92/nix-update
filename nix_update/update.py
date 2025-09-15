@@ -20,6 +20,10 @@ from .version import fetch_latest_version
 from .version.gitlab import GITLAB_API
 from .version.version import Version, VersionPreference
 
+# Hash length constants for SRI format conversion
+MD5_HASH_LENGTH = 32
+SHA1_HASH_LENGTH = 40
+
 
 def replace_version(package: Package) -> bool:
     if package.new_version is None:
@@ -70,9 +74,9 @@ def to_sri(hashstr: str) -> str:
     if "-" in hashstr:
         return hashstr
     length = len(hashstr)
-    if length == 32:
+    if length == MD5_HASH_LENGTH:
         prefix = "md5:"
-    elif length == 40:
+    elif length == SHA1_HASH_LENGTH:
         # could be also base32 == 32, but we ignore this case and hope no one is using it
         prefix = "sha1:"
     elif length in (64, 52):

@@ -5,6 +5,7 @@ import os
 import re
 import urllib.request
 import xml.etree.ElementTree as ET
+from http import HTTPStatus
 from typing import Any
 from urllib.parse import ParseResult, unquote, urlparse
 from xml.etree.ElementTree import Element, ParseError
@@ -63,7 +64,7 @@ def _dorequest(
         with urllib.request.urlopen(request) as response:
             return response.read()
     except urllib.error.HTTPError as e:
-        if e.code == 404:
+        if e.code == HTTPStatus.NOT_FOUND:
             info(f"HTTP 404: {feed_url} not found")
             return None
         raise
