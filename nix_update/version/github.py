@@ -89,8 +89,13 @@ def fetch_github_versions_from_releases(
     owner: str,
     repo: str,
 ) -> list[Version]:
-    # TODO: pagination?
     github_url = f"https://api.github.com/repos/{owner}/{repo}/releases?per_page=100"
+    if url.netloc not in {"github.com", "api.github.com"}:
+        github_url = (
+            f"https://{url.netloc}/api/v3/repos/{owner}/{repo}/releases?per_page=100"
+        )
+
+    # TODO: pagination?
     token = os.environ.get("GITHUB_TOKEN")
     extra_headers = {} if token is None else {"Authorization": f"Bearer {token}"}
 
