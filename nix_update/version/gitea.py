@@ -28,7 +28,7 @@ OPENER = request.build_opener(NoRedirect)
 def is_gitea_host(host: str) -> bool:
     if host in KNOWN_GITEA_HOSTS:
         return True
-    endpoint = f"https://{host}/api/v1/signing-key.gpg"
+    endpoint = f"https://{host}/api/v1/settings/api"
     try:
         resp = OPENER.open(endpoint, timeout=DEFAULT_TIMEOUT)
     except URLError:
