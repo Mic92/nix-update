@@ -3,7 +3,6 @@ from __future__ import annotations
 import fileinput
 import re
 import subprocess
-import sys
 import tempfile
 from functools import partial
 from typing import TYPE_CHECKING, Any
@@ -30,6 +29,27 @@ def replace_hash(filename: str, current: str, target: str) -> None:
                 print(modified_line, end="")
 
 
+def extract_hash_from_nix_error(stderr: str) -> str | None:
+    """Extract hash from Nix build error output.
+
+    Handles various formats:
+    - got:    xxx
+    - got:    sha256-xxxxx=
+    - expected 'xxx' but got 'xxx'
+
+    Returns the hash string or None if not found.
+    """
+    # Regex handles both hex hashes and SRI hashes (e.g., sha256-base64=)
+    regex = re.compile(
+        r".*got(:|\s)\s*'?((?:sha256-|sha512-|sha1-|md5:)?[A-Za-z0-9+/=]+)('|$)",
+    )
+
+    for line in reversed(stderr.split("\n")):
+        if match := regex.fullmatch(line):
+            return match[2]
+    return None
+
+
 def nix_prefetch(opts: Options, attr: str) -> str:
     expr = f"{opts.get_package()}.{attr}"
 
@@ -52,21 +72,17 @@ def nix_prefetch(opts: Options, attr: str) -> str:
             check=False,
         )
         stderr = res.stderr.strip()
-        # got:    xxx
-        # expected 'xxx' but got 'xxx'
-        regex = re.compile(r".*got(:|\s)\s*'?([^']*)('|$)")
-        got = ""
-        for line in reversed(stderr.split("\n")):
-            if match := regex.fullmatch(line):
-                got = match[2]
-                break
+        got = extract_hash_from_nix_error(stderr)
     finally:
         if tempdir:
             tempdir.cleanup()
 
-    if got == "":
-        print(stderr, file=sys.stderr)
-        msg = f"failed to retrieve hash when trying to update {opts.attribute}.{attr}"
+    if got is None:
+        tail = "\n".join(stderr.splitlines()[-20:])
+        msg = (
+            f"failed to retrieve hash when trying to update {opts.attribute}.{attr}\n"
+            f"--- nix stderr (last 20 lines) ---\n{tail}"
+        )
         raise UpdateError(msg)
     return got
 
