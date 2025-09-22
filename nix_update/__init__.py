@@ -340,7 +340,7 @@ def validate_git_dir(import_path: str) -> str:
 
 
 def nix_run(options: Options) -> None:
-    cmd = ["nix", "shell", "-L", *options.extra_flags]
+    cmd = ["nix", "--extra-experimental-features", "nix-command", "shell", "-L", *options.extra_flags]
 
     if options.flake:
         cmd.append(f"{options.import_path}#{options.attribute}")
@@ -361,7 +361,7 @@ def nix_build_tool() -> str:
 
 
 def nix_build(options: Options) -> None:
-    cmd = [nix_build_tool(), "build", "-L", *options.extra_flags]
+    cmd = [nix_build_tool(), "--extra-experimental-features", "nix-command flakes", "build", "-L", *options.extra_flags]
     if options.flake:
         cmd.append(f"{options.import_path}#{options.attribute}")
     else:
@@ -373,7 +373,7 @@ def nix_test(opts: Options, package: Package) -> None:
     if not package.tests:
         die(f"Package '{package.name}' does not define any tests")
 
-    cmd = [nix_build_tool(), "build", "-L", *opts.extra_flags]
+    cmd = [nix_build_tool(), "--extra-experimental-features", "nix-command flakes", "build", "-L", *opts.extra_flags]
 
     if opts.flake:
         cmd.extend(

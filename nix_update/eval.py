@@ -222,7 +222,7 @@ def eval_attr(opts: Options) -> Package:
         system=opts.system,
         override_filename=opts.override_filename,
     )
-    cmd = ["nix", "eval", "--json", "--impure", "--expr", expr, *opts.extra_flags]
+    cmd = ["nix", "--extra-experimental-features", "nix-command", "eval", "--json", "--impure", "--expr", expr, *opts.extra_flags]
     res = run(cmd)
     out = json.loads(res.stdout)
     if opts.override_filename is not None:
