@@ -1,4 +1,9 @@
 {
+  inputs = {
+    # NIXPKGS_PLACEHOLDER - This will be patched during tests to use the main flake's nixpkgs
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  };
+
   outputs =
     {
       self,
