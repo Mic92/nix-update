@@ -60,3 +60,8 @@ def run(  # noqa: PLR0913
         stderr=stderr,
         env=env,
     )
+
+
+def nix_command(*args: str) -> list[str]:
+    """Return nix command with experimental features enabled."""
+    return ["nix", "--extra-experimental-features", "nix-command flakes", *args]

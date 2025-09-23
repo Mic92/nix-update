@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import ParseResult, urlparse
 
 from .errors import UpdateError
-from .utils import run
+from .utils import nix_command, run
 from .version.version import Version, VersionPreference
 
 if TYPE_CHECKING:
@@ -222,7 +222,7 @@ def eval_attr(opts: Options) -> Package:
         system=opts.system,
         override_filename=opts.override_filename,
     )
-    cmd = ["nix", "--extra-experimental-features", "nix-command", "eval", "--json", "--impure", "--expr", expr, *opts.extra_flags]
+    cmd = nix_command("eval", "--json", "--impure", "--expr", expr, *opts.extra_flags)
     res = run(cmd)
     out = json.loads(res.stdout)
     if opts.override_filename is not None:
