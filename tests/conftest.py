@@ -37,7 +37,7 @@ def get_nixpkgs_path() -> str:
             "--inputs-from",
             str(project_root),
         ),
-        capture_output=True,
+        stdout=subprocess.PIPE,
         text=True,
         check=True,
     )
