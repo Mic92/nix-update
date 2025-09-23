@@ -90,6 +90,25 @@ error: hash mismatch:
             "sha1-aGVsbG8gd29ybGQ=",
             id="sri_sha1",
         ),
+        # Blake3 SRI hash
+        pytest.param(
+            """
+error: hash mismatch:
+         got:    blake3-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+    """,
+            "blake3-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+            id="blake3_sri",
+        ),
+        # Blake3 with real-world format
+        pytest.param(
+            """
+error: hash mismatch in fixed-output derivation:
+         specified: blake3-0000000000000000000000000000000000000000000000000000000000000000
+            got:    blake3-vBnERTtz3BcVf1WrhYirX2pPPfHkIJjbtMcW8A7YoUG5HL0sIgLtfoccUlOPIxmPaNbJjuDoEhCTrwDJr2gZNKA=
+    """,
+            "blake3-vBnERTtz3BcVf1WrhYirX2pPPfHkIJjbtMcW8A7YoUG5HL0sIgLtfoccUlOPIxmPaNbJjuDoEhCTrwDJr2gZNKA=",
+            id="blake3_fixed_output",
+        ),
         # No hash found
         pytest.param(
             """
