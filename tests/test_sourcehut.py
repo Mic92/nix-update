@@ -16,29 +16,28 @@ from nix_update.version import (
 )
 
 if TYPE_CHECKING:
-    from tests import conftest
+    from pathlib import Path
 
 
-def test_update(helpers: conftest.Helpers) -> None:
-    with helpers.testpkgs() as path:
-        opts = Options(attribute="sourcehut", import_path=str(path))
-        update(opts)
-        version = subprocess.run(
-            [
-                "nix",
-                "eval",
-                "--raw",
-                "--extra-experimental-features",
-                "nix-command",
-                "-f",
-                path,
-                "sourcehut.version",
-            ],
-            text=True,
-            stdout=subprocess.PIPE,
-            check=False,
-        ).stdout.strip()
-        assert tuple(map(int, version.split("."))) >= (0, 3, 6)
+def test_update(testpkgs: Path) -> None:
+    opts = Options(attribute="sourcehut", import_path=str(testpkgs))
+    update(opts)
+    version = subprocess.run(
+        [
+            "nix",
+            "eval",
+            "--raw",
+            "--extra-experimental-features",
+            "nix-command",
+            "-f",
+            testpkgs,
+            "sourcehut.version",
+        ],
+        text=True,
+        stdout=subprocess.PIPE,
+        check=True,
+    ).stdout.strip()
+    assert tuple(map(int, version.split("."))) >= (0, 3, 6)
 
 
 @pytest.mark.usefixtures("helpers")

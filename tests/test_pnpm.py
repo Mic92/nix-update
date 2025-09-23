@@ -7,26 +7,25 @@ from nix_update.options import Options
 from nix_update.update import update
 
 if TYPE_CHECKING:
-    from tests import conftest
+    from pathlib import Path
 
 
-def test_update(helpers: conftest.Helpers) -> None:
-    with helpers.testpkgs() as path:
-        opts = Options(attribute="pnpm", import_path=str(path))
-        update(opts)
-        pnpm_hash = subprocess.run(
-            [
-                "nix",
-                "eval",
-                "--raw",
-                "--extra-experimental-features",
-                "nix-command",
-                "-f",
-                path,
-                "pnpm.pnpmDeps.outputHash",
-            ],
-            text=True,
-            stdout=subprocess.PIPE,
-            check=False,
-        ).stdout.strip()
-        assert pnpm_hash != "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
+def test_update(testpkgs: Path) -> None:
+    opts = Options(attribute="pnpm", import_path=str(testpkgs))
+    update(opts)
+    pnpm_hash = subprocess.run(
+        [
+            "nix",
+            "eval",
+            "--raw",
+            "--extra-experimental-features",
+            "nix-command",
+            "-f",
+            testpkgs,
+            "pnpm.pnpmDeps.outputHash",
+        ],
+        text=True,
+        stdout=subprocess.PIPE,
+        check=True,
+    ).stdout.strip()
+    assert pnpm_hash != "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA="
