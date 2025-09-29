@@ -384,7 +384,6 @@ def nix_test(opts: Options, package: Package) -> None:
     else:
         cmd.extend(["-f", opts.import_path])
         for t in package.tests:
-            cmd.append("-A")
             cmd.append(f"{package.attribute}.tests.{t}")
     run(cmd, stdout=None)
 
