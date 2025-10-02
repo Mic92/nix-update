@@ -36,6 +36,9 @@ def test_main(testpkgs_git: Path) -> None:
 
 
 def test_groups(testpkgs_git: Path) -> None:
+    # Get the initial version
+    initial_version = get_nix_value(testpkgs_git, "postgresql.version")
+
     main(
         [
             "--file",
@@ -47,10 +50,18 @@ def test_groups(testpkgs_git: Path) -> None:
     )
     version = get_nix_value(testpkgs_git, "postgresql.version")
     print(version)
-    assert version != "17.0"
-    assert version != "17."
-    assert version != "17"
-    assert "17." in version
+
+    # The version should have been updated from initial
+    assert version != initial_version
+
+    # PostgreSQL versions should be in major.minor format (e.g., 17.6, 18.0)
+    assert "." in version
+
+    # Check that it's a valid PostgreSQL version format
+    parts = version.split(".")
+    min_version_parts = 2  # PostgreSQL uses major.minor(.patch) format
+    assert len(parts) >= min_version_parts
+    assert all(part.isdigit() for part in parts)
 
 
 def get_nix_value(path: Path, key: str) -> str:

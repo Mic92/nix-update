@@ -4,6 +4,7 @@
   setuptools,
   twisted,
   pytestCheckHook,
+  hello,
 }:
 
 buildPythonPackage rec {
@@ -26,6 +27,11 @@ buildPythonPackage rec {
   pytestFlagsArray = [ "mpd/tests.py" ];
 
   pythonImportsCheck = [ "mpd" ];
+
+  passthru.tests = {
+    testCompile = hello;
+    testCreate = hello;
+  };
 
   meta.changelog = "https://github.com/Mic92/python-mpd2/blob/${version}/doc/changes.rst";
 }
