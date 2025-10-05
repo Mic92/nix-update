@@ -7,3 +7,7 @@ class UpdateError(Exception):
 
 class VersionError(UpdateError):
     pass
+
+
+class AttributePathError(UpdateError):
+    pass

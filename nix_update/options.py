@@ -4,7 +4,51 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from .errors import AttributePathError
 from .version.version import VersionPreference
+
+
+def parse_attribute_path(attribute: str) -> list[str]:
+    """Parse an attribute path, handling quoted components.
+
+    Examples:
+        "foo.bar" -> ["foo", "bar"]
+        "foo.\"bar.baz\"" -> ["foo", "bar.baz"]
+        "cargoLock.update" -> ["cargoLock", "update"]
+
+    Raises:
+        AttributePathError: If the attribute path is invalid (e.g., trailing dots, unclosed quotes)
+    """
+    if not attribute:
+        msg = "Attribute path cannot be empty"
+        raise AttributePathError(msg)
+    if attribute.startswith("."):
+        msg = f"Invalid attribute path: leading dot in '{attribute}'"
+        raise AttributePathError(msg)
+
+    parts, current, in_quotes = [], "", False
+
+    for i, char in enumerate(attribute):
+        if char == '"' and (i == 0 or attribute[i - 1] != "\\"):
+            in_quotes, current = not in_quotes, current + char
+        elif char == "." and not in_quotes:
+            if not current:
+                msg = f"Invalid attribute path: consecutive dots in '{attribute}'"
+                raise AttributePathError(msg)
+            parts.append(current.strip('"'))
+            current = ""
+        else:
+            current += char
+
+    if in_quotes:
+        msg = f"Invalid attribute path: unclosed quote in '{attribute}'"
+        raise AttributePathError(msg)
+    if not current:
+        msg = f"Invalid attribute path: trailing dot in '{attribute}'"
+        raise AttributePathError(msg)
+
+    parts.append(current.strip('"'))
+    return parts
 
 
 @dataclass
@@ -39,7 +83,8 @@ class Options:
     extra_flags: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        self.escaped_attribute = ".".join(map(json.dumps, self.attribute.split(".")))
+        self.attribute_path = parse_attribute_path(self.attribute)
+        self.escaped_attribute = ".".join(map(json.dumps, self.attribute_path))
         self.escaped_import_path = json.dumps(self.import_path)
 
     def get_package(self) -> str:
