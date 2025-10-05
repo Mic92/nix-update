@@ -2,9 +2,89 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from enum import Enum, auto
 from pathlib import Path
 
+from .errors import AttributePathError
 from .version.version import VersionPreference
+
+
+class ParseState(Enum):
+    NORMAL = auto()
+    QUOTED = auto()
+    ESCAPED = auto()
+
+
+def _validate_attribute_path(attribute: str) -> None:
+    """Validate attribute path format."""
+    if not attribute:
+        msg = "Attribute path cannot be empty"
+        raise AttributePathError(msg)
+    if attribute.startswith("."):
+        msg = f"Invalid attribute path: leading dot in '{attribute}'"
+        raise AttributePathError(msg)
+
+
+def parse_attribute_path(attribute: str) -> list[str]:
+    """Parse an attribute path, handling quoted components and escaped quotes.
+
+    Examples:
+        "foo.bar" -> ["foo", "bar"]
+        "foo.\"bar.baz\"" -> ["foo", "bar.baz"]
+        "foo.\"bar\\\"baz\"" -> ["foo", "bar\"baz"]
+        "cargoLock.update" -> ["cargoLock", "update"]
+
+    Raises:
+        AttributePathError: If the attribute path is invalid (e.g., trailing dots, unclosed quotes)
+    """
+    _validate_attribute_path(attribute)
+
+    parts: list[str] = []
+    current = ""
+    state = ParseState.NORMAL
+    prev_state = ParseState.NORMAL
+
+    for char in attribute:
+        if state == ParseState.ESCAPED:
+            current += char
+            state = prev_state
+        elif char == "\\":
+            prev_state = state
+            state = ParseState.ESCAPED
+        elif char == '"':
+            current += char
+            state = (
+                ParseState.QUOTED if state == ParseState.NORMAL else ParseState.NORMAL
+            )
+        elif char == "." and state == ParseState.NORMAL:
+            if not current:
+                msg = f"Invalid attribute path: consecutive dots in '{attribute}'"
+                raise AttributePathError(
+                    msg,
+                )
+            parts.append(current.strip('"'))
+            current = ""
+        else:
+            current += char
+
+    if state == ParseState.QUOTED:
+        msg = f"Invalid attribute path: unclosed quote in '{attribute}'"
+        raise AttributePathError(
+            msg,
+        )
+    if state == ParseState.ESCAPED:
+        msg = f"Invalid attribute path: trailing escape in '{attribute}'"
+        raise AttributePathError(
+            msg,
+        )
+    if not current:
+        msg = f"Invalid attribute path: trailing dot in '{attribute}'"
+        raise AttributePathError(
+            msg,
+        )
+
+    parts.append(current.strip('"'))
+    return parts
 
 
 @dataclass
@@ -39,7 +119,8 @@ class Options:
     extra_flags: list[str] = field(default_factory=list)
 
     def __post_init__(self) -> None:
-        self.escaped_attribute = ".".join(map(json.dumps, self.attribute.split(".")))
+        self.attribute_path = parse_attribute_path(self.attribute)
+        self.escaped_attribute = ".".join(map(json.dumps, self.attribute_path))
         self.escaped_import_path = json.dumps(self.import_path)
 
     def get_package(self) -> str:

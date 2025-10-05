@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import InitVar, dataclass, field
-from textwrap import dedent, indent
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 from urllib.parse import ParseResult, urlparse
 
 from .errors import UpdateError
-from .utils import nix_command, run
+from .utils import run
 from .version.version import Version, VersionPreference
 
 if TYPE_CHECKING:
@@ -104,125 +104,41 @@ class Package:
             self.cargo_lock = CargoLockInSource(raw_cargo_lock)
 
 
-def eval_expression(
-    escaped_import_path: str,
-    attr: str,
-    *,
-    flake: bool,
-    system: str | None,
-    override_filename: str | None,
-) -> str:
-    system = f'"{system}"' if system else "builtins.currentSystem"
-
-    if flake:
-        sanitize_position = (
-            f"""
-              sanitizePosition = {{ file, ... }}@pos:
-                assert substring 0 outPathLen file != outPath
-                  -> throw "${{file}} is not in ${{outPath}}";
-                pos // {{ file = {escaped_import_path} + substring outPathLen (stringLength file - outPathLen) file; }};
-            """
-            if override_filename is None
-            else """
-              sanitizePosition = x: x;
-            """
-        ).strip()
-
-        let_bindings = f"""
-          inherit (builtins) getFlake stringLength substring;
-          currentSystem = {system};
-          flake = getFlake {escaped_import_path};
-          pkg = flake.packages.${{currentSystem}}.{attr} or flake.{attr};
-          inherit (flake) outPath;
-          outPathLen = stringLength outPath;
-          {sanitize_position}
-        """
-    else:
-        let_bindings = f"""
-          pkgs = import {escaped_import_path};
-          args =  builtins.functionArgs pkgs;
-          inputs = (if args ? system then {{ system = {system}; }} else {{}}) //
-                   (if args ? overlays then {{ overlays = [ ]; }} else {{}});
-          pkg = (pkgs inputs).{attr};
-          sanitizePosition = x: x;
-        """
-
-    has_update_script = "pkg.passthru.updateScript or null != null"
-
-    return f"""
-let
-  {indent(dedent(let_bindings), "  ")}
-  positionFromMeta = pkg: let
-    parts = builtins.match "(.*):([0-9]+)" pkg.meta.position;
-  in {{
-    file = builtins.elemAt parts 0;
-    line = builtins.fromJSON (builtins.elemAt parts 1);
-  }};
-
-  raw_version_position = sanitizePosition (builtins.unsafeGetAttrPos "version" pkg);
-
-  position = if pkg ? isRubyGem then
-    raw_version_position
-  else if pkg ? isPhpExtension then
-    raw_version_position
-  else if (builtins.unsafeGetAttrPos "src" pkg) != null then
-    sanitizePosition (builtins.unsafeGetAttrPos "src" pkg)
-  else
-    sanitizePosition (positionFromMeta pkg);
-in {{
-  name = pkg.name;
-  pname = pkg.pname;
-  old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
-  inherit raw_version_position;
-  filename = position.file;
-  line = position.line;
-  urls = pkg.src.urls or null;
-  url = pkg.src.url or null;
-  rev = pkg.src.rev or null;
-  tag = pkg.src.tag or null;
-  hash = pkg.src.outputHash or null;
-  go_modules = pkg.goModules.outputHash or null;
-  go_modules_old = pkg.go-modules.outputHash or null;
-  cargo_deps = pkg.cargoDeps.outputHash or null;
-  cargo_vendor_deps = pkg.cargoDeps.vendorStaging.outputHash or null;
-  raw_cargo_lock =
-    if pkg ? cargoDeps.lockFile then
-      let
-        inherit (pkg.cargoDeps) lockFile;
-        res = builtins.tryEval (sanitizePosition {{
-          file = toString lockFile;
-        }});
-      in
-      if res.success then res.value.file else false
-    else
-      null;
-  composer_deps = pkg.composerVendor.outputHash or null;
-  composer_deps_old = pkg.composerRepository.outputHash or null;
-  npm_deps = pkg.npmDeps.outputHash or null;
-  pnpm_deps = pkg.pnpmDeps.outputHash or null;
-  yarn_deps = pkg.yarnOfflineCache.outputHash or null;
-  yarn_deps_old = pkg.offlineCache.outputHash or null;
-  maven_deps = pkg.fetchedMavenDeps.outputHash or null;
-  has_nuget_deps = pkg ? nugetDeps;
-  mix_deps = pkg.mixFodDeps.outputHash or null;
-  zig_deps = pkg.zigDeps.outputHash or null;
-  tests = builtins.attrNames (pkg.passthru.tests or {{}});
-  has_update_script = {has_update_script};
-  src_homepage = pkg.src.meta.homepage or null;
-  changelog = pkg.meta.changelog or null;
-  maintainers = pkg.meta.maintainers or null;
-}}"""
+def get_eval_nix_path() -> Path:
+    """Get the path to the eval.nix file."""
+    return Path(__file__).parent / "eval.nix"
 
 
 def eval_attr(opts: Options) -> Package:
-    expr = eval_expression(
-        opts.escaped_import_path,
-        opts.escaped_attribute,
-        flake=opts.flake,
-        system=opts.system,
-        override_filename=opts.override_filename,
-    )
-    cmd = nix_command("eval", "--json", "--impure", "--expr", expr, *opts.extra_flags)
+    eval_nix = get_eval_nix_path()
+
+    # Pass the attribute path as JSON string
+    attribute_json = json.dumps(opts.attribute_path)
+
+    # Build nix-instantiate command with --arg and --argstr
+    cmd = [
+        "nix-instantiate",
+        "--eval",
+        "--json",
+        "--strict",
+        str(eval_nix),
+        "--argstr",
+        "importPath",
+        opts.import_path,
+        "--argstr",
+        "attribute",
+        attribute_json,
+        "--arg",
+        "isFlake",
+        "true" if opts.flake else "false",
+        "--arg",
+        "sanitizePositions",
+        "false" if opts.override_filename else "true",
+    ]
+
+    if opts.system:
+        cmd.extend(["--argstr", "system", opts.system])
+
     res = run(cmd)
     out = json.loads(res.stdout)
     if opts.override_filename is not None:
