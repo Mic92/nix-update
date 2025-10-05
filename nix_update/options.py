@@ -2,23 +2,21 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
+from enum import Enum, auto
 from pathlib import Path
 
 from .errors import AttributePathError
 from .version.version import VersionPreference
 
 
-def parse_attribute_path(attribute: str) -> list[str]:
-    """Parse an attribute path, handling quoted components.
+class ParseState(Enum):
+    NORMAL = auto()
+    QUOTED = auto()
+    ESCAPED = auto()
 
-    Examples:
-        "foo.bar" -> ["foo", "bar"]
-        "foo.\"bar.baz\"" -> ["foo", "bar.baz"]
-        "cargoLock.update" -> ["cargoLock", "update"]
 
-    Raises:
-        AttributePathError: If the attribute path is invalid (e.g., trailing dots, unclosed quotes)
-    """
+def _validate_attribute_path(attribute: str) -> None:
+    """Validate attribute path format."""
     if not attribute:
         msg = "Attribute path cannot be empty"
         raise AttributePathError(msg)
@@ -26,26 +24,64 @@ def parse_attribute_path(attribute: str) -> list[str]:
         msg = f"Invalid attribute path: leading dot in '{attribute}'"
         raise AttributePathError(msg)
 
-    parts, current, in_quotes = [], "", False
 
-    for i, char in enumerate(attribute):
-        if char == '"' and (i == 0 or attribute[i - 1] != "\\"):
-            in_quotes, current = not in_quotes, current + char
-        elif char == "." and not in_quotes:
+def parse_attribute_path(attribute: str) -> list[str]:
+    """Parse an attribute path, handling quoted components and escaped quotes.
+
+    Examples:
+        "foo.bar" -> ["foo", "bar"]
+        "foo.\"bar.baz\"" -> ["foo", "bar.baz"]
+        "foo.\"bar\\\"baz\"" -> ["foo", "bar\"baz"]
+        "cargoLock.update" -> ["cargoLock", "update"]
+
+    Raises:
+        AttributePathError: If the attribute path is invalid (e.g., trailing dots, unclosed quotes)
+    """
+    _validate_attribute_path(attribute)
+
+    parts: list[str] = []
+    current = ""
+    state = ParseState.NORMAL
+    prev_state = ParseState.NORMAL
+
+    for char in attribute:
+        if state == ParseState.ESCAPED:
+            current += char
+            state = prev_state
+        elif char == "\\":
+            prev_state = state
+            state = ParseState.ESCAPED
+        elif char == '"':
+            current += char
+            state = (
+                ParseState.QUOTED if state == ParseState.NORMAL else ParseState.NORMAL
+            )
+        elif char == "." and state == ParseState.NORMAL:
             if not current:
                 msg = f"Invalid attribute path: consecutive dots in '{attribute}'"
-                raise AttributePathError(msg)
+                raise AttributePathError(
+                    msg,
+                )
             parts.append(current.strip('"'))
             current = ""
         else:
             current += char
 
-    if in_quotes:
+    if state == ParseState.QUOTED:
         msg = f"Invalid attribute path: unclosed quote in '{attribute}'"
-        raise AttributePathError(msg)
+        raise AttributePathError(
+            msg,
+        )
+    if state == ParseState.ESCAPED:
+        msg = f"Invalid attribute path: trailing escape in '{attribute}'"
+        raise AttributePathError(
+            msg,
+        )
     if not current:
         msg = f"Invalid attribute path: trailing dot in '{attribute}'"
-        raise AttributePathError(msg)
+        raise AttributePathError(
+            msg,
+        )
 
     parts.append(current.strip('"'))
     return parts

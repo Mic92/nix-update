@@ -19,10 +19,26 @@ let
   attributePath = fromJSON attribute;
 
   # Try to navigate nested attributes, returning { success = bool; value = ...; }
-  tryGetAttrPath = attrPath: root:
+  tryGetAttrPath =
+    attrPath: root:
     foldl'
-      (acc: attr: if acc.success && acc.value ? ${attr} then { success = true; value = acc.value.${attr}; } else { success = false; value = null; })
-      { success = true; value = root; }
+      (
+        acc: attr:
+        if acc.success && acc.value ? ${attr} then
+          {
+            success = true;
+            value = acc.value.${attr};
+          }
+        else
+          {
+            success = false;
+            value = null;
+          }
+      )
+      {
+        success = true;
+        value = root;
+      }
       attrPath;
 
   pkg =
@@ -33,10 +49,7 @@ let
         # Try packages.${system} first, fall back to flake root if attribute not found
         packagesResult = tryGetAttrPath attributePath packages;
       in
-      if packagesResult.success then
-        packagesResult.value
-      else
-        (tryGetAttrPath attributePath flake).value
+      if packagesResult.success then packagesResult.value else (tryGetAttrPath attributePath flake).value
     else
       let
         pkgs = import importPath;

@@ -23,6 +23,10 @@ from nix_update.options import parse_attribute_path
         # Quoted empty string
         ('""', [""]),
         ('foo.""', ["foo", ""]),
+        # Escaped quotes within quoted strings
+        ('foo."bar\\"baz"', ["foo", 'bar"baz']),
+        ('"foo\\"bar"', ['foo"bar']),
+        ('packages.\\"x86_64-linux\\"', ["packages", "x86_64-linux"]),
     ],
 )
 def test_parse_attribute_path(input_attr: str, expected_parts: list[str]) -> None:
@@ -44,6 +48,9 @@ def test_parse_attribute_path(input_attr: str, expected_parts: list[str]) -> Non
         # Unclosed quotes
         ('foo."bar', "unclosed quote"),
         ('"foo', "unclosed quote"),
+        # Trailing backslash
+        ("foo\\", "trailing escape"),
+        ('foo."bar\\', "trailing escape"),
     ],
 )
 def test_parse_attribute_path_errors(input_attr: str, error_match: str) -> None:
