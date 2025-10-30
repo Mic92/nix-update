@@ -114,8 +114,8 @@ in
   hash = pkg.src.outputHash or null;
   go_modules = pkg.goModules.outputHash or null;
   go_modules_old = pkg.go-modules.outputHash or null;
-  cargo_deps = pkg.cargoDeps.outputHash or null;
-  cargo_vendor_deps = pkg.cargoDeps.vendorStaging.outputHash or null;
+  cargo_deps = if pkg ? cargoDeps then pkg.cargoDeps.outputHash or null else null;
+  cargo_vendor_deps = if pkg ? cargoDeps then pkg.cargoDeps.vendorStaging.outputHash or null else null;
   raw_cargo_lock =
     if pkg ? cargoDeps.lockFile then
       let
