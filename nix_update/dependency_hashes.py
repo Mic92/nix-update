@@ -35,6 +35,7 @@ def extract_hash_from_nix_error(stderr: str) -> str | None:
     Handles various formats:
     - got:    xxx
     - got:    sha256-xxxxx=
+    - got:    sha256:xxxxx
     - got:    blake3-xxxxx=
     - expected 'xxx' but got 'xxx'
 
@@ -42,7 +43,7 @@ def extract_hash_from_nix_error(stderr: str) -> str | None:
     """
     # Regex handles both hex hashes and SRI hashes (e.g., sha256-base64=, blake3-base64=)
     regex = re.compile(
-        r".*got(:|\s)\s*'?((?:sha256-|sha512-|sha1-|blake3-|md5:)?[A-Za-z0-9+/=]+)('|$)",
+        r".*got(:|\s)\s*'?((?:sha256(-|:)|sha512(-|:)|sha1(-|:)|blake3(-|:)|md5:)?[A-Za-z0-9+/=]+)('|$)",
     )
 
     for line in reversed(stderr.split("\n")):
