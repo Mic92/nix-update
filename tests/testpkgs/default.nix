@@ -17,6 +17,7 @@
   cargoVendorDeps.nonRustPackage = pkgs.callPackage ./cargo-vendor-deps/non-rust-package.nix { };
   cargoVendorDeps.rustPackage = pkgs.callPackage ./cargo-vendor-deps/rust-package.nix { };
   composer-old = pkgs.callPackage ./composer-old.nix { };
+  fod-subpackage = pkgs.callPackage ./fod-subpackage.nix { };
   crate = pkgs.callPackage ./crate.nix { };
   fetchurl-github-release = pkgs.callPackage ./fetchurl-github-release.nix { };
   flake-use-update-script = pkgs.callPackage ./flake-use-update-script.nix { };
