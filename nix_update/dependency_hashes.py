@@ -119,6 +119,21 @@ def update_nuget_deps(opts: Options) -> None:
     run([fetch_deps_script_path])
 
 
+def update_gradle_mitm_cache(opts: Options) -> None:
+    """Update Gradle dependencies."""
+    update_script_path = run(
+        [
+            "nix-build",
+            opts.import_path,
+            "-A",
+            f"{opts.attribute}.mitmCache.updateScript",
+            "--no-out-link",
+        ],
+    ).stdout.strip()
+
+    run([update_script_path])
+
+
 def update_dependency_hashes(
     opts: Options,
     package: Package,
@@ -159,3 +174,7 @@ def update_dependency_hashes(
     # Handle nuget deps separately since it's a boolean
     if package.has_nuget_deps:
         update_nuget_deps(opts)
+
+    # Handle gradle mitm cache separately since it's a boolean
+    if package.has_gradle_mitm_cache:
+        update_gradle_mitm_cache(opts)

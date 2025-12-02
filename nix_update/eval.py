@@ -66,6 +66,7 @@ class Package:
     mix_deps: str | None
     zig_deps: str | None
     has_nuget_deps: bool
+    has_gradle_mitm_cache: bool
     tests: list[str]
     has_update_script: bool
 
