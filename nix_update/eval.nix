@@ -135,6 +135,7 @@ in
   yarn_deps_old = pkg.offlineCache.outputHash or null;
   maven_deps = pkg.fetchedMavenDeps.outputHash or null;
   has_nuget_deps = pkg ? nugetDeps;
+  has_gradle_mitm_cache = pkg ? mitmCache;
   mix_deps = pkg.mixFodDeps.outputHash or null;
   zig_deps = pkg.zigDeps.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or { });
