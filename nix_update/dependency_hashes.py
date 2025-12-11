@@ -51,8 +51,11 @@ def extract_hash_from_nix_error(stderr: str) -> str | None:
     return None
 
 
-def nix_prefetch(opts: Options, attr: str) -> str:
-    expr = f"{opts.get_package()}.{attr}"
+def nix_prefetch(opts: Options, attr: str | None) -> str:
+    expr = opts.get_package()
+
+    if attr is not None:
+        expr += f".{attr}"
 
     extra_env: dict[str, str] = {}
     tempdir: tempfile.TemporaryDirectory[str] | None = None
@@ -89,7 +92,7 @@ def nix_prefetch(opts: Options, attr: str) -> str:
 
 
 def update_hash_with_prefetch(
-    attr_name: str,
+    attr_name: str | None,
     opts: Options,
     filename: str,
     current_hash: str,
@@ -144,6 +147,7 @@ def update_dependency_hashes(
         return
 
     hash_updaters: dict[str, Callable[[Options, str, Any], None]] = {
+        "fod_subpackage": partial(update_hash_with_prefetch, None),
         "go_modules": partial(update_hash_with_prefetch, "goModules"),
         "go_modules_old": partial(update_hash_with_prefetch, "go-modules"),
         "cargo_deps": partial(update_hash_with_prefetch, "cargoDeps"),

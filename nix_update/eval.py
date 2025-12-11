@@ -52,6 +52,7 @@ class Package:
     rev: str | None
     tag: str | None
     hash: str | None
+    fod_subpackage: str | None
     go_modules: str | None
     go_modules_old: str | None
     cargo_deps: str | None
