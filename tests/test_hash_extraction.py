@@ -28,6 +28,16 @@ error: hash mismatch in fixed-output derivation:
             "sha256-kRMUuBeA8m/a+H4XF0IQvb1AyGusF5UhLyV83CNqHng=",
             id="sri_sha256",
         ),
+        # SRI sha256 hash using ":" instead of "-" (fetchTarball)
+        pytest.param(
+            """
+       error: hash mismatch in file downloaded from 'https://xx/api/v3/repos/xx/xx/tarball/refs/tags/v0.xx':
+         specified: sha256:0000000000000000000000000000000000000000000000000000
+         got:       sha256:00qz12iwzbh5bv3szvnqnq2a1c866v038z53i69jba74pwclhppg
+    """,
+            "sha256:00qz12iwzbh5bv3szvnqnq2a1c866v038z53i69jba74pwclhppg",
+            id="sri_sha256_fetchTarball",
+        ),
         # Real-world Nix error with multiple "got" lines
         pytest.param(
             """
