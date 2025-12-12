@@ -12,6 +12,9 @@ import pytest
 
 from nix_update.utils import nix_command
 
+# Register vendored pytest-shard plugin
+pytest_plugins = ["tests.pytest_shard.pytest_shard"]
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
 

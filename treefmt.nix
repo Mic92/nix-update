@@ -13,6 +13,13 @@
 
         programs.deno.enable = pkgs.stdenv.hostPlatform.system != "x86_64-darwin";
         programs.mypy.enable = true;
+        programs.mypy.directories = {
+          "." = {
+            extraPythonPackages = with pkgs.python3.pkgs; [
+              pytest
+            ];
+          };
+        };
 
         programs.yamlfmt.enable = true;
 
