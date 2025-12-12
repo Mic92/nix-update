@@ -6,13 +6,20 @@
     { pkgs, ... }:
     {
       treefmt = {
-        flakeCheck = pkgs.hostPlatform.system != "riscv64-linux";
+        flakeCheck = pkgs.stdenv.hostPlatform.system != "riscv64-linux";
 
         # Used to find the project root
         projectRootFile = "flake.lock";
 
-        programs.deno.enable = pkgs.hostPlatform.system != "x86_64-darwin";
+        programs.deno.enable = pkgs.stdenv.hostPlatform.system != "x86_64-darwin";
         programs.mypy.enable = true;
+        programs.mypy.directories = {
+          "." = {
+            extraPythonPackages = with pkgs.python3.pkgs; [
+              pytest
+            ];
+          };
+        };
 
         programs.yamlfmt.enable = true;
 

@@ -9,6 +9,10 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
     steps:
       - uses: actions/checkout@v6
       - uses: cachix/install-nix-action@v31
@@ -26,8 +30,9 @@ jobs:
         # without this, bubblewrap fails with 'bwrap: setting up uid map' (used by gradle-mitm-cache test)
         run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       - name: Run tests
-        # we use 4 extra cores over the 4 cpus, because we are doing a lot of blocking I/O
-        run: nix develop -c pytest -n 8 -s .
+        # Split tests across shards to avoid disk space issues
+        # We use 2 cores per shard since tests run in parallel across shards
+        run: nix develop -c pytest -n 2 -s --shard-id=${{ matrix.shard }} --num-shards=8 .
         env:
           # used by nix-update tests
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
