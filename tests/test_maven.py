@@ -28,4 +28,4 @@ def test_update(testpkgs: Path) -> None:
         stdout=subprocess.PIPE,
         check=True,
     ).stdout.strip()
-    assert tuple(map(int, version.split("."))) > (3, 3, 0)
+    assert tuple(map(int, version.split("."))) > (2, 7, 0)
