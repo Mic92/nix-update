@@ -1,5 +1,6 @@
 {
   importPath,
+  flakeImportPath ? null,
   attribute,
   system ? builtins.currentSystem,
   isFlake ? false,
@@ -17,6 +18,9 @@ let
 
   # Parse the attribute path from JSON string
   attributePath = fromJSON attribute;
+  # In case of flakes, we must pass a url with git attrs of the flake
+  # otherwise the entire directory is copied to nix store
+  flakeOrImportPath = if flakeImportPath != null then flakeImportPath else importPath;
 
   # Try to navigate nested attributes, returning { success = bool; value = ...; }
   tryGetAttrPath =
@@ -44,7 +48,7 @@ let
   pkg =
     if isFlake then
       let
-        flake = getFlake importPath;
+        flake = getFlake flakeOrImportPath;
         packages = flake.packages.${system} or { };
         # Try packages.${system} first, fall back to flake root if attribute not found
         packagesResult = tryGetAttrPath attributePath packages;
@@ -63,7 +67,7 @@ let
   sanitizePosition =
     if isFlake && sanitizePositions then
       let
-        flake = getFlake importPath;
+        flake = getFlake flakeOrImportPath;
         outPath = flake.outPath;
         outPathLen = stringLength outPath;
       in
