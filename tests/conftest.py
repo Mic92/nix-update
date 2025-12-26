@@ -92,6 +92,7 @@ def testpkgs_git(testpkgs: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     monkeypatch.setenv("GIT_AUTHOR_EMAIL", "nix-update@example.com")
     monkeypatch.setenv("GIT_COMMITTER_NAME", "nix-update")
     monkeypatch.setenv("GIT_COMMITTER_EMAIL", "nix-update@example.com")
+    monkeypatch.setenv("GIT_EDITOR", "sed -i.bak '1s/^/ /'")
 
     subprocess.run(["git", "-C", testpkgs, "init"], check=True)
     subprocess.run(["git", "-C", testpkgs, "add", "--all"], check=True)

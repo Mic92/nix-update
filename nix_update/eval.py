@@ -138,6 +138,9 @@ def eval_attr(opts: Options) -> Package:
         "false" if opts.override_filename else "true",
     ]
 
+    if opts.flake_import_path is not None:
+        cmd.extend(["--argstr", "flakeImportPath", opts.flake_import_path])
+
     if opts.system:
         cmd.extend(["--argstr", "system", opts.system])
 

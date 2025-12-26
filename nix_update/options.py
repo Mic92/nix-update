@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
@@ -96,6 +97,7 @@ class Options:
     version_preference: VersionPreference = VersionPreference.STABLE
     version_regex: str = "(.*)"
     import_path: str = str(Path.cwd())
+    flake_import_path: str | None = None
     subpackages: list[str] | None = None
     override_filename: str | None = None
     url: str | None = None
@@ -122,11 +124,39 @@ class Options:
         self.attribute_path = parse_attribute_path(self.attribute)
         self.escaped_attribute = ".".join(map(json.dumps, self.attribute_path))
         self.escaped_import_path = json.dumps(self.import_path)
+        self._set_flake_import_path()
+
+    def _set_flake_import_path(self) -> None:
+        """Set flake_import_path if this is a flake with a local directory."""
+        if self.flake_import_path is not None:
+            return
+        if self.flake and Path(self.import_path).is_dir():
+            try:
+                result = subprocess.run(
+                    ["nix", "flake", "metadata", "--json"],
+                    cwd=self.import_path,
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                metadata = json.loads(result.stdout)
+                store_path = metadata.get("path")
+                if store_path:
+                    self.flake_import_path = store_path
+            except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
+                pass
 
     def get_package(self) -> str:
         """Get the Nix expression for the package."""
+        import_path_to_use = self.escaped_import_path
+        if self.flake and Path(self.import_path).is_dir():
+            # Guarantee its set
+            self._set_flake_import_path()
+            if self.flake_import_path is not None:
+                import_path_to_use = json.dumps(self.flake_import_path)
+
         if self.flake:
-            return f"(let flake = builtins.getFlake {self.escaped_import_path}; in flake.packages.${{builtins.currentSystem}}.{self.escaped_attribute} or flake.{self.escaped_attribute})"
+            return f"(let flake = builtins.getFlake {import_path_to_use}; in flake.packages.${{builtins.currentSystem}}.{self.escaped_attribute} or flake.{self.escaped_attribute})"
         # Need to disable check meta for non-flake packages
         disable_check_meta = f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {self.escaped_import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
         return f"(import {self.escaped_import_path} {disable_check_meta}).{self.escaped_attribute}"
