@@ -11,7 +11,7 @@ SHA1_HASH_LENGTH = 40
 
 def to_sri(hashstr: str) -> str:
     """Convert a hash string to SRI format if needed."""
-    if "-" in hashstr:
+    if "-" in hashstr or ":" in hashstr:
         return hashstr
     length = len(hashstr)
     if length == MD5_HASH_LENGTH:
