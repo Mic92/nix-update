@@ -17,7 +17,7 @@ def test_main(testpkgs_git: Path) -> None:
             "--commit",
             "net-news-wire",
             "--version-regex",
-            "^mac-(\\d+\\.\\d+\\.\\d+(?:b\\d+)?)$",
+            r"^mac-(\d+\.\d+(\.\d+)?(?:b\d+)?)$",
         ],
     )
     version = get_nix_value(testpkgs_git, "net-news-wire.version")
