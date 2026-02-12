@@ -1,16 +1,16 @@
 from __future__ import annotations
 
+import xml.etree.ElementTree as ET
 from typing import TYPE_CHECKING
 
 from nix_update.utils import info
 
-from .http import urlopen, DEFAULT_TIMEOUT
-# from urllib.request import urlopen
-import xml.etree.ElementTree as ET
-from .version import Version
+from .http import DEFAULT_TIMEOUT, urlopen
 
 if TYPE_CHECKING:
     from urllib.parse import ParseResult
+
+    from .version import Version
 
 
 def fetch_sparkle_versions(url: ParseResult) -> list[Version]:
