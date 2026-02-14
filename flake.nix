@@ -40,11 +40,11 @@
               packages = [
                 (pkgs.python3.withPackages (
                   ps: with ps; [
-                    mypy
                     pytest
-                    ruff
                   ]
                 ))
+                pkgs.mypy
+                pkgs.ruff
               ];
               # Make tests use our pinned Nixpkgs
               env.NIX_PATH = "nixpkgs=${pkgs.path}";
