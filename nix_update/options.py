@@ -114,6 +114,7 @@ class Options:
     attribute: str
     quiet: bool = False
     flake: bool = False
+    verbose: int = 0
     version: str = "stable"
     version_preference: VersionPreference = VersionPreference.STABLE
     version_regex: str = "(.*)"
