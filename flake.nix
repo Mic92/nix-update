@@ -37,7 +37,15 @@
 
             devShells.default = pkgs.mkShell {
               inputsFrom = [ config.packages.default ];
-
+              packages = [
+                (pkgs.python3.withPackages (
+                  ps: with ps; [
+                    mypy
+                    pytest
+                    ruff
+                  ]
+                ))
+              ];
               # Make tests use our pinned Nixpkgs
               env.NIX_PATH = "nixpkgs=${pkgs.path}";
             };
