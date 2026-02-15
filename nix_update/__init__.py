@@ -17,7 +17,6 @@ from .update import update
 from .utils import info, nix_command, run
 from .version.version import VersionPreference
 
-
 logger = logging.getLogger("nix_update")
 
 

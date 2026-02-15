@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
@@ -15,14 +16,20 @@ from nix_update.version_info import VERSION
 from .bitbucket import fetch_bitbucket_snapshots, fetch_bitbucket_versions
 from .crate import fetch_crate_versions
 from .gitea import fetch_gitea_snapshots, fetch_gitea_versions
-from .github import fetch_github_snapshots, fetch_github_versions
+from .github import (
+    fetch_github_commit,
+    fetch_github_snapshots,
+    fetch_github_versions,
+)
 from .gitlab import fetch_gitlab_snapshots, fetch_gitlab_versions
 from .npm import fetch_npm_versions
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
 from .sourcehut import fetch_sourcehut_snapshots, fetch_sourcehut_versions
-from .version import Version, VersionPreference
+from .version import Commit, Version, VersionPreference
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -60,9 +67,9 @@ class FetcherWithArgs(Protocol):
     ) -> list[Version]: ...
 
 
-Fetcher = Callable[[ParseResult], list[Version]] | FetcherWithArgs
+VersionFetcher = Callable[[ParseResult], list[Version]] | FetcherWithArgs
 
-fetchers: list[Fetcher] = [
+fetchers: list[VersionFetcher] = [
     fetch_crate_versions,
     fetch_npm_versions,
     fetch_pypi_versions,
@@ -85,6 +92,13 @@ branch_snapshots_fetchers: list[SnapshotFetcher] = [
     fetch_gitea_snapshots,
 ]
 
+CommitFetcher = Callable[[ParseResult, Version], Commit | None]
+
+# Mapping from version fetchers to commit fetchers.
+# Only includes fetchers that require additional steps to get commit info.
+commit_fetchers: dict[Any, CommitFetcher] = {
+}
+
 
 def extract_version(version: Version, version_regex: str) -> Version | None:
     pattern = re.compile(version_regex)
@@ -99,6 +113,7 @@ def extract_version(version: Version, version_regex: str) -> Version | None:
                 prerelease=version.prerelease,
                 rev=version.rev
                 or (None if version.number == number else version.number),
+                commit=version.commit,
             )
     return None
 
@@ -143,6 +158,7 @@ def find_prefixed_version(
                 version.number.removeprefix(config.version_prefix),
                 prerelease=version.prerelease,
                 rev=version.rev or version.number,
+                commit=version.commit,
             )
             for version in final_versions
             if version.number.startswith(config.version_prefix)
@@ -153,6 +169,29 @@ def find_prefixed_version(
     if ver is not None and ver.rev != config.old_rev_tag:
         return ver
     return None
+
+
+def fetch_version_commit(
+    url: ParseResult,
+    version: Version,
+    fetcher: CommitFetcher,
+) -> Version:
+    """
+    Enrich a version with information about its corresponding commit.
+
+    This is done after version selection to avoid making unnecessary API calls
+    for versions that won't be used.
+    """
+    # Skip if version already has commit info
+    if version.commit is not None:
+        return version
+
+    # Look up the enrichment function for this fetcher
+    # We need to get the underlying function if it's a partial
+    actual_fetcher = fetcher.func if isinstance(fetcher, partial) else fetcher
+    if enrichment_fn := commit_fetchers.get(actual_fetcher):
+        version.commit = enrichment_fn(url, version)
+    return version
 
 
 def fetch_latest_version(
@@ -188,9 +227,18 @@ def fetch_latest_version(
 
         if final:
             prefixed_version = find_prefixed_version(final, config)
-            if prefixed_version is not None:
-                return prefixed_version
-            return final[0]
+            selected_version = (
+                prefixed_version if prefixed_version is not None else final[0]
+            )
+            try:
+                return fetch_version_commit(url, selected_version, fetcher)
+            except VersionError:
+                logger.warning(
+                    "Error while fetching commit info for version %s",
+                    selected_version,
+                )
+
+            return selected_version
 
     if all_filtered:
         raise VersionError(
