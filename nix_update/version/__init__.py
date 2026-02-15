@@ -97,6 +97,8 @@ CommitFetcher = Callable[[ParseResult, Version], Commit | None]
 # Mapping from version fetchers to commit fetchers.
 # Only includes fetchers that require additional steps to get commit info.
 commit_fetchers: dict[Any, CommitFetcher] = {
+    fetch_github_versions: fetch_github_commit,
+    fetch_github_snapshots: fetch_github_commit,
 }
 
 
