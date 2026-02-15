@@ -187,8 +187,6 @@ def run_update_script(package: Package, opts: Options) -> None:
         ],
         cwd=opts.import_path,
     )
-    # Reset flake_import_path so subsequent evals pick up changes from local directory
-    opts.flake_import_path = None
 
 
 def update(opts: Options) -> Package:

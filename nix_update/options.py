@@ -88,6 +88,27 @@ def parse_attribute_path(attribute: str) -> list[str]:
     return parts
 
 
+def get_flake_store_path(import_path: str) -> str | None:
+    """Copy a local flake into the Nix store and return its store path.
+
+    Uses ``nix flake metadata`` so that git-ignored files are excluded and
+    only tracked content is copied.  Returns *None* when the command fails
+    (e.g. the directory is not a flake).
+    """
+    try:
+        result = subprocess.run(
+            ["nix", "flake", "metadata", "--json"],
+            cwd=import_path,
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        metadata = json.loads(result.stdout)
+        return metadata.get("path")
+    except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
+        return None
+
+
 @dataclass
 class Options:
     attribute: str
@@ -97,7 +118,6 @@ class Options:
     version_preference: VersionPreference = VersionPreference.STABLE
     version_regex: str = "(.*)"
     import_path: str = str(Path.cwd())
-    flake_import_path: str | None = None
     subpackages: list[str] | None = None
     override_filename: str | None = None
     url: str | None = None
@@ -124,36 +144,24 @@ class Options:
         self.attribute_path = parse_attribute_path(self.attribute)
         self.escaped_attribute = ".".join(map(json.dumps, self.attribute_path))
         self.escaped_import_path = json.dumps(self.import_path)
-        self._set_flake_import_path()
 
-    def _set_flake_import_path(self) -> None:
-        """Set flake_import_path if this is a flake with a local directory."""
-        if self.flake_import_path is not None:
-            return
-        if self.flake and Path(self.import_path).is_dir():
-            try:
-                result = subprocess.run(
-                    ["nix", "flake", "metadata", "--json"],
-                    cwd=self.import_path,
-                    capture_output=True,
-                    text=True,
-                    check=True,
-                )
-                metadata = json.loads(result.stdout)
-                store_path = metadata.get("path")
-                if store_path:
-                    self.flake_import_path = store_path
-            except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
-                pass
+    def get_flake_import_path(self) -> str | None:
+        """Get a fresh Nix store path for a local flake directory.
+
+        Always re-copies the flake so the store path reflects the current
+        on-disk content.  Returns *None* for non-flake packages or when
+        the import path is not a local directory.
+        """
+        if not self.flake or not Path(self.import_path).is_dir():
+            return None
+        return get_flake_store_path(self.import_path)
 
     def get_package(self) -> str:
         """Get the Nix expression for the package."""
         import_path_to_use = self.escaped_import_path
-        if self.flake and Path(self.import_path).is_dir():
-            # Guarantee its set
-            self._set_flake_import_path()
-            if self.flake_import_path is not None:
-                import_path_to_use = json.dumps(self.flake_import_path)
+        flake_store_path = self.get_flake_import_path()
+        if flake_store_path is not None:
+            import_path_to_use = json.dumps(flake_store_path)
 
         if self.flake:
             return f"(let flake = builtins.getFlake {import_path_to_use}; in flake.packages.${{builtins.currentSystem}}.{self.escaped_attribute} or flake.{self.escaped_attribute})"
