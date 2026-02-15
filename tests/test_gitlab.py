@@ -26,7 +26,7 @@ def test_main(testpkgs_git: Path) -> None:
         text=True,
         stdout=subprocess.PIPE,
     ).stdout.strip()
-    assert tuple(map(int, version.split("."))) >= (0, 3, 0)
+    assert tuple(map(int, version.split("."))) >= (1, 1, 0)
     commit = subprocess.run(
         ["git", "-C", str(testpkgs_git), "log", "-1"],
         text=True,
@@ -37,6 +37,6 @@ def test_main(testpkgs_git: Path) -> None:
     assert version in commit
     assert "gitlab" in commit
     assert (
-        "https://gitlab.com/interception/linux/plugins/caps2esc/-/compare/v0.1.3...v"
+        "https://invent.kde.org/libraries/kirigami-addons/-/compare/v1.0.0...v"
         in commit
     )

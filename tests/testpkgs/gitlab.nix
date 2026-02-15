@@ -1,12 +1,12 @@
 { stdenv, fetchFromGitLab }:
 
 stdenv.mkDerivation rec {
-  pname = "caps2esc";
-  version = "0.1.3";
+  pname = "kirigami-addons";
+  version = "1.0.0";
 
   src = fetchFromGitLab {
-    group = "interception";
-    owner = "linux/plugins";
+    domain = "invent.kde.org";
+    owner = "libraries";
     repo = pname;
     rev = "v${version}";
     sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
