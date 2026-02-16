@@ -5,7 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
-
+    git-hooks.url = "github:cachix/git-hooks.nix";
+    git-hooks.inputs.nixpkgs.follows = "nixpkgs";
     treefmt-nix.url = "github:numtide/treefmt-nix";
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
@@ -15,7 +16,10 @@
     flake-parts.lib.mkFlake { inherit inputs; } (
       { lib, ... }:
       {
-        imports = [ ./treefmt.nix ];
+        imports = [
+          ./treefmt.nix
+          inputs.git-hooks.flakeModule
+        ];
         systems = [
           "aarch64-linux"
           "x86_64-linux"
@@ -36,6 +40,7 @@
             packages.default = config.packages.nix-update;
 
             devShells.default = pkgs.mkShell {
+              inherit (config.pre-commit.devShell) shellHook nativeBuildInputs;
               inputsFrom = [ config.packages.default ];
               packages = [
                 (pkgs.python3.withPackages (
@@ -56,6 +61,13 @@
                 devShells = lib.mapAttrs' (n: lib.nameValuePair "devShell-${n}") self'.devShells;
               in
               packages // devShells;
+
+            pre-commit = {
+              check.enable = false;
+              settings.hooks = {
+                treefmt.enable = true;
+              };
+            };
           };
       }
     );

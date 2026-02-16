@@ -106,5 +106,6 @@ venv.bak/
 .dmypy.json
 
 # Nix artifacts
+.pre-commit-config.yaml
 result
 result-*
