@@ -249,7 +249,8 @@ buildGoModule rec {
 }
 ```
 
-Note that you must add the subpackage to passthrough in order for `nix-update` to be able to discover it.
+Note that you must add the subpackage to passthrough in order for `nix-update`
+to be able to discover it.
 
 You can update the package and its subpackage using `nix-update` as follows:
 
