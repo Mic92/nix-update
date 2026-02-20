@@ -83,7 +83,9 @@ def fetch_new_version(
 
     if preference != VersionPreference.BRANCH:
         if old_rev_tag and old_rev_tag.endswith(package.old_version):
-            version_prefix = old_rev_tag.removesuffix(package.old_version)
+            version_prefix = old_rev_tag.removesuffix(package.old_version).removeprefix(
+                "refs/tags/",
+            )
     elif version == "branch":
         branch = "HEAD"
     else:
