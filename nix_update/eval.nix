@@ -116,6 +116,8 @@ in
   rev = pkg.src.rev or null;
   tag = pkg.src.tag or null;
   hash = pkg.src.outputHash or null;
+  commit_sha = pkg.commitSha or null;
+  commit_date = pkg.commitDate or null;
   fod_subpackage = pkg.outputHash or null;
   go_modules = pkg.goModules.outputHash or null;
   go_modules_old = pkg.go-modules.outputHash or null;

@@ -5,8 +5,10 @@ import json
 import netrc
 import os
 import re
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
+from datetime import datetime
 from http import HTTPStatus
 from typing import Any
 from urllib.parse import ParseResult, unquote, urlparse
@@ -16,7 +18,7 @@ from nix_update.errors import VersionError
 from nix_update.utils import info
 
 from .http import DEFAULT_TIMEOUT
-from .version import Version
+from .version import Commit, Version
 
 # https://github.com/NixOS/nixpkgs/blob/13ae608185b2430ebffc8b181fa9a854cd241007/pkgs/build-support/fetchgithub/default.nix#L133-L143
 GITHUB_PUBLIC = re.compile(
@@ -29,9 +31,6 @@ GITHUB_PRIVATE = re.compile(
 
 
 def version_from_entry(entry: Element) -> Version:
-    if entry is None:
-        msg = "No release found"
-        raise VersionError(msg)
     link = entry.find("{http://www.w3.org/2005/Atom}link")
     if link is None:
         msg = "Cannot parse ATOM feed: missing link element"
@@ -114,7 +113,13 @@ def fetch_github_versions_from_releases(
     except json.JSONDecodeError:
         info("unable to parse github response, ignoring")
         return []
-    return [Version(r["tag_name"], r["prerelease"]) for r in releases]
+    return [
+        Version(
+            number=r["tag_name"],
+            prerelease=r["prerelease"],
+        )
+        for r in releases
+    ]
 
 
 def fetch_github_versions_from_feed(
@@ -139,6 +144,85 @@ def fetch_github_versions_from_feed(
         return []
     releases = tree.findall(".//{http://www.w3.org/2005/Atom}entry")
     return [version_from_entry(x) for x in releases]
+
+
+def _fetch_github_commit_info(
+    url: ParseResult,
+    owner: str,
+    repo: str,
+    tag_name: str,
+) -> tuple[str, datetime | None]:
+    """Fetch commit SHA and date for a specific GitHub tag."""
+    server = (
+        url.netloc
+        if url.netloc not in {"github.com", "api.github.com"}
+        else "api.github.com"
+    )
+
+    token = os.environ.get("GITHUB_TOKEN")
+    extra_headers = {} if token is None else {"Authorization": f"Bearer {token}"}
+
+    # First get the tag reference
+    tag_url = f"https://{server}/repos/{owner}/{repo}/git/ref/tags/{tag_name}"
+    info(f"fetch {tag_url}")
+    tag_resp = _dorequest(url, tag_url, extra_headers)
+    if not tag_resp:
+        msg = "Unable to fetch tag reference"
+        raise VersionError(msg)
+
+    tag_data = json.loads(tag_resp)
+    object_url = tag_data.get("object", {}).get("url")
+    if not object_url:
+        msg = "Error parsing tag response"
+        raise VersionError(msg)
+
+    # Fetch the tag object (handles both lightweight and annotated tags)
+    info(f"fetch {object_url}")
+    object_resp = _dorequest(url, object_url, extra_headers)
+    if not object_resp:
+        msg = "Unable to fetch tag object"
+        raise VersionError(msg)
+
+    object_data = json.loads(object_resp)
+    commit_sha = object_data.get("object", {}).get("sha")
+    if not commit_sha:
+        msg = "Error parsing tag object response"
+        raise VersionError(msg)
+
+    # Fetch commit to get date
+    commit_url = f"https://{server}/repos/{owner}/{repo}/commits/{commit_sha}"
+    info(f"fetch {commit_url}")
+    commit_resp = _dorequest(url, commit_url, extra_headers)
+    if not commit_resp:
+        return commit_sha, None
+
+    commit_data = json.loads(commit_resp)
+    commit_date_str = commit_data.get("commit", {}).get("committer", {}).get("date")
+    if not commit_date_str:
+        return commit_sha, None
+
+    commit_date = datetime.fromisoformat(commit_date_str)
+    return commit_sha, commit_date
+
+
+def fetch_github_commit(url: ParseResult, version: Version) -> Commit | None:
+    """Fetch the commit corresponding to the specified version."""
+
+    # Parse owner and repo from URL
+    urlmatch = GITHUB_PUBLIC.match(url.path) or (
+        url.netloc == "github.com" and GITHUB_PUBLIC_GENERAL.match(url.path)
+    )
+    if not urlmatch:
+        return None
+
+    owner, repo = urlmatch.group("owner"), urlmatch.group("repo")
+    commit_sha, commit_date = _fetch_github_commit_info(
+        url,
+        owner,
+        repo,
+        version.number,
+    )
+    return Commit(sha=commit_sha, date=commit_date)
 
 
 def fetch_github_snapshots(
@@ -195,8 +279,13 @@ def fetch_github_snapshots(
         url = urlparse(link.attrib["href"])
         commit = url.path.rsplit("/", maxsplit=1)[-1]
         date = updated.text.split("T", maxsplit=1)[0]
+        commit_datetime = datetime.fromisoformat(updated.text)
         return [
-            Version(f"{version}-unstable-{date}", rev=commit)
+            Version(
+                f"{version}-unstable-{date}",
+                rev=commit,
+                commit=Commit(sha=commit, date=commit_datetime),
+            )
             for version in version_numbers
         ]
 

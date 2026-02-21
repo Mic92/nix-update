@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import shlex
 import shutil
@@ -15,6 +16,8 @@ from .options import Options
 from .update import update
 from .utils import info, nix_command, run
 from .version.version import VersionPreference
+
+logger = logging.getLogger("nix_update")
 
 
 def die(msg: str) -> NoReturn:
@@ -31,6 +34,13 @@ def parse_args(args: list[str]) -> Options:
         "--quiet",
         action="store_true",
         help="Hide informational messages",
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="count",
+        default=0,
+        help="Increase logging verbosity (-v for INFO, -vv for DEBUG)",
     )
     parser.add_argument(
         "-F",
@@ -454,6 +464,16 @@ def handle_commit_operations(
 
 def main(args: list[str] = sys.argv[1:]) -> None:
     options = parse_args(args)
+
+    # Configure logging
+    logging.basicConfig()
+    if options.verbose >= 2:  # noqa: PLR2004
+        logger.setLevel(logging.DEBUG)
+    elif options.verbose == 1:
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.ERROR)
+
     if options.quiet:
         utils.LOG_LEVEL = utils.LogLevel.WARNING
 
