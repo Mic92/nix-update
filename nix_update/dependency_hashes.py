@@ -164,6 +164,7 @@ def update_dependency_hashes(
         "pnpm_deps": partial(update_hash_with_prefetch, "pnpmDeps"),
         "yarn_deps": partial(update_hash_with_prefetch, "yarnOfflineCache"),
         "yarn_deps_old": partial(update_hash_with_prefetch, "offlineCache"),
+        "bun_deps": partial(update_hash_with_prefetch, "bunDeps"),
         "maven_deps": partial(update_hash_with_prefetch, "fetchedMavenDeps"),
         "mix_deps": partial(update_hash_with_prefetch, "mixFodDeps"),
         "zig_deps": partial(update_hash_with_prefetch, "zigDeps"),
