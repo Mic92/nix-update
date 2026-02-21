@@ -61,6 +61,7 @@ class Package:
     pnpm_deps: str | None
     yarn_deps: str | None
     yarn_deps_old: str | None
+    bun_deps: str | None
     composer_deps: str | None
     composer_deps_old: str | None
     maven_deps: str | None
