@@ -3,13 +3,14 @@ from __future__ import annotations
 import re
 from collections.abc import Callable
 from dataclasses import dataclass, field
-from functools import partial
+from functools import cmp_to_key, partial
 from inspect import signature
 from typing import Any, Protocol, cast
 from urllib.parse import ParseResult
 from urllib.request import build_opener, install_opener
 
 from nix_update.errors import VersionError
+from nix_update.version_compare import version_compare
 from nix_update.version_info import VERSION
 
 from .bitbucket import fetch_bitbucket_snapshots, fetch_bitbucket_versions
@@ -187,6 +188,14 @@ def fetch_latest_version(
         all_filtered.extend(filtered)
 
         if final:
+            # Sort by version number (highest first) to avoid picking
+            # older versions that were released more recently (e.g. patch
+            # releases on older branches).
+            final.sort(
+                key=cmp_to_key(
+                    lambda a, b: version_compare(b.number, a.number),
+                ),
+            )
             prefixed_version = find_prefixed_version(final, config)
             if prefixed_version is not None:
                 return prefixed_version
