@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import pytest
 
 from nix_update.options import Options
-from nix_update.update import update
+from nix_update.update import update_package
 from nix_update.version import (
     VersionFetchConfig,
     VersionPreference,
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 def test_update(testpkgs: Path) -> None:
     opts = Options(attribute="sourcehut", import_path=str(testpkgs))
-    update(opts)
+    update_package(opts)
     version = subprocess.run(
         [
             "nix",

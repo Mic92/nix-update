@@ -4,7 +4,7 @@ import subprocess
 from typing import TYPE_CHECKING
 
 from nix_update.options import Options
-from nix_update.update import update
+from nix_update.update import update_package
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -16,7 +16,7 @@ def test_update(testpkgs: Path) -> None:
         subpackages=["autobrr-web"],
         import_path=str(testpkgs),
     )
-    update(opts)
+    update_package(opts)
 
     def get_attr(attr: str) -> str:
         return subprocess.run(

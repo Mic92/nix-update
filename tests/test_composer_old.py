@@ -4,7 +4,7 @@ import subprocess
 from typing import TYPE_CHECKING
 
 from nix_update.options import Options
-from nix_update.update import update
+from nix_update.update import update_package
 from nix_update.version.version import VersionPreference
 
 if TYPE_CHECKING:
@@ -19,7 +19,7 @@ def test_update(testpkgs: Path) -> None:
         version="0.13.1",
         version_preference=VersionPreference.FIXED,
     )
-    update(opts)
+    update_package(opts)
     version = subprocess.run(
         [
             "nix",

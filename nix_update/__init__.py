@@ -12,7 +12,7 @@ from typing import NoReturn
 from . import utils
 from .eval import CargoLockInSource, Package, eval_attr
 from .options import Options
-from .update import update
+from .update import update_package
 from .utils import info, nix_command, run
 from .version.version import VersionPreference
 
@@ -464,7 +464,7 @@ def main(args: list[str] = sys.argv[1:]) -> None:
     if options.commit or options.review:
         git_dir = validate_git_dir(options.import_path)
 
-    package = update(options)
+    package = update_package(options)
 
     print_maintainers(package)
     run_nix_commands(options)

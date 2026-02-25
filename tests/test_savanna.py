@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 import pytest
 
 from nix_update.options import Options
-from nix_update.update import update
+from nix_update.update import update_package
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -26,7 +26,7 @@ def test_update(testpkgs: Path) -> None:
         pytest.xfail("Savana is taking too long to respond")
 
     opts = Options(attribute="savanna", import_path=str(testpkgs))
-    update(opts)
+    update_package(opts)
     version = subprocess.run(
         [
             "nix",

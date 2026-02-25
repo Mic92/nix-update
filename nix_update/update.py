@@ -189,7 +189,7 @@ def run_update_script(package: Package, opts: Options) -> None:
     )
 
 
-def update(opts: Options) -> Package:
+def update_package(opts: Options) -> Package:
     package = eval_attr(opts)
 
     if package.has_update_script and opts.use_update_script:
@@ -227,7 +227,7 @@ def update(opts: Options) -> Package:
             subpackage_opts.subpackages = None
             # Do not update the version number since that's already been done
             subpackage_opts.version_preference = VersionPreference.SKIP
-            update(subpackage_opts)
+            update_package(subpackage_opts)
 
     update_dependency_hashes(opts, package, update_hash=update_hash)
 

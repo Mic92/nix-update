@@ -4,7 +4,7 @@ import subprocess
 from typing import TYPE_CHECKING
 
 from nix_update.options import Options
-from nix_update.update import update
+from nix_update.update import update_package
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 def test_update(testpkgs: Path) -> None:
     opts = Options(attribute="npm", import_path=str(testpkgs))
-    update(opts)
+    update_package(opts)
     version = subprocess.run(
         [
             "nix",

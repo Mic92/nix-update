@@ -4,7 +4,7 @@ import subprocess
 from typing import TYPE_CHECKING
 
 from nix_update.options import Options
-from nix_update.update import update
+from nix_update.update import update_package
 from nix_update.version.version import VersionPreference
 
 if TYPE_CHECKING:
@@ -18,7 +18,7 @@ def test_update(testpkgs: Path) -> None:
         import_path=str(testpkgs),
         version_preference=VersionPreference.SKIP,
     )
-    update(opts)
+    update_package(opts)
 
     def get_attr(attr: str) -> str:
         return subprocess.run(
