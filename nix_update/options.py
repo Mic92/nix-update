@@ -139,6 +139,7 @@ class Options:
     update_src: bool = True
     use_github_releases: bool = False
     extra_flags: list[str] = field(default_factory=list)
+    custom_deps: list[str] | None = None
 
     def __post_init__(self) -> None:
         self.attribute_path = parse_attribute_path(self.attribute)

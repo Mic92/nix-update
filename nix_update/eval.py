@@ -63,6 +63,7 @@ class Package:
     yarn_deps_old: str | None
     composer_deps: str | None
     composer_deps_old: str | None
+    custom_deps: list[str] | None
     maven_deps: str | None
     mix_deps: str | None
     zig_deps: str | None
@@ -144,6 +145,10 @@ def eval_attr(opts: Options) -> Package:
 
     if opts.system:
         cmd.extend(["--argstr", "system", opts.system])
+
+    if opts.custom_deps:
+        custom_deps_json = json.dumps(opts.custom_deps)
+        cmd.extend(["--argstr", "customDeps", custom_deps_json])
 
     res = run(cmd)
     out = json.loads(res.stdout)

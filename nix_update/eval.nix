@@ -5,6 +5,7 @@
   system ? builtins.currentSystem,
   isFlake ? false,
   sanitizePositions ? true,
+  customDeps ? null,
 }:
 
 let
@@ -103,6 +104,11 @@ let
 
   has_update_script = pkg.passthru.updateScript or null != null;
 
+  customHashes =
+    if customDeps != null then
+      builtins.map (x: { ${x} = pkg.${x}.outputHash; }) (fromJSON customDeps)
+    else
+      null;
 in
 {
   name = pkg.name;
@@ -134,6 +140,7 @@ in
       null;
   composer_deps = pkg.composerVendor.outputHash or null;
   composer_deps_old = pkg.composerRepository.outputHash or null;
+  custom_deps = customHashes;
   npm_deps = pkg.npmDeps.outputHash or null;
   pnpm_deps = pkg.pnpmDeps.outputHash or null;
   yarn_deps = pkg.yarnOfflineCache.outputHash or null;
