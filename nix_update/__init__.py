@@ -407,9 +407,7 @@ def print_maintainers(package: Package) -> None:
 
 
 def run_nix_commands(options: Options) -> None:
-    if options.build:
-        nix_build(options)
-
+    """Run interactive commands (run/shell) that should happen immediately."""
     if options.run:
         nix_run(options)
 
@@ -418,6 +416,9 @@ def run_nix_commands(options: Options) -> None:
 
 
 def run_post_update_checks(options: Options, package: Package) -> None:
+    if options.build:
+        nix_build(options)
+
     if options.test:
         nix_test(options, package)
 
