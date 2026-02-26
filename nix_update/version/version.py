@@ -2,6 +2,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from enum import StrEnum, auto
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from datetime import datetime
+
+
+@dataclass
+class Commit:
+    sha: str
+    date: datetime | None
 
 
 @dataclass
@@ -10,6 +20,7 @@ class Version:
     prerelease: bool | None = None
     rev: str | None = None
     tag: str | None = None
+    commit: Commit | None = None
 
 
 class VersionPreference(StrEnum):
