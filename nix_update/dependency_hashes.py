@@ -183,3 +183,9 @@ def update_dependency_hashes(
     # Handle gradle mitm cache separately since it's a boolean
     if package.has_gradle_mitm_cache:
         update_gradle_mitm_cache(opts)
+
+    # Handle custom deps
+    if package.custom_deps:
+        for custom_dep in package.custom_deps:
+            for drv_name, old_hash in custom_dep.items():
+                update_hash_with_prefetch(drv_name, opts, package.filename, old_hash)
