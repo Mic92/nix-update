@@ -11,9 +11,13 @@ publishes v0.39.5 after v0.41.1).
 from __future__ import annotations
 
 import io
+import typing
 import unittest.mock
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse
+
+if typing.TYPE_CHECKING:
+    from urllib.request import Request
 
 from nix_update.version import VersionFetchConfig, fetch_latest_version
 from nix_update.version.version import VersionPreference
@@ -32,16 +36,21 @@ def _build_github_atom_feed(releases: list[str]) -> bytes:
     return ET.tostring(feed, encoding="unicode").encode()
 
 
-def _make_urlopen(feed_bytes: bytes):
-    """Create a fake urlopen that returns the given feed for any URL."""
+class _FakeUrlopen:
+    """Callable that replaces ``urllib.request.urlopen`` in tests."""
 
-    def fake_urlopen(request, timeout=None):
-        del timeout
-        resp = io.BytesIO(feed_bytes)
-        resp.status = 200
+    def __init__(self, feed_bytes: bytes) -> None:
+        self.feed_bytes = feed_bytes
+
+    def __call__(
+        self,
+        request: str | Request,
+        timeout: int | None = None,
+    ) -> io.BytesIO:
+        _ = request, timeout  # satisfy interface contract
+        resp = io.BytesIO(self.feed_bytes)
+        resp.status = 200  # type: ignore[attr-defined]
         return resp
-
-    return fake_urlopen
 
 
 def test_highest_semver_wins_over_recent_release() -> None:
@@ -52,7 +61,7 @@ def test_highest_semver_wins_over_recent_release() -> None:
     )
     with unittest.mock.patch(
         "nix_update.version.github.urllib.request.urlopen",
-        _make_urlopen(feed),
+        _FakeUrlopen(feed),
     ):
         version = fetch_latest_version(
             urlparse(
@@ -73,7 +82,7 @@ def test_highest_semver_without_version_regex() -> None:
     )
     with unittest.mock.patch(
         "nix_update.version.github.urllib.request.urlopen",
-        _make_urlopen(feed),
+        _FakeUrlopen(feed),
     ):
         version = fetch_latest_version(
             urlparse(
@@ -94,7 +103,7 @@ def test_sorting_with_major_version_differences() -> None:
     )
     with unittest.mock.patch(
         "nix_update.version.github.urllib.request.urlopen",
-        _make_urlopen(feed),
+        _FakeUrlopen(feed),
     ):
         version = fetch_latest_version(
             urlparse(
@@ -115,7 +124,7 @@ def test_postgis_scenario() -> None:
     )
     with unittest.mock.patch(
         "nix_update.version.github.urllib.request.urlopen",
-        _make_urlopen(feed),
+        _FakeUrlopen(feed),
     ):
         version = fetch_latest_version(
             urlparse(

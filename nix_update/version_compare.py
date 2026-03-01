@@ -13,6 +13,14 @@ independent implementation written specifically for nix-update.
 """
 
 
+def _cmp_str(a: str, b: str) -> int:
+    """Return -1, 0, or 1 comparing two strings lexicographically."""
+    if a < b:
+        return -1
+    if a > b:
+        return 1
+    return 0
+
 
 class VersionSegment:
     """Represents a parsed segment of a version string."""
@@ -29,10 +37,8 @@ class VersionSegment:
             1 if self > other, -1 if self < other, 0 if equal
         """
         # Numeric segments are always considered newer than alpha segments
-        if self.is_numeric and not other.is_numeric:
-            return 1
-        if not self.is_numeric and other.is_numeric:
-            return -1
+        if self.is_numeric != other.is_numeric:
+            return 1 if self.is_numeric else -1
 
         if self.is_numeric:
             # For numeric comparison, strip leading zeros and compare by length first
@@ -44,17 +50,9 @@ class VersionSegment:
                 return 1 if len(val1) > len(val2) else -1
 
             # Same length, compare lexicographically
-            if val1 < val2:
-                return -1
-            if val1 > val2:
-                return 1
-            return 0
+            return _cmp_str(val1, val2)
         # Alphabetic comparison
-        if self.value < other.value:
-            return -1
-        if self.value > other.value:
-            return 1
-        return 0
+        return _cmp_str(self.value, other.value)
 
 
 class VersionString:
@@ -148,31 +146,20 @@ class VersionString:
         # All compared segments are equal, check if one has more segments
         if len(segs1) == len(segs2):
             return 0
-        if len(segs1) < len(segs2):
-            # Second version has more segments
-            next_seg, sep_len = segs2[len(segs1)]
 
-            if next_seg.is_numeric:
-                # Numeric segment always makes version newer
-                return -1
-            # Alpha segment behavior depends on separator:
-            # - With separator (sep_len > 0): treated as new segment, makes version newer
-            # - Without separator (sep_len == 0): treated as pre-release suffix, makes version older
-            if sep_len > 0:
-                return -1  # Has separator, newer version
-            return 1  # No separator, pre-release marker
-        # First version has more segments
-        next_seg, sep_len = segs1[len(segs2)]
+        # Determine which side has extra segments and the sign of the result
+        longer, shorter, sign = (
+            (segs1, segs2, 1) if len(segs1) > len(segs2) else (segs2, segs1, -1)
+        )
+        next_seg, sep_len = longer[len(shorter)]
 
         if next_seg.is_numeric:
             # Numeric segment always makes version newer
-            return 1
+            return sign
         # Alpha segment behavior depends on separator:
         # - With separator (sep_len > 0): treated as new segment, makes version newer
         # - Without separator (sep_len == 0): treated as pre-release suffix, makes version older
-        if sep_len > 0:
-            return 1  # Has separator, newer version
-        return -1  # No separator, pre-release marker
+        return sign if sep_len > 0 else -sign
 
     def _compare_component(self, comp1: str, comp2: str) -> int:
         """Compare two version components (epoch, version, or release)."""
