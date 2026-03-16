@@ -1,5 +1,5 @@
 {
-  buildGoModule,
+  buildGoLatestModule,
   fetchFromSourcehut,
   lib,
   jq,
@@ -8,7 +8,7 @@
   scdoc,
 }:
 
-buildGoModule rec {
+buildGoLatestModule rec {
   pname = "ijq";
   version = "0.3.5";
 
