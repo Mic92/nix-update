@@ -112,7 +112,7 @@ let
 in
 {
   name = pkg.name;
-  pname = pkg.pname;
+  pname = pkg.pname or (builtins.parseDrvName pkg.name).name;
   old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
   inherit raw_version_position;
   filename = position.file;
