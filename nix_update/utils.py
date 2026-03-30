@@ -4,6 +4,7 @@ import os
 import shlex
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 from typing import IO, TYPE_CHECKING, Any
 
@@ -65,3 +66,12 @@ def run(  # noqa: PLR0913
 def nix_command(*args: str) -> list[str]:
     """Return nix command with experimental features enabled."""
     return ["nix", "--extra-experimental-features", "nix-command flakes", *args]
+
+
+def remove_control_chars(string: str) -> str:
+    """Remove control characters from a string.
+
+    See https://en.wikipedia.org/wiki/C0_and_C1_control_codes
+    for a list of removed control characters
+    """
+    return "".join(char for char in string if unicodedata.category(char)[0] != "C")
