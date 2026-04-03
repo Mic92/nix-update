@@ -8,7 +8,7 @@ from nix_update.errors import VersionError
 from nix_update.utils import info
 
 from .http import fetch_json
-from .version import Version
+from .version import Commit, Version
 
 GITLAB_API = re.compile(
     r"http(s)?://(?P<domain>[^/]+)/api/v4/projects/(?P<project_id>[^/]*)/repository/archive.tar.gz\?sha=(?P<version>.+)",
@@ -62,11 +62,13 @@ def fetch_gitlab_snapshots(url: ParseResult, branch: str) -> list[Version]:
     latest_version = versions[0].number if versions else "0"
 
     for commit in commits:
-        commit_date = datetime.strptime(
-            commit["committed_date"],
-            "%Y-%m-%dT%H:%M:%S.000%z",
-        )
-        commit_date -= commit_date.utcoffset()  # type: ignore[operator]
+        commit_date = datetime.fromisoformat(commit["committed_date"])
         date = commit_date.strftime("%Y-%m-%d")
-        return [Version(f"{latest_version}-unstable-{date}", rev=commit["id"])]
+        return [
+            Version(
+                f"{latest_version}-unstable-{date}",
+                rev=commit["id"],
+                commit=Commit(sha=commit["id"], date=commit_date),
+            ),
+        ]
     return []
