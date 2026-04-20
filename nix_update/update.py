@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import fileinput
+import logging
 from copy import deepcopy
+from dataclasses import dataclass
+from datetime import UTC
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -16,6 +19,76 @@ from .version.version import Version, VersionPreference
 
 if TYPE_CHECKING:
     from .options import Options
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ReplacementContext:
+    """Context for applying version replacements to a file."""
+
+    old_version: str
+    new_version: str
+    old_rev_tag: str | None
+    old_commit_sha: str | None
+    old_commit_date: str | None
+    version_string_in_declaration: bool
+
+
+def apply_line_replacements(
+    line: str,
+    line_number: int,
+    package: Package,
+    context: ReplacementContext,
+) -> str:
+    """Apply version, rev, commitSha, and commitDate replacements to a line."""
+    modified_line = line
+    # Update rev/tag if present
+    if (
+        context.old_rev_tag is not None
+        and package.new_version
+        and package.new_version.rev
+    ):
+        modified_line = modified_line.replace(
+            context.old_rev_tag,
+            package.new_version.rev,
+        )
+    # Update commitSha if present
+    if (
+        context.old_commit_sha is not None
+        and package.new_version
+        and package.new_version.commit is not None
+    ):
+        modified_line = modified_line.replace(
+            f'"{context.old_commit_sha}"',
+            f'"{package.new_version.commit.sha}"',
+        )
+    # Update commitDate if present
+    if (
+        context.old_commit_date is not None
+        and package.new_version
+        and package.new_version.commit is not None
+        and package.new_version.commit.date is not None
+    ):
+        new_commit_date_str = (
+            package.new_version.commit.date.astimezone(UTC)
+            .isoformat()
+            .replace("+00:00", "Z")
+        )
+        modified_line = modified_line.replace(
+            f'"{context.old_commit_date}"',
+            f'"{new_commit_date_str}"',
+        )
+    # Update version string
+    if not context.version_string_in_declaration or (
+        package.version_position is not None
+        and package.version_position.line == line_number
+    ):
+        modified_line = modified_line.replace(
+            f'"{context.old_version}"',
+            f'"{context.new_version}"',
+        )
+    return modified_line
 
 
 def replace_version(package: Package) -> bool:
@@ -33,29 +106,46 @@ def replace_version(package: Package) -> bool:
 
     if changed:
         info(f"Update {old_version} -> {new_version} in {package.filename}")
-        version_string_in_version_declaration = False
+        version_string_in_declaration = False
         if package.version_position is not None:
             with Path(package.filename).open() as f:
                 for i, line in enumerate(f, 1):
                     if package.version_position.line == i:
-                        version_string_in_version_declaration = old_version in line
+                        version_string_in_declaration = old_version in line
                         break
+        context = ReplacementContext(
+            old_version=old_version,
+            new_version=new_version,
+            old_rev_tag=old_rev_tag,
+            old_commit_sha=package.commit_sha,
+            old_commit_date=package.commit_date,
+            version_string_in_declaration=version_string_in_declaration,
+        )
+        logger.debug(
+            "Replacing rev %s -> %s",
+            context.old_rev_tag,
+            package.new_version.rev,
+        )
+        logger.debug(
+            "Replacement commitSha %s -> %s",
+            context.old_commit_sha,
+            package.new_version.commit.sha
+            if package.new_version.commit is not None
+            else None,
+        )
+        logger.debug(
+            "Replacing commitDate %s -> %s",
+            context.old_commit_date,
+            package.new_version.commit.date if package.new_version.commit else None,
+        )
         with fileinput.FileInput(package.filename, inplace=True) as f:
             for i, original_line in enumerate(f, 1):
-                modified_line = original_line
-                if old_rev_tag is not None and package.new_version.rev:
-                    modified_line = modified_line.replace(
-                        old_rev_tag,
-                        package.new_version.rev,
-                    )
-                if not version_string_in_version_declaration or (
-                    package.version_position is not None
-                    and package.version_position.line == i
-                ):
-                    modified_line = modified_line.replace(
-                        f'"{old_version}"',
-                        f'"{new_version}"',
-                    )
+                modified_line = apply_line_replacements(
+                    line=original_line,
+                    line_number=i,
+                    package=package,
+                    context=context,
+                )
                 print(modified_line, end="")
     else:
         info(f"Not updating version, already {old_version}")
