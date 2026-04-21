@@ -10,6 +10,7 @@
     <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/37e9b32f335b8bfafd764f49de573141f85d3416"/>
     <title>
         bump version 1.2.0
+        Some invalid control characters here for testing 
     </title>
     <updated>2024-02-19T14:47:50Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/96200?s=30&amp;v=4"/>
@@ -26,6 +27,7 @@
     <link type="text/html" rel="alternate" href="https://github.com/Mic92/nix-update/commit/a566b9bdb17bc394cbbefdd274b54432edec6d3f"/>
     <title>
         print maintainers list
+        Some more invalid control characters here for testing 
     </title>
     <updated>2024-01-25T10:38:41Z</updated>
     <media:thumbnail height="30" width="30" url="https://avatars.githubusercontent.com/u/33058747?s=30&amp;v=4"/>

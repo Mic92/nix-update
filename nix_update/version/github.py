@@ -13,7 +13,7 @@ from urllib.parse import ParseResult, unquote, urlparse
 from xml.etree.ElementTree import Element, ParseError
 
 from nix_update.errors import VersionError
-from nix_update.utils import info
+from nix_update.utils import info, remove_control_chars
 
 from .http import DEFAULT_TIMEOUT
 from .version import Version
@@ -130,6 +130,7 @@ def fetch_github_versions_from_feed(
     feed_url = f"https://{server}/{owner}/{repo}/releases.atom"
     info(f"fetch {feed_url}")
     resp = _dorequest(url, feed_url)
+    resp = remove_control_chars(resp.decode())
     if resp is None:
         return []
     try:
@@ -161,6 +162,7 @@ def fetch_github_snapshots(
     feed_url = f"https://{server}/{owner}/{repo}/commits/{branch}.atom"
     info(f"fetch {feed_url}")
     resp = _dorequest(url, feed_url)
+    resp = remove_control_chars(resp.decode())
     if resp is None:
         return []
     try:
