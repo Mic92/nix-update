@@ -197,6 +197,13 @@ Arguments can be passed to `nix-shell maintainers/scripts/update.nix` like so
 $ nix-update sbt --use-update-script --update-script-args "--argstr skip-prompt true"
 ```
 
+In case your package has dependency fetchers with custom attribute names, you
+can pass them using `--custom-dep`:
+
+```
+$ nix-update openmetadata --custom-dep yarnOfflineCacheUi --custom-dep yarnOfflineCacheUiCore
+```
+
 ## Subpackages
 
 Some packages consist of multiple fixed-output derivations derived from the same
@@ -242,8 +249,15 @@ buildGoModule rec {
   preBuild = ''
     cp -r ${web-ui}/* web/dist
   '';
+
+  passthru = {
+    inherit web-ui;
+  };
 }
 ```
+
+Note that you must add the subpackage to passthrough in order for `nix-update`
+to be able to access it.
 
 You can update the package and its subpackage using `nix-update` as follows:
 

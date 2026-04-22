@@ -11,6 +11,9 @@
         # Used to find the project root
         projectRootFile = "flake.lock";
 
+        # Ignore these files
+        settings.excludes = [ "tests/testpkgs/custom-deps/pnpm/pnpm-lock.yaml" ];
+
         programs.deno.enable = pkgs.stdenv.hostPlatform.system != "x86_64-darwin";
         programs.mypy.enable = true;
         programs.mypy.directories = {

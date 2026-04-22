@@ -83,7 +83,9 @@ def fetch_new_version(
 
     if preference != VersionPreference.BRANCH:
         if old_rev_tag and old_rev_tag.endswith(package.old_version):
-            version_prefix = old_rev_tag.removesuffix(package.old_version)
+            version_prefix = old_rev_tag.removesuffix(package.old_version).removeprefix(
+                "refs/tags/",
+            )
     elif version == "branch":
         branch = "HEAD"
     else:
@@ -187,8 +189,6 @@ def run_update_script(package: Package, opts: Options) -> None:
         ],
         cwd=opts.import_path,
     )
-    # Reset flake_import_path so subsequent evals pick up changes from local directory
-    opts.flake_import_path = None
 
 
 def update(opts: Options) -> Package:
