@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from datetime import datetime
 from urllib.parse import ParseResult, quote_plus
@@ -22,8 +23,10 @@ def fetch_gitlab_versions(url: ParseResult) -> list[Version]:
     domain = match.group("domain")
     project_id = match.group("project_id")
     gitlab_url = f"https://{domain}/api/v4/projects/{project_id}/repository/tags"
+    token = os.environ.get("GITLAB_TOKEN")
+    headers = {} if token is None else {"Authorization": f"Bearer {token}"}
     info(f"fetch {gitlab_url}")
-    json_tags = fetch_json(gitlab_url)
+    json_tags = fetch_json(gitlab_url, headers=headers)
     if len(json_tags) == 0:
         msg = "No git tags found"
         raise VersionError(msg)
@@ -52,8 +55,10 @@ def fetch_gitlab_snapshots(url: ParseResult, branch: str) -> list[Version]:
     domain = match.group("domain")
     project_id = match.group("project_id")
     gitlab_url = f"https://{domain}/api/v4/projects/{project_id}/repository/commits?ref_name={quote_plus(branch)}"
+    token = os.environ.get("GITLAB_TOKEN")
+    headers = {} if token is None else {"Authorization": f"Bearer {token}"}
     info(f"fetch {gitlab_url}")
-    commits = fetch_json(gitlab_url)
+    commits = fetch_json(gitlab_url, headers=headers)
 
     try:
         versions = fetch_gitlab_versions(url)
