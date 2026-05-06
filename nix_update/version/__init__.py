@@ -138,21 +138,14 @@ def find_prefixed_version(
     if config.version_prefix == "":
         return None
 
-    ver = next(
-        (
-            Version(
+    for version in final_versions:
+        if version.number.startswith(config.version_prefix):
+            return Version(
                 version.number.removeprefix(config.version_prefix),
                 prerelease=version.prerelease,
                 rev=version.rev or version.number,
             )
-            for version in final_versions
-            if version.number.startswith(config.version_prefix)
-        ),
-        None,
-    )
 
-    if ver is not None and ver.rev != config.old_rev_tag:
-        return ver
     return None
 
 

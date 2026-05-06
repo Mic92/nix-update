@@ -11,6 +11,7 @@ publishes v0.39.5 after v0.41.1).
 from __future__ import annotations
 
 import io
+import json
 import typing
 import unittest.mock
 import xml.etree.ElementTree as ET
@@ -49,6 +50,25 @@ class _FakeUrlopen:
     ) -> io.BytesIO:
         _ = request, timeout  # satisfy interface contract
         resp = io.BytesIO(self.feed_bytes)
+        resp.status = 200  # type: ignore[attr-defined]
+        return resp
+
+
+class _FakeJsonUrlopen:
+    """Callable that returns a JSON payload for GitHub releases tests."""
+
+    def __init__(self, releases: list[str]) -> None:
+        self.payload = json.dumps(
+            [{"tag_name": tag, "prerelease": False} for tag in releases],
+        ).encode()
+
+    def __call__(
+        self,
+        request: str | Request,
+        timeout: int | None = None,
+    ) -> io.BytesIO:
+        _ = request, timeout  # satisfy interface contract
+        resp = io.BytesIO(self.payload)
         resp.status = 200  # type: ignore[attr-defined]
         return resp
 
@@ -136,3 +156,25 @@ def test_postgis_scenario() -> None:
             ),
         )
         assert version.number == "3.6.0"
+
+
+def test_mixed_prefixed_and_bare_github_releases_keep_prefixed_series() -> None:
+    """Regression test for issue #593."""
+    with unittest.mock.patch(
+        "nix_update.version.github.urllib.request.urlopen",
+        _FakeJsonUrlopen(["v4.10.7", "0.1.0", "0.0.2"]),
+    ):
+        version = fetch_latest_version(
+            urlparse(
+                "https://github.com/zed-industries/vscode-langservers-extracted/archive/v4.10.7.tar.gz",
+            ),
+            VersionFetchConfig(
+                preference=VersionPreference.STABLE,
+                version_regex=r"(.*)",
+                version_prefix="v",
+                old_rev_tag="v4.10.7",
+                fetcher_args={"use_github_releases": True},
+            ),
+        )
+        assert version.number == "4.10.7"
+        assert version.rev == "v4.10.7"
