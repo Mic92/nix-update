@@ -138,6 +138,12 @@ def update_gradle_mitm_cache(opts: Options) -> None:
     run([update_script_path])
 
 
+def update_npm_deps(opts: Options, filename: str, old_hash: str) -> None:
+    if opts.generate_lockfile:
+        generate_lockfile(opts, filename, "npm", opts.get_package())
+    update_hash_with_prefetch("npmDeps", opts, filename, old_hash)
+
+
 def update_dependency_hashes(
     opts: Options,
     package: Package,
@@ -158,9 +164,7 @@ def update_dependency_hashes(
         ),
         "composer_deps": partial(update_hash_with_prefetch, "composerVendor"),
         "composer_deps_old": partial(update_hash_with_prefetch, "composerRepository"),
-        "npm_deps": (lambda o, f, _d: generate_lockfile(o, f, "npm", o.get_package()))
-        if opts.generate_lockfile
-        else partial(update_hash_with_prefetch, "npmDeps"),
+        "npm_deps": update_npm_deps,
         "pnpm_deps": partial(update_hash_with_prefetch, "pnpmDeps"),
         "yarn_deps": partial(update_hash_with_prefetch, "yarnOfflineCache"),
         "yarn_deps_old": partial(update_hash_with_prefetch, "offlineCache"),
