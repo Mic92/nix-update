@@ -24,7 +24,7 @@ buildPythonPackage rec {
     twisted
   ];
 
-  pytestFlagsArray = [ "mpd/tests.py" ];
+  enabledTestPaths = [ "mpd/tests.py" ];
 
   pythonImportsCheck = [ "mpd" ];
 
