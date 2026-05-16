@@ -70,6 +70,13 @@ from nix_update.version_compare import version_compare
         ("1:1.0", "1.0", 1),
         ("1:1.0", "1.1", 1),
         ("1:1.1", "1.1", 1),
+        # Prefix handling
+        ("a1.0.0", "1.0.0", 1),
+        ("a1.0.0", "b1.0.0", -1),
+        ("a2.0.0", "b1.0.0", 1),
+        ("v1.0.0", "v1.0.0", 0),
+        ("a", "b", -1),
+        ("a", "a", 0),
         # None handling
         (None, None, 0),
         (None, "1.0", -1),
