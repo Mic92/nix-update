@@ -47,3 +47,5 @@ def test_update(testpkgs_git: Path) -> None:
     assert (
         "https://github.com/olrtg/emmet-language-server/compare/v2.5.0...v2.6.0" in diff
     )
+    assert "-  npmDepsHash =" in diff
+    assert "+  npmDepsHash =" in diff
