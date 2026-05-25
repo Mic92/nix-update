@@ -12,6 +12,10 @@ The implementation is inspired by RPM-style version comparison but is an
 independent implementation written specifically for nix-update.
 """
 
+import re
+
+DIGIT = re.compile(r"\d")
+
 
 def _cmp_str(a: str, b: str) -> int:
     """Return -1, 0, or 1 comparing two strings lexicographically."""
@@ -58,36 +62,38 @@ class VersionSegment:
 class VersionString:
     """Represents a complete version string with epoch, version, and release."""
 
-    def __init__(self, version_str: str) -> None:
-        self.epoch, self.version, self.release = self._parse_version(version_str)
-
-    def _parse_version(self, ver: str) -> tuple[str, str, str | None]:
+    def __init__(self, ver: str) -> None:
         """
-        Parse a version string into epoch, version, and release components.
+        Parse a version string into prefix, epoch, version, and release components.
 
-        Format: [epoch:]version[-release]
+        Format: [prefix][epoch:]version[-release]
         """
-        epoch = "0"
-        version = ver
-        release = None
+
+        self.epoch = "0"
+        self.release = None
+        if match := DIGIT.search(ver):
+            i = match.start()
+            self.prefix = ver[:i]
+            self.version = ver[i:]
+        else:
+            self.prefix = ""
+            self.version = ver
 
         # Extract epoch if present (numeric prefix before colon)
         colon_pos = ver.find(":")
         if colon_pos > 0 and ver[:colon_pos].isdigit():
-            epoch = ver[:colon_pos]
-            version = ver[colon_pos + 1 :]
+            self.epoch = ver[:colon_pos]
+            self.version = ver[colon_pos + 1 :]
         elif colon_pos == 0:
             # Empty epoch defaults to 0
-            epoch = "0"
-            version = ver[1:]
+            self.epoch = "0"
+            self.version = ver[1:]
 
         # Extract release if present (suffix after last dash)
-        dash_pos = version.rfind("-")
+        dash_pos = self.version.rfind("-")
         if dash_pos >= 0:
-            release = version[dash_pos + 1 :]
-            version = version[:dash_pos]
-
-        return epoch, version, release
+            self.release = self.version[dash_pos + 1 :]
+            self.version = self.version[:dash_pos]
 
     def _extract_segments(self, s: str) -> list[tuple[VersionSegment, int]]:
         """
@@ -171,6 +177,7 @@ class VersionString:
 
         return self._compare_segment_lists(segs1, segs2)
 
+    # ruff: disable[PLR0911]
     def compare_to(self, other: "VersionString") -> int:
         """
         Compare this version to another.
@@ -188,6 +195,11 @@ class VersionString:
         if result != 0:
             return result
 
+        # Compare prefix
+        result = _cmp_str(self.prefix, other.prefix)
+        if result != 0:
+            return result
+
         # Compare releases if both exist
         if self.release is not None and other.release is not None:
             return self._compare_component(self.release, other.release)
@@ -199,6 +211,8 @@ class VersionString:
             return -1
 
         return 0
+
+    # ruff: enable[PLR0911]
 
 
 def version_compare(a: str | None, b: str | None) -> int:
