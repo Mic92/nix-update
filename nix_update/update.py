@@ -205,9 +205,10 @@ def update(opts: Options) -> Package:
 
         return package
 
-    update_hash = True
-
-    if opts.version_preference != VersionPreference.SKIP:
+    if opts.version_preference == VersionPreference.SKIP:
+        # No version update means no hash update needed
+        update_hash = False
+    else:
         update_hash = update_version(
             opts,
             package,
