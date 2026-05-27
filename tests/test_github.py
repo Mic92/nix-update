@@ -1,12 +1,17 @@
 from __future__ import annotations
 
+import json
 import os
 import subprocess
+from datetime import UTC, datetime
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 
 import pytest
 
 from nix_update import main
+from nix_update.version.github import fetch_github_commit
+from nix_update.version.version import Version
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -238,6 +243,71 @@ def test_github_fetchtree_private(testpkgs_git: Path) -> None:
     print(commit)
     assert version in commit
     assert "github" in commit
+
+
+def test_fetch_github_commit(monkeypatch: pytest.MonkeyPatch) -> None:
+    tag_name = "v9.0.0"
+    tag_sha = "abc123"
+    tag_object_url = "https://api.github.com/repos/sharkdp/fd/git/tags/abc123"
+    commit_sha = "def456def456def456def456def456def456def456"
+    commit_date_str = "2023-01-15T12:00:00+00:00"
+    commit_date = datetime(2023, 1, 15, 12, 0, 0, tzinfo=UTC)
+
+    url = urlparse(f"https://github.com/sharkdp/fd/archive/{tag_name}.tar.gz")
+    version = Version(number=tag_name)
+
+    tag_ref_response = json.dumps(
+        {
+            "object": {
+                "url": tag_object_url,
+                "sha": tag_sha,
+            },
+        },
+    ).encode()
+
+    tag_object_response = json.dumps(
+        {
+            "object": {
+                "sha": commit_sha,
+            },
+        },
+    ).encode()
+
+    commit_response = json.dumps(
+        {
+            "commit": {
+                "committer": {
+                    "date": commit_date_str,
+                },
+            },
+        },
+    ).encode()
+
+    responses = iter([tag_ref_response, tag_object_response, commit_response])
+
+    def mock_dorequest(
+        url: object,  # noqa: ARG001
+        feed_url: str,  # noqa: ARG001
+        extra_headers: object = None,  # noqa: ARG001
+    ) -> bytes:
+        return next(responses)
+
+    monkeypatch.setattr("nix_update.version.github._dorequest", mock_dorequest)
+
+    commit = fetch_github_commit(url, version)
+
+    assert commit is not None
+    assert commit.sha == commit_sha
+    assert commit.date == commit_date
+
+
+def test_fetch_github_commit_unmatched_url() -> None:
+    url = urlparse("https://example.com/some/path")
+    version = Version(number="v1.0.0")
+
+    result = fetch_github_commit(url, version)
+
+    assert result is None
 
 
 def test_github_forcefetchgit(testpkgs_git: Path) -> None:

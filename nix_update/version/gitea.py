@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import re
+from datetime import datetime
 from http import HTTPStatus
 from typing import TYPE_CHECKING
 from urllib import request
 from urllib.error import URLError
 
 from .http import DEFAULT_TIMEOUT, fetch_json
-from .version import Version
+from .version import Commit, Version
 
 if TYPE_CHECKING:
     from urllib.parse import ParseResult
@@ -64,5 +65,12 @@ def fetch_gitea_snapshots(url: ParseResult, branch: str) -> list[Version]:
     versions = fetch_gitea_versions(url)
     latest_version = versions[0].number if versions else "0"
 
-    date = commit["commit"]["committer"]["date"][:10]
-    return [Version(f"{latest_version}-unstable-{date}", rev=commit["sha"])]
+    date = commit["commit"]["committer"]["date"]
+    commit_date = datetime.fromisoformat(date)
+    return [
+        Version(
+            f"{latest_version}-unstable-{date[:10]}",
+            rev=commit["sha"],
+            commit=Commit(sha=commit["sha"], date=commit_date),
+        ),
+    ]

@@ -10,7 +10,7 @@ from nix_update.errors import VersionError
 from nix_update.utils import info
 
 from .http import DEFAULT_TIMEOUT
-from .version import Version
+from .version import Commit, Version
 
 if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
@@ -46,7 +46,11 @@ def snapshot_from_entry(entry: Element, url: ParseResult) -> Version:
         msg = f"No link found in atom feed {url}"
         raise VersionError(msg)
     rev = node.text.split("/")[-1]
-    return Version(f"{latest_version}-unstable-{date_str}", rev=rev)
+    return Version(
+        f"{latest_version}-unstable-{date_str}",
+        rev=rev,
+        commit=Commit(sha=rev, date=parsed),
+    )
 
 
 def fetch_sourcehut_versions(url: ParseResult) -> list[Version]:

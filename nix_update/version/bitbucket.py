@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from .http import fetch_json
-from .version import Version
+from .version import Commit, Version
 
 if TYPE_CHECKING:
     from urllib.parse import ParseResult
@@ -32,5 +33,12 @@ def fetch_bitbucket_snapshots(url: ParseResult, branch: str) -> list[Version]:
     versions = fetch_bitbucket_versions(url)
     latest_version = versions[0].number if versions else "0"
 
-    date = ref["date"][:10]  # to YYYY-MM-DD
-    return [Version(f"{latest_version}-unstable-{date}", rev=ref["hash"])]
+    date = ref["date"]
+    commit_date = datetime.fromisoformat(ref["date"])
+    return [
+        Version(
+            f"{latest_version}-unstable-{date[:10]}",
+            rev=ref["hash"],
+            commit=Commit(sha=ref["hash"], date=commit_date),
+        ),
+    ]
