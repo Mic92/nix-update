@@ -3,7 +3,7 @@
   fetchFromGitHub,
   stdenvNoCC,
   nodejs,
-  pnpm_9,
+  pnpm_11,
   typescript,
 }:
 
@@ -23,13 +23,13 @@ let
 
     nativeBuildInputs = [
       nodejs
-      pnpm_9.configHook
+      pnpm_11.configHook
       typescript
     ];
 
     sourceRoot = "${src.name}/web";
 
-    pnpmDeps = pnpm_9.fetchDeps {
+    pnpmDeps = pnpm_11.fetchDeps {
       inherit (autobrr-web)
         pname
         version
