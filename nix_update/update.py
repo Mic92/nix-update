@@ -100,7 +100,10 @@ def fetch_new_version(
         branch=branch,
         old_rev_tag=old_rev_tag,
         version_prefix=version_prefix,
-        fetcher_args={"use_github_releases": opts.use_github_releases},
+        fetcher_args={
+            "use_github_releases": opts.use_github_releases,
+            "github_releases_limit": opts.github_releases_limit,
+        },
     )
     return fetch_latest_version(package.parsed_url, config)
 

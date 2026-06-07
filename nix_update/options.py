@@ -138,6 +138,7 @@ class Options:
     src_only: bool = False
     update_src: bool = True
     use_github_releases: bool = False
+    github_releases_limit: int = 1000
     extra_flags: list[str] = field(default_factory=list)
     custom_deps: list[str] | None = None
 
