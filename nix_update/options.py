@@ -5,6 +5,7 @@ import subprocess
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
+from urllib.parse import parse_qs, urlparse
 
 from .errors import AttributePathError
 from .version.version import VersionPreference
@@ -94,6 +95,12 @@ def get_flake_store_path(import_path: str) -> str | None:
     Uses ``nix flake metadata`` so that git-ignored files are excluded and
     only tracked content is copied.  Returns *None* when the command fails
     (e.g. the directory is not a flake).
+
+    For subdirectory flakes (where the flake lives in a subdirectory of a git
+    repo), nix copies the entire git tree into the store and reports the root
+    as ``path``.  We detect this via the ``dir`` query parameter in the
+    resolved URL and append it so that ``builtins.getFlake`` finds the
+    ``flake.nix`` at the correct location.
     """
     try:
         result = subprocess.run(
@@ -104,7 +111,17 @@ def get_flake_store_path(import_path: str) -> str | None:
             check=True,
         )
         metadata = json.loads(result.stdout)
-        return metadata.get("path")
+        path = metadata.get("path")
+        if path is None:
+            return None
+        # Handle subdirectory flakes: the store path points to the git root,
+        # but the flake.nix lives in a subdirectory indicated by ?dir=...
+        resolved_url = metadata.get("resolvedUrl", "")
+        parsed = urlparse(resolved_url)
+        dir_params = parse_qs(parsed.query).get("dir")
+        if dir_params:
+            path = str(Path(path) / dir_params[0])
+        return path
     except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
         return None
 
