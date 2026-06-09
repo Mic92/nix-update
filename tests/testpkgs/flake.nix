@@ -15,6 +15,9 @@
         flake-use-update-script = nixpkgs.legacyPackages.${system}.callPackage (
           self + "/flake-use-update-script.nix"
         ) { };
+        nuget-deps-generate = nixpkgs.legacyPackages.${system}.callPackage (
+          self + "/nuget-deps-generate"
+        ) { };
       });
     };
 }
