@@ -5,6 +5,7 @@ import re
 import subprocess
 import tempfile
 from functools import partial
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
@@ -107,33 +108,49 @@ def update_hash_with_prefetch(
 update_src_hash = partial(update_hash_with_prefetch, "src")
 
 
-def update_nuget_deps(opts: Options) -> None:
-    """Update NuGet dependencies."""
-    fetch_deps_script_path = run(
+def build_package_attr(opts: Options, attr: str) -> str:
+    """Build a package attribute and return the resulting store path.
+
+    Uses ``opts.get_package()`` instead of ``nix-build -A`` because flake
+    repositories may not have a default.nix.
+    """
+    return run(
         [
             "nix-build",
-            opts.import_path,
-            "-A",
-            f"{opts.attribute}.fetch-deps",
+            "--expr",
+            f"{opts.get_package()}.{attr}",
             "--no-out-link",
+            *opts.extra_flags,
         ],
     ).stdout.strip()
 
-    # Run the fetch-deps script without arguments - it determines the path itself
-    run([fetch_deps_script_path])
+
+def update_nuget_deps(opts: Options) -> None:
+    """Update NuGet dependencies."""
+    fetch_deps_script_path = build_package_attr(opts, "fetch-deps")
+
+    cmd = [fetch_deps_script_path]
+    flake_src = opts.get_flake_import_path()
+    if flake_src is not None:
+        # The script's default deps file points into the read-only store copy
+        # of the flake source; redirect it to the local checkout.
+        match = re.search(
+            r"^defaultDepsFile=(.*)$",
+            Path(fetch_deps_script_path).read_text(),
+            re.MULTILINE,
+        )
+        deps_file = match.group(1).strip("'\"") if match else ""
+        prefix = flake_src.rstrip("/") + "/"
+        if deps_file.startswith(prefix):
+            cmd.append(str(Path(opts.import_path) / deps_file.removeprefix(prefix)))
+
+    # Without an argument the script writes to its default deps file
+    run(cmd)
 
 
 def update_gradle_mitm_cache(opts: Options) -> None:
     """Update Gradle dependencies."""
-    update_script_path = run(
-        [
-            "nix-build",
-            opts.import_path,
-            "-A",
-            f"{opts.attribute}.mitmCache.updateScript",
-            "--no-out-link",
-        ],
-    ).stdout.strip()
+    update_script_path = build_package_attr(opts, "mitmCache.updateScript")
 
     run([update_script_path])
 
