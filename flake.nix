@@ -67,15 +67,31 @@
         // {
           # Puts test-fixture toolchains in a runtime closure so the
           # CI binary cache (hestia) roots them.
-          test-deps = pkgs.linkFarm "test-deps" {
-            inherit (pkgs)
-              rustc
-              cargo
-              cargo-auditable
-              maturin
-              jq
-              ;
-          };
+          test-deps = pkgs.linkFarm "test-deps" (
+            # tryEval: some packages (e.g. zulu jdk) throw during evaluation
+            # on unsupported platforms before availableOn can be checked
+            lib.filterAttrs
+              (_: pkg: (builtins.tryEval (lib.meta.availableOn pkgs.stdenv.hostPlatform pkg)).value or false)
+              {
+                inherit (pkgs)
+                  rustc
+                  cargo
+                  cargo-auditable
+                  maturin
+                  jq
+                  go
+                  nodejs
+                  prefetch-npm-deps
+                  pnpm_9
+                  prefetch-yarn-deps
+                  maven
+                  gradle
+                  elixir
+                  ;
+                composer = pkgs.phpPackages.composer;
+                dotnet-sdk = pkgs.dotnetCorePackages.sdk_8_0;
+              }
+          );
         }
       );
     };
