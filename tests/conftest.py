@@ -62,21 +62,20 @@ def testpkgs(nixpkgs_path: str, monkeypatch: pytest.MonkeyPatch) -> Iterator[Pat
             dirs_exist_ok=True,
         )
 
-        # Patch the test flake.nix to use the main flake's nixpkgs
+        # Point the flake inputs at the main flake's nixpkgs and the local
+        # nix-update checkout, so update scripts run the code under test.
+        replacements = {
+            'nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";': f'nixpkgs.url = "path:{nixpkgs_path}";',
+            'nix-update.url = "github:Mic92/nix-update";': f'nix-update.url = "path:{TEST_ROOT.parent}";',
+        }
         flake_path = tmpdirname / "flake.nix"
         flake_content = flake_path.read_text()
-        # Replace the placeholder with the actual nixpkgs path
-        placeholder = 'nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";'
-        patched_content = flake_content.replace(
-            placeholder,
-            f'nixpkgs.url = "path:{nixpkgs_path}";',
-        )
-        if patched_content == flake_content:
-            msg = f"Failed to patch flake.nix; placeholder not found: {placeholder}"
-            raise RuntimeError(
-                msg,
-            )
-        flake_path.write_text(patched_content)
+        for placeholder, replacement in replacements.items():
+            if placeholder not in flake_content:
+                msg = f"Failed to patch flake.nix; placeholder not found: {placeholder}"
+                raise RuntimeError(msg)
+            flake_content = flake_content.replace(placeholder, replacement)
+        flake_path.write_text(flake_content)
 
         # Set NIX_PATH for old Nix compatibility
         monkeypatch.setenv("NIX_PATH", f"nixpkgs={nixpkgs_path}")

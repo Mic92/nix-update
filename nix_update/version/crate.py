@@ -12,10 +12,12 @@ if TYPE_CHECKING:
 
 
 def fetch_crate_versions(url: ParseResult) -> list[Version]:
-    if url.netloc != "crates.io":
+    if url.netloc == "crates.io":
+        package = url.path.split("/")[4]
+    elif url.netloc == "static.crates.io":
+        package = url.path.split("/")[2]
+    else:
         return []
-    parts = url.path.split("/")
-    package = parts[4]
     crate_url = f"https://crates.io/api/v1/crates/{package}/versions"
     info(f"fetch {crate_url}")
     data = fetch_json(crate_url)

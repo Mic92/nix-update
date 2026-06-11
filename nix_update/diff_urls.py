@@ -16,11 +16,12 @@ GITLAB_API = re.compile(r"https://(gitlab.com|([^/]+)/api/v4)/")
 
 
 def create_crates_diff_url(package: Package, new_version: Version) -> str:
-    crates_path_min_parts = 5
-
     if package.parsed_url is None:
         msg = "Package parsed_url is None"
         raise UpdateError(msg)
+
+    crates_path_min_parts = 3 if package.parsed_url.netloc == "static.crates.io" else 5
+
     parts = package.parsed_url.path.split("/")
     if len(parts) < crates_path_min_parts:
         msg = f"Unexpected crates.io URL path structure: {package.parsed_url.path}"
@@ -109,7 +110,7 @@ def generate_diff_url(opts: Options, package: Package, new_version: Version) -> 
     netloc = package.parsed_url.netloc
     diff_url = None
 
-    if netloc == "crates.io":
+    if netloc in ["crates.io", "static.crates.io"]:
         diff_url = create_crates_diff_url(package, new_version)
     elif netloc == "registry.npmjs.org":
         diff_url = create_npm_diff_url(package, new_version)
