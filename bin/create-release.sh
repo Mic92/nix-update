@@ -51,10 +51,8 @@ if git tag -l | grep -q "^${tag}\$"; then
   echo "Tag ${tag} already exists, exiting" >&2
   exit 1
 fi
-sed -i -e "s!version = \".*\";!version = \"${version}\";!" default.nix
 sed -i -e "s!^version = \".*\"\$!version = \"${version}\"!" pyproject.toml
-echo "VERSION = \"${version}\"" >nix_update/version_info.py
-git add pyproject.toml default.nix nix_update/version_info.py
+git add pyproject.toml
 git branch -D "release-${version}" || true
 git checkout -b "release-${version}"
 git commit -m "bump version ${version}"

@@ -3,7 +3,7 @@
 }:
 pkgs.python3Packages.buildPythonApplication {
   pname = "nix-update";
-  version = "1.15.1";
+  version = (pkgs.lib.importTOML ./pyproject.toml).project.version;
   src = ./.;
   pyproject = true;
   buildInputs = [ pkgs.makeWrapper ];
