@@ -8,17 +8,17 @@ work with nixpkgs but also other package sets.
 | Feature                                                | Details                                                                                             |
 | ------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | Detect latest version automatically                    | BitBucket, Codeberg, crates.io, Gitea, GitHub, GitLab, npm, PyPi, RubyGems.org, Sourcehut, Savannah |
-| Update Rust dependency hashes                          | `buildRustPackage`'s `cargoHash`/`cargoSha256`/`cargoLock` and `cargoSetupHook`'s `cargoDeps`       |
-| Update Go dependency hashes                            | `buildGoModule`'s `vendorHash`/`vendorSha256`                                                       |
-| Update npm dependency hashes                           | `buildNpmPackage`'s `npmDepsHash` and `npmConfigHook`'s `npmDeps`                                   |
-| Update pnpm dependency hashes                          | `pnpm.fetchDeps`' `pnpmDeps`                                                                        |
-| Update PHP dependency hashes                           | `buildComposerProject`'s `vendorHash`                                                               |
-| Update Maven dependency hashes                         | `buildMavenPackage`'s `mvnHash`                                                                     |
-| Update Elixir dependency hashes                        | `mixRelease`'s `mixFodDeps`                                                                         |
-| Update Yarn dependency hashes                          | `fetchYarnDeps`' `offlineCache` output hash                                                         |
-| Update Zig dependency hashes                           | `zigDeps` output hash                                                                               |
-| Update .NET dependency files                           | `nugetDeps`                                                                                         |
-| Update custom dependency hashes                        | see `--custom-dep`                                                                                  |
+| Rust                                                   | `buildRustPackage`'s `cargoHash`/`cargoSha256`/`cargoLock` and `cargoSetupHook`'s `cargoDeps`       |
+| Go                                                     | `buildGoModule`'s `vendorHash`/`vendorSha256`                                                       |
+| npm                                                    | `buildNpmPackage`'s `npmDepsHash` and `npmConfigHook`'s `npmDeps`                                   |
+| pnpm                                                   | `pnpm.fetchDeps`' `pnpmDeps`                                                                        |
+| PHP                                                    | `buildComposerProject`'s `vendorHash`                                                               |
+| Maven                                                  | `buildMavenPackage`'s `mvnHash`                                                                     |
+| Elixir                                                 | `mixRelease`'s `mixFodDeps`                                                                         |
+| Yarn                                                   | `fetchYarnDeps`' `offlineCache` output hash                                                         |
+| Zig                                                    | `zigDeps` output hash                                                                               |
+| .NET                                                   | `nugetDeps`                                                                                         |
+| Custom dependency hashes                               | see `--custom-dep`                                                                                  |
 | Update flake outputs                                   | see `--flake`                                                                                       |
 | Generate lockfiles (`Cargo.lock`, `package-lock.json`) | see `--generate-lockfile` and `--lockfile-metadata-path`                                            |
 | Build and run the resulting package                    | see `--build`, `--run` or `--shell`                                                                 |
