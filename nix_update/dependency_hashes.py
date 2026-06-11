@@ -170,10 +170,14 @@ def update_dependency_hashes(
     if not (update_hash or not package.hash) or opts.src_only:
         return
 
+    # In theory dependency hashes should only depend on the actual dependencies
+    # being fetched, but some derivation frameworks like goModules pull in the
+    # whole derivation in which case updating other dependencies end up
+    # modifying the hash. Ensure such modules come "later" in order below.
+    # https://github.com/NixOS/nixpkgs/issues/358844
+    # Dictionary iteration order is guaranteed since python 3.7
     hash_updaters: dict[str, Callable[[Options, str, Any], None]] = {
         "fod_subpackage": partial(update_hash_with_prefetch, None),
-        "go_modules": partial(update_hash_with_prefetch, "goModules"),
-        "go_modules_old": partial(update_hash_with_prefetch, "go-modules"),
         "cargo_deps": partial(update_hash_with_prefetch, "cargoDeps"),
         "cargo_vendor_deps": partial(
             update_hash_with_prefetch,
@@ -189,6 +193,8 @@ def update_dependency_hashes(
         "mix_deps": partial(update_hash_with_prefetch, "mixFodDeps"),
         "zig_deps": partial(update_hash_with_prefetch, "zigDeps"),
         "cargo_lock": update_cargo_lock,
+        "go_modules": partial(update_hash_with_prefetch, "goModules"),
+        "go_modules_old": partial(update_hash_with_prefetch, "go-modules"),
     }
 
     # Update all dependency hashes using registry
