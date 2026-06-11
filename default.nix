@@ -7,7 +7,7 @@ pkgs.python3Packages.buildPythonApplication {
   src = ./.;
   pyproject = true;
   buildInputs = [ pkgs.makeWrapper ];
-  build-system = [ pkgs.python3Packages.setuptools ];
+  build-system = [ pkgs.python3Packages.hatchling ];
   nativeBuildInputs = [
     pkgs.nixVersions.stable
     pkgs.nix-prefetch-git

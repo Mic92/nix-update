@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "nix-update"
@@ -58,8 +58,8 @@ lint.ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]  # Allow assert in test files
 
-[tool.setuptools.packages.find]
-include = ["nix_update*"]
+[tool.hatch.build.targets.wheel]
+packages = ["nix_update"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -69,10 +69,6 @@ disallow_untyped_calls = true
 disallow_untyped_defs = true
 no_implicit_optional = true
 packages = ["nix_update"]
-
-[[tool.mypy.overrides]]
-module = "setuptools.*"
-ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "pytest.*"
