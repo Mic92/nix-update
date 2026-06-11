@@ -3,7 +3,7 @@
 }:
 pkgs.python3Packages.buildPythonApplication {
   pname = "nix-update";
-  version = "v1.15.1";
+  version = "1.15.1";
   src = ./.;
   pyproject = true;
   buildInputs = [ pkgs.makeWrapper ];

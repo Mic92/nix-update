@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nix-update"
 description = "Swiss-knife for updating nix packages"
-version = "v1.15.1"
+version = "1.15.1"
 authors = [{ name = "Jörg Thalheim", email = "joerg@thalheim.io" }]
 license = { text = "MIT" }
 classifiers = [
