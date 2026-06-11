@@ -63,7 +63,7 @@ class Package:
     yarn_deps_old: str | None
     composer_deps: str | None
     composer_deps_old: str | None
-    custom_deps: list[str] | None
+    custom_deps: list[dict[str, str]] | None
     maven_deps: str | None
     mix_deps: str | None
     zig_deps: str | None

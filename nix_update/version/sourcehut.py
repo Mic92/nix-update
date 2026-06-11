@@ -32,7 +32,7 @@ def snapshot_from_entry(entry: Element, url: ParseResult) -> Version:
     versions = fetch_sourcehut_versions(url)
     latest_version = versions[0].number if versions else "0"
     pub_date = entry.find("pubDate")
-    if pub_date is None:
+    if pub_date is None or pub_date.text is None:
         msg = f"No pubDate found in atom feed {url}"
         raise VersionError(msg)
     parsed = parsedate_to_datetime(pub_date.text)
