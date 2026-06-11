@@ -156,6 +156,12 @@ def parse_args(args: list[str]) -> Options:
         help="Use GitHub releases API instead of ATOM feed to determine the newest version",
     )
     parser.add_argument(
+        "--github-releases-limit",
+        type=int,
+        default=1000,
+        help="Maximum number of GitHub releases to consider (default: %(default)s)",
+    )
+    parser.add_argument(
         "--option",
         help="Nix option to set",
         action="append",
@@ -205,6 +211,7 @@ def parse_args(args: list[str]) -> Options:
         lockfile_metadata_path=a.lockfile_metadata_path,
         src_only=a.src_only,
         use_github_releases=a.use_github_releases,
+        github_releases_limit=a.github_releases_limit,
         extra_flags=extra_flags,
         update_src=not a.no_src,
         custom_deps=a.custom_dep,

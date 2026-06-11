@@ -21,7 +21,7 @@ def fake_urlopen(req: Request, timeout: float | None = None) -> BinaryIO:
     url = req.get_full_url()
     if url.endswith("releases.atom"):
         return TEST_ROOT.joinpath("test_branch_releases.atom").open("rb")
-    if url.endswith("/releases?per_page=100"):
+    if "/releases?per_page=100" in url:
         return TEST_ROOT.joinpath("test_branch_releases.json").open("rb")
     return TEST_ROOT.joinpath("test_branch_commits_master.atom").open("rb")
 

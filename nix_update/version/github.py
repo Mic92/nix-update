@@ -86,35 +86,49 @@ def fetch_github_versions(
         return []
     owner, repo = urlmatch.group("owner"), urlmatch.group("repo")
     if extra_args is not None and extra_args.get("use_github_releases"):
-        return fetch_github_versions_from_releases(url, owner, repo)
+        limit = extra_args.get("github_releases_limit", DEFAULT_RELEASES_LIMIT)
+        return fetch_github_versions_from_releases(url, owner, repo, limit)
     return fetch_github_versions_from_feed(url, owner, repo)
+
+
+# Bounds API usage on repos with thousands of releases.
+DEFAULT_RELEASES_LIMIT = 1000
+RELEASES_PER_PAGE = 100
 
 
 def fetch_github_versions_from_releases(
     url: ParseResult,
     owner: str,
     repo: str,
+    limit: int = DEFAULT_RELEASES_LIMIT,
 ) -> list[Version]:
-    github_url = f"https://api.github.com/repos/{owner}/{repo}/releases?per_page=100"
+    api_base = f"https://api.github.com/repos/{owner}/{repo}"
     if url.netloc not in {"github.com", "api.github.com"}:
-        github_url = (
-            f"https://{url.netloc}/api/v3/repos/{owner}/{repo}/releases?per_page=100"
-        )
+        api_base = f"https://{url.netloc}/api/v3/repos/{owner}/{repo}"
 
-    # TODO: pagination?
     token = os.environ.get("GITHUB_TOKEN")
     extra_headers = {} if token is None else {"Authorization": f"Bearer {token}"}
 
-    info(f"fetch {github_url}")
-    resp = _dorequest(url, github_url, extra_headers)
-    if resp is None:
-        return []
-    try:
-        releases = json.loads(resp)
-    except json.JSONDecodeError:
-        info("unable to parse github response, ignoring")
-        return []
-    return [Version(r["tag_name"], r["prerelease"]) for r in releases]
+    # Releases are ordered by creation date, not version, so the wanted
+    # release can sit on any page.
+    versions: list[Version] = []
+    page = 1
+    while len(versions) < limit:
+        github_url = f"{api_base}/releases?per_page={RELEASES_PER_PAGE}&page={page}"
+        info(f"fetch {github_url}")
+        resp = _dorequest(url, github_url, extra_headers)
+        if resp is None:
+            break
+        try:
+            releases = json.loads(resp)
+        except json.JSONDecodeError:
+            info("unable to parse github response, ignoring")
+            break
+        versions.extend(Version(r["tag_name"], r["prerelease"]) for r in releases)
+        if len(releases) < RELEASES_PER_PAGE:
+            break
+        page += 1
+    return versions
 
 
 def fetch_github_versions_from_feed(
