@@ -20,10 +20,7 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - uses: cachix/cachix-action@v17
-        with:
-          name: nix-update
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - uses: Mic92/hestia/action@main
       - name: build
         run: nix build
       - name: Allow unprivileged user namespaces
