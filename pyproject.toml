@@ -48,6 +48,9 @@ lint.ignore = [
   # Using `xml` to parse untrusted data
   "S314",
 
+  # Conflicts with ruff format
+  "COM812",
+
   # Found commented-out code
   "ERA001",
 
