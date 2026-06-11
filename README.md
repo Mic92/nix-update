@@ -5,33 +5,29 @@ work with nixpkgs but also other package sets.
 
 ## Features
 
-- automatically figure out the latest version of packages from:
-  - BitBucket
-  - Codeberg
-  - crates.io
-  - Gitea
-  - GitHub
-  - GitLab
-  - PyPi
-  - RubyGems.org
-  - Sourcehut
-  - Savannah
-- update buildRustPackage's cargoHash/cargoSha256/cargoLock and cargoSetupHook's
-  cargoDeps
-- update buildGoModule's vendorHash/vendorSha256
-- update buildNpmPackage's npmDepsHash and npmConfigHook's npmDeps
-- update buildComposerProject's vendorHash
-- update buildMavenPackage's mvnHash
-- update mixRelease's mixFodDeps
-- update fetchYarnDeps offlineCache output hash
-- update flake outputs (see `--flake`)
-- generate the following lockfile, Cargo.lock, package-lock.json (see
-  `--generate-lockfile` and `--lockfile-metadata-path`)
-- build and run the resulting package (see `--build`, `--run` or `--shell`
-- commit updated files (see `--commit` flag)
-- run update scripts (`passthru.updateScript`, see `--use-update-script` flag)
-- run package tests (see `--test` flag)
-- specify the system to use (see `--system` flag)
+| Feature                                                | Details                                                                                             |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| Detect latest version automatically                    | BitBucket, Codeberg, crates.io, Gitea, GitHub, GitLab, npm, PyPi, RubyGems.org, Sourcehut, Savannah |
+| Update Rust dependency hashes                          | `buildRustPackage`'s `cargoHash`/`cargoSha256`/`cargoLock` and `cargoSetupHook`'s `cargoDeps`       |
+| Update Go dependency hashes                            | `buildGoModule`'s `vendorHash`/`vendorSha256`                                                       |
+| Update npm dependency hashes                           | `buildNpmPackage`'s `npmDepsHash` and `npmConfigHook`'s `npmDeps`                                   |
+| Update pnpm dependency hashes                          | `pnpm.fetchDeps`' `pnpmDeps`                                                                        |
+| Update PHP dependency hashes                           | `buildComposerProject`'s `vendorHash`                                                               |
+| Update Maven dependency hashes                         | `buildMavenPackage`'s `mvnHash`                                                                     |
+| Update Elixir dependency hashes                        | `mixRelease`'s `mixFodDeps`                                                                         |
+| Update Yarn dependency hashes                          | `fetchYarnDeps`' `offlineCache` output hash                                                         |
+| Update Zig dependency hashes                           | `zigDeps` output hash                                                                               |
+| Update .NET dependency files                           | `nugetDeps`                                                                                         |
+| Update custom dependency hashes                        | see `--custom-dep`                                                                                  |
+| Update flake outputs                                   | see `--flake`                                                                                       |
+| Generate lockfiles (`Cargo.lock`, `package-lock.json`) | see `--generate-lockfile` and `--lockfile-metadata-path`                                            |
+| Build and run the resulting package                    | see `--build`, `--run` or `--shell`                                                                 |
+| Commit updated files                                   | see `--commit`                                                                                      |
+| Run update scripts (`passthru.updateScript`)           | see `--use-update-script`                                                                           |
+| Run package tests                                      | see `--test`                                                                                        |
+| Review the update with nixpkgs-review                  | see `--review`                                                                                      |
+| Format the changed expression                          | see `--format`                                                                                      |
+| Specify the system to use                              | see `--system`                                                                                      |
 
 ## Installation
 
