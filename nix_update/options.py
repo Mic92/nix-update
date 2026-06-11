@@ -5,6 +5,7 @@ import subprocess
 from dataclasses import dataclass, field
 from enum import Enum, auto
 from pathlib import Path
+from typing import Any
 
 from .errors import AttributePathError
 from .version.version import VersionPreference
@@ -88,12 +89,23 @@ def parse_attribute_path(attribute: str) -> list[str]:
     return parts
 
 
+def _metadata_flake_dir(metadata: dict[str, Any]) -> str | None:
+    """Extract the flake subdirectory (``?dir=``) from flake metadata."""
+    for key in ("locked", "resolved", "original"):
+        value = metadata.get(key)
+        if isinstance(value, dict) and isinstance(value.get("dir"), str):
+            return value["dir"]
+    return None
+
+
 def get_flake_store_path(import_path: str) -> str | None:
     """Copy a local flake into the Nix store and return its store path.
 
     Uses ``nix flake metadata`` so that git-ignored files are excluded and
-    only tracked content is copied.  Returns *None* when the command fails
-    (e.g. the directory is not a flake).
+    only tracked content is copied.  For flakes in a subdirectory of a git
+    repository the reported store path is the repository root, so the
+    flake's subdirectory is appended.  Returns *None* when the command
+    fails (e.g. the directory is not a flake).
     """
     try:
         result = subprocess.run(
@@ -104,9 +116,16 @@ def get_flake_store_path(import_path: str) -> str | None:
             check=True,
         )
         metadata = json.loads(result.stdout)
-        return metadata.get("path")
-    except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
+        path = metadata.get("path")
+        if not isinstance(path, str):
+            return None
+
+        flake_dir = _metadata_flake_dir(metadata)
+        if flake_dir:
+            return str(Path(path) / flake_dir)
+    except (subprocess.CalledProcessError, json.JSONDecodeError):
         return None
+    return path
 
 
 @dataclass
