@@ -11,6 +11,13 @@ if [[ -z $version ]]; then
   exit 1
 fi
 
+# version must be plain semver without "v" prefix; tag gets "v" added below
+if [[ ! $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "version must match X.Y.Z without 'v' prefix, got: ${version}" >&2
+  exit 1
+fi
+tag="v${version}"
+
 if [[ "$(git symbolic-ref --short HEAD)" != "main" ]]; then
   echo "must be on main branch" >&2
   exit 1
@@ -40,8 +47,8 @@ if [[ $unpushed_commits != "" ]]; then
   exit 1
 fi
 # make sure tag does not exist
-if git tag -l | grep -q "^${version}\$"; then
-  echo "Tag ${version} already exists, exiting" >&2
+if git tag -l | grep -q "^${tag}\$"; then
+  echo "Tag ${tag} already exists, exiting" >&2
   exit 1
 fi
 sed -i -e "s!version = \".*\";!version = \"${version}\";!" default.nix
@@ -67,4 +74,4 @@ git checkout main
 
 waitForPr "release-${version}"
 git pull git@github.com:Mic92/nix-update main
-gh release create "${version}" --draft --title "${version}" --notes ""
+gh release create "${tag}" --draft --title "${tag}" --notes ""
