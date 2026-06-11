@@ -1,0 +1,23 @@
+# Hestia only uploads runtime closures, so test-fixture toolchains
+# (rust, maturin, jq) need an explicit root to get cached.
+name: Cache test deps
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - staging
+      - trying
+permissions:
+  contents: read
+jobs:
+  cache-test-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
+      - uses: Mic92/hestia/action@main
+      - run: nix build --no-link .#checks.x86_64-linux.test-deps
