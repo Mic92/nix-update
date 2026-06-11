@@ -55,7 +55,21 @@
                 packages = lib.mapAttrs' (n: lib.nameValuePair "package-${n}") self'.packages;
                 devShells = lib.mapAttrs' (n: lib.nameValuePair "devShell-${n}") self'.devShells;
               in
-              packages // devShells;
+              packages
+              // devShells
+              // {
+                # Puts test-fixture toolchains in a runtime closure so the
+                # CI binary cache (hestia) roots them.
+                test-deps = pkgs.linkFarm "test-deps" {
+                  inherit (pkgs)
+                    rustc
+                    cargo
+                    cargo-auditable
+                    maturin
+                    jq
+                    ;
+                };
+              };
           };
       }
     );
