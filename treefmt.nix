@@ -1,39 +1,29 @@
-{ inputs, ... }:
+{ pkgs, ... }:
 {
-  imports = [ inputs.treefmt-nix.flakeModule ];
+  # Used to find the project root
+  projectRootFile = "flake.lock";
 
-  perSystem =
-    { pkgs, ... }:
-    {
-      treefmt = {
-        flakeCheck = pkgs.stdenv.hostPlatform.system != "riscv64-linux";
+  # Ignore these files
+  settings.excludes = [ "tests/testpkgs/custom-deps/pnpm/pnpm-lock.yaml" ];
 
-        # Used to find the project root
-        projectRootFile = "flake.lock";
-
-        # Ignore these files
-        settings.excludes = [ "tests/testpkgs/custom-deps/pnpm/pnpm-lock.yaml" ];
-
-        programs.deno.enable = pkgs.stdenv.hostPlatform.system != "x86_64-darwin";
-        programs.mypy.enable = true;
-        programs.mypy.directories = {
-          "." = {
-            extraPythonPackages = with pkgs.python3.pkgs; [
-              pytest
-            ];
-          };
-        };
-
-        programs.yamlfmt.enable = true;
-
-        programs.nixfmt.enable = true;
-        programs.deadnix.enable = true;
-        programs.ruff.format = true;
-        programs.ruff.check = true;
-
-        programs.shellcheck.enable = true;
-        programs.shfmt.enable = true;
-        settings.formatter.shfmt.includes = [ "*.envrc" ];
-      };
+  programs.deno.enable = pkgs.stdenv.hostPlatform.system != "x86_64-darwin";
+  programs.mypy.enable = true;
+  programs.mypy.directories = {
+    "." = {
+      extraPythonPackages = with pkgs.python3.pkgs; [
+        pytest
+      ];
     };
+  };
+
+  programs.yamlfmt.enable = true;
+
+  programs.nixfmt.enable = true;
+  programs.deadnix.enable = true;
+  programs.ruff.format = true;
+  programs.ruff.check = true;
+
+  programs.shellcheck.enable = true;
+  programs.shfmt.enable = true;
+  settings.formatter.shfmt.includes = [ "*.envrc" ];
 }
