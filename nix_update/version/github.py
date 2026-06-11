@@ -146,9 +146,9 @@ def fetch_github_versions_from_feed(
     resp = _dorequest(url, feed_url)
     if resp is None:
         return []
-    resp = remove_control_chars(resp.decode())
+    text = remove_control_chars(resp.decode())
     try:
-        tree = ET.fromstring(resp)
+        tree = ET.fromstring(text)
     except ParseError:
         info("unable to parse github response, ignoring")
         return []
@@ -178,9 +178,9 @@ def fetch_github_snapshots(
     resp = _dorequest(url, feed_url)
     if resp is None:
         return []
-    resp = remove_control_chars(resp.decode())
+    text = remove_control_chars(resp.decode())
     try:
-        tree = ET.fromstring(resp)
+        tree = ET.fromstring(text)
     except ParseError:
         info("unable to parse github response, ignoring")
         return []
