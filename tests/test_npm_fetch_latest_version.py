@@ -3,7 +3,10 @@ from __future__ import annotations
 import io
 import unittest.mock
 from typing import TYPE_CHECKING
+from urllib.error import HTTPError
 from urllib.parse import urlparse
+
+import pytest
 
 from nix_update.version import VersionFetchConfig, fetch_latest_version
 from nix_update.version.version import VersionPreference
@@ -22,6 +25,21 @@ def fake_npm_urlopen(request: Request, timeout: float | None = None) -> io.Bytes
 
     if url == "https://registry.npmjs.org/express/latest":
         return io.BytesIO(b'{"version": "4.21.2"}')
+
+    if url == "https://registry.npmjs.org/express/latest-4":
+        return io.BytesIO(b'{"version": "4.22.2"}')
+
+    if url == "https://registry.npmjs.org/@anthropic-ai/claude-code/next":
+        return io.BytesIO(b'{"version": "2.1.206"}')
+
+    if url == "https://registry.npmjs.org/express/missing":
+        raise HTTPError(
+            url,
+            404,
+            "Not Found",
+            None,
+            io.BytesIO(b'"version not found: missing"'),
+        )
 
     raise ValueError(f"Unexpected URL in test: {url}")  # noqa: EM102, TRY003
 
@@ -55,4 +73,54 @@ def test_regular_npm(helpers: conftest.Helpers) -> None:
                 ),
             ).number
             == "4.21.2"
+        )
+
+
+def test_npm_dist_tag(helpers: conftest.Helpers) -> None:
+    del helpers
+    with unittest.mock.patch("nix_update.version.http.urlopen", fake_npm_urlopen):
+        assert (
+            fetch_latest_version(
+                urlparse("https://registry.npmjs.org/express/-/express-4.21.1.tgz"),
+                VersionFetchConfig(
+                    preference=VersionPreference.BRANCH,
+                    version_regex="(.*)",
+                    branch="latest-4",
+                ),
+            ).number
+            == "4.22.2"
+        )
+
+
+def test_npm_scoped_dist_tag(helpers: conftest.Helpers) -> None:
+    del helpers
+    with unittest.mock.patch("nix_update.version.http.urlopen", fake_npm_urlopen):
+        assert (
+            fetch_latest_version(
+                urlparse(
+                    "https://registry.npmjs.org/@anthropic-ai/claude-code/-/claude-code-1.0.42.tgz",
+                ),
+                VersionFetchConfig(
+                    preference=VersionPreference.BRANCH,
+                    version_regex="(.*)",
+                    branch="next",
+                ),
+            ).number
+            == "2.1.206"
+        )
+
+
+def test_npm_missing_dist_tag(helpers: conftest.Helpers) -> None:
+    del helpers
+    with (
+        unittest.mock.patch("nix_update.version.http.urlopen", fake_npm_urlopen),
+        pytest.raises(HTTPError),
+    ):
+        fetch_latest_version(
+            urlparse("https://registry.npmjs.org/express/-/express-4.21.1.tgz"),
+            VersionFetchConfig(
+                preference=VersionPreference.BRANCH,
+                version_regex="(.*)",
+                branch="missing",
+            ),
         )

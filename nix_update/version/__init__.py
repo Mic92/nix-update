@@ -18,7 +18,7 @@ from .crate import fetch_crate_versions
 from .gitea import fetch_gitea_snapshots, fetch_gitea_versions
 from .github import fetch_github_snapshots, fetch_github_versions
 from .gitlab import fetch_gitlab_snapshots, fetch_gitlab_versions
-from .npm import fetch_npm_versions
+from .npm import fetch_npm_snapshots, fetch_npm_versions
 from .pypi import fetch_pypi_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
@@ -78,6 +78,7 @@ fetchers: list[Fetcher] = [
 ]
 
 branch_snapshots_fetchers: list[SnapshotFetcher] = [
+    fetch_npm_snapshots,
     fetch_github_snapshots,
     fetch_gitlab_snapshots,
     fetch_bitbucket_snapshots,
