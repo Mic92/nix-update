@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import fileinput
+import json
 import re
 import subprocess
 import tempfile
@@ -125,6 +126,21 @@ def build_package_attr(opts: Options, attr: str) -> str:
     ).stdout.strip()
 
 
+def eval_package_attr(opts: Options, attr: str) -> str:
+    """Evaluate a package attribute and return the result"""
+    res = run(
+        [
+            "nix-instantiate",
+            "--eval",
+            "--json",
+            "--expr",
+            f"toString ({opts.get_package()}.{attr})",
+            *opts.extra_flags,
+        ],
+    ).stdout.strip()
+    return json.loads(res)
+
+
 def update_nuget_deps(opts: Options) -> None:
     """Update NuGet dependencies."""
     fetch_deps_script_path = build_package_attr(opts, "fetch-deps")
@@ -155,6 +171,20 @@ def update_gradle_mitm_cache(opts: Options) -> None:
     run([update_script_path])
 
 
+def update_yarn_berry_missing_hashes(opts: Options, missing_hashes_path: Path) -> None:
+    """Update Yarn Berry missing hashes."""
+    src_path = Path(eval_package_attr(opts, "src"))
+
+    # `src` might be a path like `./.`, in which case the above evaluation realizes the store path
+    if not src_path.exists():
+        src_path = Path(
+            build_package_attr(opts, "src")
+        )  # otherwise build the derivation (e.g. `fetchFromGitHub`)
+
+    res = run(["yarn-berry-fetcher", "missing-hashes", str(src_path / "yarn.lock")])
+    missing_hashes_path.write_text(res.stdout)
+
+
 def update_npm_deps(opts: Options, filename: str, old_hash: str) -> None:
     if opts.generate_lockfile:
         generate_lockfile(opts, filename, "npm", opts.get_package())
@@ -169,6 +199,12 @@ def update_dependency_hashes(
 ) -> None:
     if not (update_hash or not package.hash) or opts.src_only:
         return
+
+    # Handle yarn berry missing hashes before yarn deps
+    if package.yarn_berry_missing_hashes_path:
+        update_yarn_berry_missing_hashes(
+            opts, Path(package.filename).parent / package.yarn_berry_missing_hashes_path
+        )
 
     # In theory dependency hashes should only depend on the actual dependencies
     # being fetched, but some derivation frameworks like goModules pull in the

@@ -11,11 +11,12 @@ work with nixpkgs but also other package sets.
 | Rust                                                   | `buildRustPackage`'s `cargoHash`/`cargoSha256`/`cargoLock` and `cargoSetupHook`'s `cargoDeps`       |
 | Go                                                     | `buildGoModule`'s `vendorHash`/`vendorSha256`                                                       |
 | npm                                                    | `buildNpmPackage`'s `npmDepsHash` and `npmConfigHook`'s `npmDeps`                                   |
-| pnpm                                                   | `pnpm.fetchDeps`' `pnpmDeps`                                                                        |
+| pnpm                                                   | `pnpm.fetchDeps`'s `pnpmDeps`                                                                       |
 | PHP                                                    | `buildComposerProject`'s `vendorHash`                                                               |
 | Maven                                                  | `buildMavenPackage`'s `mvnHash`                                                                     |
 | Elixir                                                 | `mixRelease`'s `mixFodDeps`                                                                         |
-| Yarn                                                   | `fetchYarnDeps`' `offlineCache` output hash                                                         |
+| Yarn                                                   | `fetchYarnDeps`'s `yarnOfflineCache` (or `offlineCache`) output hash                                |
+| Yarn Berry                                             | `fetchYarnBerryDeps`'s `yarnOfflineCache` (or `offlineCache`) output hash, `missingHashes` file     |
 | Zig                                                    | `zigDeps` output hash                                                                               |
 | .NET                                                   | `nugetDeps`                                                                                         |
 | Custom dependency hashes                               | see `--custom-dep`                                                                                  |

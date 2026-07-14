@@ -145,6 +145,16 @@ in
   pnpm_deps = pkg.pnpmDeps.outputHash or null;
   yarn_deps = pkg.yarnOfflineCache.outputHash or null;
   yarn_deps_old = pkg.offlineCache.outputHash or null;
+  yarn_berry_missing_hashes_path =
+    if pkg ? missingHashes then
+      let
+        res = builtins.tryEval (sanitizePosition {
+          file = toString pkg.missingHashes;
+        });
+      in
+      if res.success then res.value.file else null
+    else
+      null;
   maven_deps = pkg.fetchedMavenDeps.outputHash or null;
   has_nuget_deps = pkg ? nugetDeps;
   has_gradle_mitm_cache = pkg ? mitmCache;
