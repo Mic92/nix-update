@@ -11,25 +11,21 @@ if TYPE_CHECKING:
     from urllib.parse import ParseResult
 
 
-def fetch_npm_versions(url: ParseResult) -> list[Version]:
+def _fetch_npm_dist_tag(url: ParseResult, dist_tag: str) -> list[Version]:
     if url.netloc != "registry.npmjs.org":
         return []
     parts = url.path.split("/")
     # Handle scoped packages like @myorg/mypackage
     package = f"{parts[1]}/{parts[2]}" if parts[1].startswith("@") else parts[1]
-    npm_url = f"https://registry.npmjs.org/{package}/latest"
+    npm_url = f"https://registry.npmjs.org/{package}/{dist_tag}"
     info(f"fetch {npm_url}")
     data = fetch_json(npm_url)
     return [Version(data["version"])]
+
+
+def fetch_npm_versions(url: ParseResult) -> list[Version]:
+    return _fetch_npm_dist_tag(url, "latest")
 
 
 def fetch_npm_snapshots(url: ParseResult, branch: str) -> list[Version]:
-    if url.netloc != "registry.npmjs.org":
-        return []
-    parts = url.path.split("/")
-    # Handle scoped packages like @myorg/mypackage
-    package = f"{parts[1]}/{parts[2]}" if parts[1].startswith("@") else parts[1]
-    npm_url = f"https://registry.npmjs.org/{package}/{branch}"
-    info(f"fetch {npm_url}")
-    data = fetch_json(npm_url)
-    return [Version(data["version"])]
+    return _fetch_npm_dist_tag(url, branch)
