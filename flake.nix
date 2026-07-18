@@ -21,7 +21,6 @@
         "x86_64-linux"
         "riscv64-linux"
 
-        "x86_64-darwin"
         "aarch64-darwin"
       ];
       eachSystem = f: lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
@@ -50,7 +49,10 @@
         };
       });
 
-      formatter = eachSystem (pkgs: treefmtEval.${pkgs.stdenv.hostPlatform.system}.config.build.wrapper);
+      # nixfmt (GHC) does not build on riscv64-linux
+      formatter = lib.genAttrs (lib.filter (s: s != "riscv64-linux") systems) (
+        system: treefmtEval.${system}.config.build.wrapper
+      );
 
       checks = eachSystem (
         pkgs:
@@ -82,7 +84,7 @@
                   go
                   nodejs
                   prefetch-npm-deps
-                  pnpm_9
+                  pnpm_10
                   prefetch-yarn-deps
                   maven
                   gradle
