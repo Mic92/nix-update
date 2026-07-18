@@ -11,6 +11,7 @@ pkgs.python3Packages.buildPythonApplication {
   nativeBuildInputs = [
     pkgs.nixVersions.stable
     pkgs.nix-prefetch-git
+    pkgs.yarn-berry.yarn-berry-fetcher
   ];
   nativeCheckInputs = [
     pkgs.python3Packages.pytest
@@ -26,6 +27,7 @@ pkgs.python3Packages.buildPythonApplication {
       pkgs.nixVersions.stable
       pkgs.nixpkgs-review
       pkgs.nix-prefetch-git
+      pkgs.yarn-berry.yarn-berry-fetcher
     ])
   ];
 }

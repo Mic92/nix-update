@@ -61,6 +61,7 @@ class Package:
     pnpm_deps: str | None
     yarn_deps: str | None
     yarn_deps_old: str | None
+    yarn_berry_missing_hashes_path: str | None
     composer_deps: str | None
     composer_deps_old: str | None
     custom_deps: list[dict[str, str]] | None

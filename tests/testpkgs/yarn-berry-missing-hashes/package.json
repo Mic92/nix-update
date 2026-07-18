@@ -1,0 +1,9 @@
+{
+  "name": "yarn-berry-missing-hashes",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "iconv-corefoundation": "^1.1.7"
+  }
+}

@@ -49,4 +49,5 @@
   postgresql = pkgs.callPackage ./postgresql.nix { };
   version-prefix = pkgs.callPackage ./version-prefix.nix { };
   custom-deps = pkgs.callPackage ./custom-deps { };
+  yarn-berry-missing-hashes = pkgs.callPackage ./yarn-berry-missing-hashes { };
 }
