@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import re
+from pathlib import Path
 
 from .hashes import to_sri
 from .utils import run
@@ -41,13 +42,14 @@ def old_version_from_git(
     linenumber: int,
     new_version: str,
 ) -> str | None:
+    # Run in the file's directory: the file may live in a different
+    # repository than the current working directory.
     proc = run(
         ["git", "diff", "--color=never", "--word-diff=porcelain", "--", filename],
+        cwd=Path(filename).parent,
+        check=False,
     )
-    if proc.stdout is None:
-        msg = "Failed to get stdout from git diff command"
-        raise RuntimeError(msg)
-    if len(proc.stdout) == 0:
+    if proc.returncode != 0 or not proc.stdout:
         return None
     return old_version_from_diff(proc.stdout, linenumber, new_version)
 
