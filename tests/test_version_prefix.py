@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import subprocess
 from typing import TYPE_CHECKING
 
@@ -26,7 +27,13 @@ def test_main(testpkgs_git: Path) -> None:
         text=True,
         stdout=subprocess.PIPE,
     ).stdout.strip()
-    assert tuple(map(int, version.split("."))) >= (0, 9, 0)
+    # upstream tags may have non-numeric suffixes like "0.9.140-b.1"
+    numeric_version = tuple(
+        int(match.group())
+        for part in version.split(".")
+        if (match := re.match(r"\d+", part))
+    )
+    assert numeric_version >= (0, 9, 0)
     commit = subprocess.run(
         ["git", "-C", str(testpkgs_git), "log", "-1"],
         text=True,
