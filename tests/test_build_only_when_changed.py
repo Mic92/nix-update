@@ -13,10 +13,13 @@ if TYPE_CHECKING:
 
 
 def test_build_skipped_when_no_changes(testpkgs_git: Path) -> None:
-    """Test that nix_build is NOT called when version is already up to date."""
+    """Test that nix_build is NOT called when the package is already up to date."""
+    # Bring the package up to date first.
+    main(["--file", str(testpkgs_git), "--commit", "--version", "10.2.0", "github"])
+
     with patch("nix_update.nix_build") as mock_build:
-        # Use --version skip to skip version update entirely, so no changes occur
-        # Use --commit to ensure proper git directory handling
+        # Second run skips the version update and re-computes the same hash,
+        # so no changes are produced.
         main(
             [
                 "--file",
@@ -28,18 +31,17 @@ def test_build_skipped_when_no_changes(testpkgs_git: Path) -> None:
                 "github",
             ],
         )
-        # Build should not be called since version didn't change
         mock_build.assert_not_called()
 
-    # Verify no commit was made (only the initial commit exists)
+    # Only the initial commit and the first update commit exist.
     log = subprocess.run(
         ["git", "-C", str(testpkgs_git), "log", "--oneline"],
         text=True,
         capture_output=True,
         check=True,
     )
-    # Only the initial commit from testpkgs_git fixture
-    assert len(log.stdout.strip().split("\n")) == 1
+    expected_commit_count = 2
+    assert len(log.stdout.strip().split("\n")) == expected_commit_count
 
 
 def test_build_runs_when_changes_detected(testpkgs_git: Path) -> None:
