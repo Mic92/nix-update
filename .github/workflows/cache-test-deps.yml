@@ -19,5 +19,5 @@ jobs:
         with:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - uses: Mic92/hestia/action@main
+      - uses: Mic92/hestia@v1
       - run: nix build --no-link .#checks.x86_64-linux.test-deps
