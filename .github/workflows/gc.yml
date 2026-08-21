@@ -26,7 +26,7 @@ jobs:
       contents: read
     steps:
       - uses: cachix/install-nix-action@v31
-      - uses: Mic92/hestia@v2
+      - uses: Mic92/hestia@v3
       - name: Run garbage collection
         run: '"$HESTIA_BIN" gc ${{ inputs.dry-run && ''--dry-run'' || '''' }}'
         env:
