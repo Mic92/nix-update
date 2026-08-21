@@ -12,9 +12,7 @@ if TYPE_CHECKING:
 
 
 def test_update(testpkgs: Path) -> None:
-    # Pin to a version whose pnpm lockfile is compatible with the pnpm
-    # fetcher in nixpkgs: flood >= 4.16 uses patchedDependencies, which
-    # fails with ERR_PNPM_LOCKFILE_CONFIG_MISMATCH in fetchPnpmDeps.
+    # flood >= 4.16 uses patchedDependencies, unsupported by fetchPnpmDeps
     opts = Options(
         attribute="pnpm",
         import_path=str(testpkgs),
