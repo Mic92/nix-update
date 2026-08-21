@@ -20,7 +20,7 @@ jobs:
           nix_path: nixpkgs=channel:nixos-unstable
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
-      - uses: Mic92/hestia@v2
+      - uses: Mic92/hestia@v3
       - name: build
         run: nix build
       - name: Allow unprivileged user namespaces
