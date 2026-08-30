@@ -22,7 +22,7 @@ def replace_version(package: Package) -> bool:
     if package.new_version is None:
         msg = "Package new_version is None, cannot replace version"
         raise ValueError(msg)
-    old_rev_tag = package.rev or package.tag
+    old_rev_tag = package.tag or package.rev
     old_version = package.old_version
     new_version = package.new_version.number
     new_version = new_version.removeprefix("v")
@@ -81,7 +81,7 @@ def fetch_new_version(
 
     version_prefix = ""
     branch = None
-    old_rev_tag = package.rev or package.tag
+    old_rev_tag = package.tag or package.rev
 
     if preference != VersionPreference.BRANCH:
         if old_rev_tag and old_rev_tag.endswith(package.old_version):
