@@ -28,7 +28,9 @@ def replace_version(package: Package) -> bool:
     new_version = new_version.removeprefix("v")
 
     changed = old_version != new_version or (
-        package.new_version.rev is not None and package.new_version.rev != old_rev_tag
+        old_rev_tag is not None
+        and package.new_version.rev is not None
+        and package.new_version.rev != old_rev_tag
     )
 
     if changed:
