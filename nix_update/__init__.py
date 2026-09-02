@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import NoReturn
 
 from . import utils
-from .eval import CargoLockInSource, Package, eval_attr
+from .eval import CargoLockInSource, Package
 from .options import Options
 from .update import update
 from .utils import info, nix_command, run
@@ -456,9 +456,6 @@ def handle_commit_operations(
         if git_dir is None:
             msg = "Git directory not found, cannot commit changes"
             raise RuntimeError(msg)
-        if package.changelog:
-            # If we have a changelog we will re-eval the package in case it has changed
-            package.changelog = eval_attr(options).changelog
         git_commit(git_dir, package)
 
     if options.print_commit_message:
