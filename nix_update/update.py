@@ -129,11 +129,7 @@ def update_version(
             package.old_version = recovered_version
             return False
 
-    if not replace_version(package):
-        return False
-
-    generate_diff_url(opts, package, new_version)
-    return True
+    return replace_version(package)
 
 
 def run_update_script(package: Package, opts: Options) -> None:
@@ -206,7 +202,7 @@ def update(opts: Options) -> Package:
             rev=new_package.rev,
             tag=new_package.tag,
         )
-
+        finalize(package, new_package)
         return package
 
     update_hash = True
@@ -237,4 +233,13 @@ def update(opts: Options) -> Package:
 
     update_dependency_hashes(opts, package, update_hash=update_hash)
 
+    if update_hash:
+        finalize(package, eval_attr(opts))
     return package
+
+
+def finalize(package: Package, new_package: Package) -> None:
+    """Refresh fields that depend on the updated expression (e.g. a
+    version-interpolated meta.changelog) from a single post-update eval."""
+    package.changelog = new_package.changelog
+    generate_diff_url(package, new_package)

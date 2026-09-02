@@ -38,3 +38,23 @@ def test_main(testpkgs_git: Path) -> None:
     assert (
         f"https://github.com/Mic92/python-mpd2/blob/{version}/doc/changes.rst" in commit
     )
+
+
+def test_write_commit_message(testpkgs: Path) -> None:
+    # Regression test for #657: changelog must reflect the new version even
+    # without --commit.
+    msg_file = testpkgs / "commit-msg"
+    main(
+        [
+            "--file",
+            str(testpkgs),
+            "--write-commit-message",
+            str(msg_file),
+            "pypi",
+        ],
+    )
+    msg = msg_file.read_text()
+    print(msg)
+    version = msg.splitlines()[0].split(" -> ")[1]
+    assert version != "2.0.0"
+    assert f"https://github.com/Mic92/python-mpd2/blob/{version}/doc/changes.rst" in msg

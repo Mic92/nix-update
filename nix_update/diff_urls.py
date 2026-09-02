@@ -6,10 +6,9 @@ import re
 from typing import TYPE_CHECKING
 
 from .errors import UpdateError
-from .eval import Package, eval_attr
 
 if TYPE_CHECKING:
-    from .options import Options
+    from .eval import Package
     from .version.version import Version
 
 GITLAB_API = re.compile(r"https://(gitlab.com|([^/]+)/api/v4)/")
@@ -61,8 +60,8 @@ def extract_github_rev_tag(url_path: str) -> str | None:
 
 
 def create_github_diff_url(
-    opts: Options,
     package: Package,
+    new_package: Package,
     new_version: Version,
 ) -> str | None:
     if package.parsed_url is None:
@@ -75,7 +74,6 @@ def create_github_diff_url(
 
     new_rev_tag = new_version.tag or new_version.rev
     if new_rev_tag is None:
-        new_package = eval_attr(opts)
         new_rev_tag = new_package.tag or new_package.rev
 
         if new_rev_tag is None and new_package.parsed_url is not None:
@@ -103,8 +101,9 @@ def create_other_diff_urls(package: Package, new_version: Version) -> str | None
     return None
 
 
-def generate_diff_url(opts: Options, package: Package, new_version: Version) -> None:
-    if not package.parsed_url:
+def generate_diff_url(package: Package, new_package: Package) -> None:
+    new_version = package.new_version
+    if not package.parsed_url or new_version is None:
         return
 
     netloc = package.parsed_url.netloc
@@ -115,7 +114,7 @@ def generate_diff_url(opts: Options, package: Package, new_version: Version) -> 
     elif netloc == "registry.npmjs.org":
         diff_url = create_npm_diff_url(package, new_version)
     elif netloc == "github.com":
-        diff_url = create_github_diff_url(opts, package, new_version)
+        diff_url = create_github_diff_url(package, new_package, new_version)
     else:
         diff_url = create_other_diff_urls(package, new_version)
 
