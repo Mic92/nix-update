@@ -194,6 +194,16 @@ Arguments can be passed to `nix-shell maintainers/scripts/update.nix` like so
 $ nix-update sbt --use-update-script --update-script-args "--argstr skip-prompt true"
 ```
 
+This also works outside of nixpkgs (with or without `--flake`). The script is
+executed from the repository root with `UPDATE_NIX_NAME`, `UPDATE_NIX_PNAME`,
+`UPDATE_NIX_OLD_VERSION` and `UPDATE_NIX_ATTR_PATH` set, e.g.:
+
+```nix
+passthru.updateScript = writeShellScript "update-mypkg" ''
+  sed -i "s/version = \"$UPDATE_NIX_OLD_VERSION\";/version = \"2.0.0\";/" mypkg.nix
+'';
+```
+
 In case your package has dependency fetchers with custom attribute names, you
 can pass them using `--custom-dep`:
 

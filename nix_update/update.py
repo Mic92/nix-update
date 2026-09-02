@@ -137,12 +137,13 @@ def update_version(
 
 
 def run_update_script(package: Package, opts: Options) -> None:
-    if not opts.flake:
+    nixpkgs_update_nix = Path(opts.import_path) / "maintainers/scripts/update.nix"
+    if not opts.flake and nixpkgs_update_nix.exists():
         run(
             [
                 "nix-shell",
                 *opts.extra_flags,
-                str(Path(opts.import_path) / "maintainers/scripts/update.nix"),
+                str(nixpkgs_update_nix),
                 "--argstr",
                 "package",
                 opts.attribute,
