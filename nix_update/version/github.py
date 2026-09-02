@@ -15,6 +15,7 @@ from xml.etree.ElementTree import Element, ParseError
 from nix_update.errors import VersionError
 from nix_update.utils import info, remove_control_chars
 
+from .gitea import is_gitea_host
 from .http import DEFAULT_TIMEOUT
 from .version import Version
 
@@ -26,6 +27,22 @@ GITHUB_PUBLIC_GENERAL = re.compile(r"^/(?P<owner>[^~]+?)/(?P<repo>.+?)(\.git)?(/
 GITHUB_PRIVATE = re.compile(
     r"^(/api/v3)?/repos/(?P<owner>[^~]+?)/(?P<repo>.+?)/tarball/(?P<revWithTag>.+)$",
 )
+
+
+def match_github_url(url: ParseResult) -> re.Match[str] | None:
+    if url.netloc == "github.com":
+        return (
+            GITHUB_PUBLIC.match(url.path)
+            or GITHUB_PRIVATE.match(url.path)
+            or GITHUB_PUBLIC_GENERAL.match(url.path)
+        )
+    # The archive/tarball patterns are host-agnostic to support GitHub
+    # Enterprise, but Gitea/Forgejo serve the same paths *and* a releases.atom
+    # that only lists releases, not tags. Leave those to the Gitea fetcher.
+    m = GITHUB_PUBLIC.match(url.path) or GITHUB_PRIVATE.match(url.path)
+    if m and is_gitea_host(url.netloc):
+        return None
+    return m
 
 
 def version_from_entry(entry: Element) -> Version:
@@ -77,11 +94,7 @@ def fetch_github_versions(
     url: ParseResult,
     extra_args: dict[str, Any] | None = None,
 ) -> list[Version]:
-    urlmatch = (
-        GITHUB_PUBLIC.match(url.path)
-        or GITHUB_PRIVATE.match(url.path)
-        or (url.netloc == "github.com" and GITHUB_PUBLIC_GENERAL.match(url.path))
-    )
+    urlmatch = match_github_url(url)
     if not urlmatch:
         return []
     owner, repo = urlmatch.group("owner"), urlmatch.group("repo")
@@ -161,11 +174,7 @@ def fetch_github_snapshots(
     branch: str,
     extra_args: dict[str, Any] | None = None,
 ) -> list[Version]:
-    urlmatch = (
-        GITHUB_PUBLIC.match(url.path)
-        or GITHUB_PRIVATE.match(url.path)
-        or (url.netloc == "github.com" and GITHUB_PUBLIC_GENERAL.match(url.path))
-    )
+    urlmatch = match_github_url(url)
     if not urlmatch:
         return []
     server = url.netloc
