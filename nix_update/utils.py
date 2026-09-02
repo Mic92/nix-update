@@ -42,8 +42,8 @@ def run(  # noqa: PLR0913
     command: Sequence[str],
     *,
     cwd: Path | str | None = None,
-    stdout: None | int | IO[Any] = subprocess.PIPE,
-    stderr: None | int | IO[Any] = None,
+    stdout: int | IO[Any] | None = subprocess.PIPE,
+    stderr: int | IO[Any] | None = None,
     check: bool = True,
     extra_env: dict[str, str] | None = None,
 ) -> subprocess.CompletedProcess[str]:

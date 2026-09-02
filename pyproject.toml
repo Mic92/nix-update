@@ -30,6 +30,8 @@ line-length = 88
 
 lint.select = ["ALL"]
 lint.ignore = [
+  # copyright
+  "CPY",
   # pydocstyle
   "D",
   # todo comments
