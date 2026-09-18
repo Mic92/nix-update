@@ -51,4 +51,6 @@
   version-prefix = pkgs.callPackage ./version-prefix.nix { };
   custom-deps = pkgs.callPackage ./custom-deps { };
   yarn-berry-missing-hashes = pkgs.callPackage ./yarn-berry-missing-hashes { };
+  radicle = pkgs.callPackage ./radicle.nix { };
+  radicle-namespace = pkgs.callPackage ./radicle-namespace.nix { };
 }
