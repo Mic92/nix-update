@@ -5,30 +5,30 @@ work with nixpkgs but also other package sets.
 
 ## Features
 
-| Feature                                                | Details                                                                                             |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| Detect latest version automatically                    | BitBucket, Codeberg, crates.io, Gitea, GitHub, GitLab, npm, PyPi, RubyGems.org, Sourcehut, Savannah |
-| Rust                                                   | `buildRustPackage`'s `cargoHash`/`cargoSha256`/`cargoLock` and `cargoSetupHook`'s `cargoDeps`       |
-| Go                                                     | `buildGoModule`'s `vendorHash`/`vendorSha256`                                                       |
-| npm                                                    | `buildNpmPackage`'s `npmDepsHash` and `npmConfigHook`'s `npmDeps`                                   |
-| pnpm                                                   | `pnpm.fetchDeps`'s `pnpmDeps`                                                                       |
-| PHP                                                    | `buildComposerProject`'s `vendorHash`                                                               |
-| Maven                                                  | `buildMavenPackage`'s `mvnHash`                                                                     |
-| Elixir                                                 | `mixRelease`'s `mixFodDeps`                                                                         |
-| Yarn                                                   | `fetchYarnDeps`'s `yarnOfflineCache` (or `offlineCache`) output hash                                |
-| Yarn Berry                                             | `fetchYarnBerryDeps`'s `yarnOfflineCache` (or `offlineCache`) output hash, `missingHashes` file     |
-| Zig                                                    | `zigDeps` output hash                                                                               |
-| .NET                                                   | `nugetDeps`                                                                                         |
-| Custom dependency hashes                               | see `--custom-dep`                                                                                  |
-| Update flake outputs                                   | see `--flake`                                                                                       |
-| Generate lockfiles (`Cargo.lock`, `package-lock.json`) | see `--generate-lockfile` and `--lockfile-metadata-path`                                            |
-| Build and run the resulting package                    | see `--build`, `--run` or `--shell`                                                                 |
-| Commit updated files                                   | see `--commit`                                                                                      |
-| Run update scripts (`passthru.updateScript`)           | see `--use-update-script`                                                                           |
-| Run package tests                                      | see `--test`                                                                                        |
-| Review the update with nixpkgs-review                  | see `--review`                                                                                      |
-| Format the changed expression                          | see `--format`                                                                                      |
-| Specify the system to use                              | see `--system`                                                                                      |
+| Feature                                                | Details                                                                                                      |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Detect latest version automatically                    | BitBucket, Codeberg, crates.io, Gitea, GitHub, GitLab, npm, PyPi, Radicle, RubyGems.org, Sourcehut, Savannah |
+| Rust                                                   | `buildRustPackage`'s `cargoHash`/`cargoSha256`/`cargoLock` and `cargoSetupHook`'s `cargoDeps`                |
+| Go                                                     | `buildGoModule`'s `vendorHash`/`vendorSha256`                                                                |
+| npm                                                    | `buildNpmPackage`'s `npmDepsHash` and `npmConfigHook`'s `npmDeps`                                            |
+| pnpm                                                   | `pnpm.fetchDeps`'s `pnpmDeps`                                                                                |
+| PHP                                                    | `buildComposerProject`'s `vendorHash`                                                                        |
+| Maven                                                  | `buildMavenPackage`'s `mvnHash`                                                                              |
+| Elixir                                                 | `mixRelease`'s `mixFodDeps`                                                                                  |
+| Yarn                                                   | `fetchYarnDeps`'s `yarnOfflineCache` (or `offlineCache`) output hash                                         |
+| Yarn Berry                                             | `fetchYarnBerryDeps`'s `yarnOfflineCache` (or `offlineCache`) output hash, `missingHashes` file              |
+| Zig                                                    | `zigDeps` output hash                                                                                        |
+| .NET                                                   | `nugetDeps`                                                                                                  |
+| Custom dependency hashes                               | see `--custom-dep`                                                                                           |
+| Update flake outputs                                   | see `--flake`                                                                                                |
+| Generate lockfiles (`Cargo.lock`, `package-lock.json`) | see `--generate-lockfile` and `--lockfile-metadata-path`                                                     |
+| Build and run the resulting package                    | see `--build`, `--run` or `--shell`                                                                          |
+| Commit updated files                                   | see `--commit`                                                                                               |
+| Run update scripts (`passthru.updateScript`)           | see `--use-update-script`                                                                                    |
+| Run package tests                                      | see `--test`                                                                                                 |
+| Review the update with nixpkgs-review                  | see `--review`                                                                                               |
+| Format the changed expression                          | see `--format`                                                                                               |
+| Specify the system to use                              | see `--system`                                                                                               |
 
 ## Installation
 
