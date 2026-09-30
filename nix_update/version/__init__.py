@@ -24,6 +24,7 @@ from .radicle import fetch_radicle_snapshots, fetch_radicle_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
 from .sourcehut import fetch_sourcehut_snapshots, fetch_sourcehut_versions
+from .sparkle import fetch_sparkle_versions
 from .version import Version, VersionPreference
 
 
@@ -73,6 +74,7 @@ fetchers: list[Fetcher] = [
     fetch_rubygem_versions,
     fetch_savannah_versions,
     fetch_sourcehut_versions,
+    fetch_sparkle_versions,
     fetch_bitbucket_versions,
     fetch_radicle_versions,
     # all entries below perform requests to check if the target url is of that type
