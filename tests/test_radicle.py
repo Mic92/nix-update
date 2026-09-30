@@ -40,7 +40,6 @@ def test_main(testpkgs_git: Path, package: str) -> None:
         stdout=subprocess.PIPE,
         check=True,
     ).stdout.strip()
-    print(commit)
     assert version in commit
     assert package in commit
 
@@ -51,6 +50,10 @@ def test_branch() -> None:
         preference=VersionPreference.BRANCH,
         version_regex="releases/(.*)",
         branch="master",
+        fetcher_args={
+            "radicle_repo": "z3gqcJUoA1n9HaHKufZs5FCSGazv5",
+            "radicle_namespace": None,
+        },
     )
     version = fetch_latest_version(
         urlparse("https://seed.radicle.dev/z3gqcJUoA1n9HaHKufZs5FCSGazv5.git"), config

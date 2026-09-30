@@ -122,6 +122,7 @@ in
   rev = pkg.src.rev or null;
   tag = pkg.src.tag or null;
   hash = pkg.src.outputHash or null;
+  radicle_repo = pkg.src.repo or null;
   radicle_namespace = pkg.src.node or null;
   fod_subpackage = pkg.outputHash or null;
   go_modules = pkg.goModules.outputHash or null;

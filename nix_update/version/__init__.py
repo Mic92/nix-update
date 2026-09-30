@@ -74,9 +74,9 @@ fetchers: list[Fetcher] = [
     fetch_savannah_versions,
     fetch_sourcehut_versions,
     fetch_bitbucket_versions,
+    fetch_radicle_versions,
     # all entries below perform requests to check if the target url is of that type
     fetch_gitea_versions,
-    fetch_radicle_versions,
 ]
 
 branch_snapshots_fetchers: list[SnapshotFetcher] = [
@@ -85,9 +85,9 @@ branch_snapshots_fetchers: list[SnapshotFetcher] = [
     fetch_gitlab_snapshots,
     fetch_bitbucket_snapshots,
     fetch_sourcehut_snapshots,
+    fetch_radicle_snapshots,
     # all entries below perform requests to check if the target url is of that type
     fetch_gitea_snapshots,
-    fetch_radicle_snapshots,
 ]
 
 

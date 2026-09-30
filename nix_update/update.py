@@ -105,6 +105,7 @@ def fetch_new_version(
         fetcher_args={
             "use_github_releases": opts.use_github_releases,
             "github_releases_limit": opts.github_releases_limit,
+            "radicle_repo": package.radicle_repo,
             "radicle_namespace": package.radicle_namespace,
         },
     )
