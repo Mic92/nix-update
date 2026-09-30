@@ -51,6 +51,7 @@ def test_branch() -> None:
         version_regex="releases/(.*)",
         branch="master",
         fetcher_args={
+            "radicle_seed": "seed.radicle.dev",
             "radicle_repo": "z3gqcJUoA1n9HaHKufZs5FCSGazv5",
             "radicle_namespace": None,
         },

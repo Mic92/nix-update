@@ -12,18 +12,22 @@ if TYPE_CHECKING:
     from urllib.parse import ParseResult
 
 
-def repo_api_url(url: ParseResult, extra_args: dict[str, Any] | None) -> str | None:
+def repo_api_url(extra_args: dict[str, Any] | None) -> str | None:
     """Return the radicle-httpd API URL if the source uses fetchFromRadicle."""
     # fetchFromRadicle derives the url from `seed`, so netloc is the seed.
-    if not extra_args or not (repo := extra_args.get("radicle_repo")):
+    if (
+        not extra_args
+        or not (seed := extra_args.get("radicle_seed"))
+        or not (repo := extra_args.get("radicle_repo"))
+    ):
         return None
-    return f"https://{url.netloc}/api/v1/repos/{repo}"
+    return f"https://{seed}/api/v1/repos/{repo}"
 
 
 def fetch_radicle_versions(
-    url: ParseResult, extra_args: dict[str, Any] | None = None
+    _: ParseResult, extra_args: dict[str, Any] | None = None
 ) -> list[Version]:
-    if not (api := repo_api_url(url, extra_args)):
+    if not (api := repo_api_url(extra_args)):
         return []
 
     if nid := (extra_args or {}).get("radicle_namespace"):
@@ -36,9 +40,9 @@ def fetch_radicle_versions(
 
 
 def fetch_radicle_snapshots(
-    url: ParseResult, branch: str, extra_args: dict[str, Any] | None = None
+    _: ParseResult, branch: str, extra_args: dict[str, Any] | None = None
 ) -> list[Version]:
-    if not (api := repo_api_url(url, extra_args)):
+    if not (api := repo_api_url(extra_args)):
         return []
 
     if (extra_args or {}).get("radicle_namespace"):

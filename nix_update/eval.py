@@ -52,6 +52,7 @@ class Package:
     rev: str | None
     tag: str | None
     hash: str | None
+    radicle_seed: str | None
     radicle_repo: str | None
     radicle_namespace: str | None
     fod_subpackage: str | None
