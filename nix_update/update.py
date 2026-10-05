@@ -187,6 +187,8 @@ def run_update_script(package: Package, opts: Options) -> None:
                     f"UPDATE_NIX_PNAME={package.pname}",
                     f"UPDATE_NIX_OLD_VERSION={package.old_version}",
                     f"UPDATE_NIX_ATTR_PATH={package.attribute}",
+                    # nix-update-script does not pass --flake to the inner nix-update
+                    *(["UPDATE_NIX_FLAKE=1"] if opts.flake else []),
                     update_script,
                 ],
             ),

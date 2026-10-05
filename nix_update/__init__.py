@@ -36,7 +36,8 @@ def parse_args(args: list[str]) -> Options:
         "-F",
         "--flake",
         action="store_true",
-        help="Update a flake attribute instead",
+        default=os.getenv("UPDATE_NIX_FLAKE") == "1",
+        help="""Update a flake attribute instead (enabled by environment variable "UPDATE_NIX_FLAKE=1")""",
     )
     parser.add_argument("--build", action="store_true", help="build the package")
     parser.add_argument(

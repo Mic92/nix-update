@@ -196,7 +196,9 @@ $ nix-update sbt --use-update-script --update-script-args "--argstr skip-prompt 
 
 This also works outside of nixpkgs (with or without `--flake`). The script is
 executed from the repository root with `UPDATE_NIX_NAME`, `UPDATE_NIX_PNAME`,
-`UPDATE_NIX_OLD_VERSION` and `UPDATE_NIX_ATTR_PATH` set, e.g.:
+`UPDATE_NIX_OLD_VERSION` and `UPDATE_NIX_ATTR_PATH` set (plus
+`UPDATE_NIX_FLAKE=1` with `--flake`, which makes a nested `nix-update` run in
+flake mode as well), e.g.:
 
 ```nix
 passthru.updateScript = writeShellScript "update-mypkg" ''
