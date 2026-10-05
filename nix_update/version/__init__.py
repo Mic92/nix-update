@@ -51,13 +51,14 @@ install_opener(opener)
 
 
 class SnapshotFetcher(Protocol):
-    def __call__(self, url: ParseResult, branch: str) -> list[Version]: ...
+    def __call__(self, url: ParseResult, /, branch: str) -> list[Version]: ...
 
 
 class FetcherWithArgs(Protocol):
     def __call__(
         self,
         url: ParseResult,
+        /,
         extra_args: dict[str, Any] | None = None,
     ) -> list[Version]: ...
 
