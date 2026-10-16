@@ -32,6 +32,7 @@
   github-forcefetchgit = pkgs.callPackage ./github-forcefetchgit.nix { };
   gitlab = pkgs.callPackage ./gitlab.nix { };
   gradle-mitm-cache = pkgs.callPackage ./gradle-mitm-cache { };
+  pecl = pkgs.callPackage ./pecl.nix { };
   pypi = pkgs.python3.pkgs.callPackage ./pypi.nix { };
   sourcehut = pkgs.python3.pkgs.callPackage ./sourcehut.nix { };
   sourcehut-snapshot = pkgs.python3.pkgs.callPackage ./sourcehut-snapshot.nix { };
