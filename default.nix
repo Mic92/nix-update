@@ -21,7 +21,8 @@ pkgs.python3Packages.buildPythonApplication {
     PYTHONPATH= $out/bin/nix-update --help
   '';
   makeWrapperArgs = [
-    "--prefix PATH"
+    "--prefix"
+    "PATH"
     ":"
     (pkgs.lib.makeBinPath [
       pkgs.nixVersions.stable
