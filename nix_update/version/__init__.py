@@ -19,6 +19,7 @@ from .gitea import fetch_gitea_snapshots, fetch_gitea_versions
 from .github import fetch_github_snapshots, fetch_github_versions
 from .gitlab import fetch_gitlab_snapshots, fetch_gitlab_versions
 from .npm import fetch_npm_snapshots, fetch_npm_versions
+from .pecl import fetch_pecl_versions
 from .pypi import fetch_pypi_versions
 from .radicle import fetch_radicle_snapshots, fetch_radicle_versions
 from .rubygems import fetch_rubygem_versions
@@ -69,6 +70,7 @@ fetchers: list[Fetcher] = [
     fetch_crate_versions,
     fetch_npm_versions,
     fetch_pypi_versions,
+    fetch_pecl_versions,
     fetch_github_versions,
     fetch_gitlab_versions,
     fetch_rubygem_versions,
@@ -216,5 +218,5 @@ def fetch_latest_version(
         msg = f"Found an unstable version {all_unstable[0]}, which is being ignored. To update to unstable version, please use '--version=unstable'"
         raise VersionError(msg)
 
-    msg = "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/pypi/savannah/sourcehut/radicle/rubygems/npm projects right now"
+    msg = "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/pecl/pypi/savannah/sourcehut/radicle/rubygems/npm projects right now"
     raise VersionError(msg)
