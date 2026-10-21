@@ -49,7 +49,7 @@ def test_branch() -> None:
     config = VersionFetchConfig(
         preference=VersionPreference.BRANCH,
         version_regex="releases/(.*)",
-        branch="master",
+        branch="main",
         fetcher_args={
             "radicle_seed": "seed.radicle.dev",
             "radicle_repo": "z3gqcJUoA1n9HaHKufZs5FCSGazv5",
