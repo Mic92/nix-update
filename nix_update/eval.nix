@@ -92,6 +92,13 @@ let
 
   raw_version_position = sanitizePosition (builtins.unsafeGetAttrPos "version" pkg);
 
+  raw_patches_position =
+    let
+      pos = builtins.unsafeGetAttrPos "patches" (pkg.drvAttrs or pkg);
+      sanitized = if pos == null then null else builtins.tryEval (sanitizePosition pos);
+    in
+    if sanitized == null || !sanitized.success then null else sanitized.value;
+
   position =
     if pkg ? isRubyGem then
       raw_version_position
@@ -109,12 +116,24 @@ let
       builtins.map (x: { ${x} = pkg.${x}.outputHash; }) (fromJSON customDeps)
     else
       null;
+
+  patches = map (
+    patch:
+    let
+      isAttrs = builtins.isAttrs patch;
+    in
+    {
+      path = toString patch;
+      urls = if isAttrs then patch.urls or (if patch ? url then [ patch.url ] else [ ]) else [ ];
+    }
+  ) (pkg.patches or [ ]);
 in
 {
   name = pkg.name;
   pname = pkg.pname or (builtins.parseDrvName pkg.name).name;
   old_version = pkg.version or (builtins.parseDrvName pkg.name).version;
   inherit raw_version_position;
+  inherit raw_patches_position;
   filename = position.file;
   line = position.line;
   urls = pkg.src.urls or null;
@@ -164,6 +183,7 @@ in
   mix_deps = pkg.mixFodDeps.outputHash or null;
   zig_deps = pkg.zigDeps.outputHash or null;
   tests = builtins.attrNames (pkg.passthru.tests or { });
+  inherit patches;
   inherit has_update_script;
   src_homepage = pkg.src.meta.homepage or null;
   changelog = pkg.meta.changelog or null;
