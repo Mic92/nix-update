@@ -185,7 +185,7 @@ class Options:
             import_path_to_use = json.dumps(flake_store_path)
 
         if self.flake:
-            return f"(let flake = builtins.getFlake {import_path_to_use}; in flake.packages.${{builtins.currentSystem}}.{self.escaped_attribute} or flake.{self.escaped_attribute})"
+            return f"(let flake = builtins.getFlake {import_path_to_use}; in flake.packages.${{builtins.currentSystem}}.{self.escaped_attribute} or flake.legacyPackages.${{builtins.currentSystem}}.{self.escaped_attribute} or flake.{self.escaped_attribute})"
         # Need to disable check meta for non-flake packages
         disable_check_meta = f'(if (builtins.hasAttr "config" (builtins.functionArgs (import {self.escaped_import_path}))) then {{ config.checkMeta = false; overlays = []; }} else {{ }})'
         return f"(import {self.escaped_import_path} {disable_check_meta}).{self.escaped_attribute}"

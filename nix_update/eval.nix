@@ -50,11 +50,17 @@ let
     if isFlake then
       let
         flake = getFlake flakeOrImportPath;
+        legacyPackages = flake.legacyPackages.${system} or { };
+        legacyPackagesResult = tryGetAttrPath attributePath legacyPackages;
         packages = flake.packages.${system} or { };
-        # Try packages.${system} first, fall back to flake root if attribute not found
         packagesResult = tryGetAttrPath attributePath packages;
       in
-      if packagesResult.success then packagesResult.value else (tryGetAttrPath attributePath flake).value
+      if packagesResult.success then
+        packagesResult.value
+      else if legacyPackagesResult.success then
+        legacyPackagesResult.value
+      else
+        (tryGetAttrPath attributePath flake).value
     else
       let
         pkgs = import importPath;
