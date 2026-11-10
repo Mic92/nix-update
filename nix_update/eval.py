@@ -75,13 +75,16 @@ class Package:
     has_gradle_mitm_cache: bool
     tests: list[str]
     has_update_script: bool
+    patches: list[dict[str, Any]]
 
     raw_version_position: InitVar[dict[str, Any] | None]
+    raw_patches_position: InitVar[dict[str, Any] | None]
     raw_cargo_lock: InitVar[Literal[False] | str | None]
 
     parsed_url: ParseResult | None = None
     new_version: Version | None = None
     version_position: Position | None = field(init=False)
+    patches_position: Position | None = field(init=False)
     cargo_lock: CargoLock | None = field(init=False)
     diff_url: str | None = None
 
@@ -89,6 +92,7 @@ class Package:
         self,
         import_path: str,
         raw_version_position: dict[str, Any] | None,
+        raw_patches_position: dict[str, Any] | None,
         raw_cargo_lock: Literal[False] | str | None,
     ) -> None:
         url = self.url or (self.urls[0] if self.urls else None)
@@ -100,6 +104,14 @@ class Package:
             self.version_position = Position(**raw_version_position)
             if self.filename:
                 self.version_position.file = self.filename
+
+        self.patches_position = (
+            Position(**raw_patches_position)
+            if raw_patches_position is not None
+            else None
+        )
+        if self.patches_position is not None and self.filename:
+            self.patches_position.file = self.filename
 
         if raw_cargo_lock is None:
             self.cargo_lock = None

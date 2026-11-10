@@ -10,6 +10,7 @@ from .diff_urls import generate_diff_url
 from .errors import UpdateError
 from .eval import Package, eval_attr
 from .git import old_version_from_git
+from .patches import drop_merged_patches
 from .utils import info, run
 from .version import VersionFetchConfig, fetch_latest_version
 from .version.version import Version, VersionPreference
@@ -209,6 +210,7 @@ def update(opts: Options) -> Package:
             rev=new_package.rev,
             tag=new_package.tag,
         )
+        drop_merged_patches(opts, new_package)
         finalize(package, new_package)
         return package
 
@@ -225,6 +227,10 @@ def update(opts: Options) -> Package:
 
     if package.hash and update_hash and opts.update_src:
         update_src_hash(opts, package.filename, package.hash)
+
+    if update_hash and opts.update_src:
+        updated_package = eval_attr(opts)
+        drop_merged_patches(opts, updated_package)
 
     if opts.subpackages:
         for subpackage in opts.subpackages:
