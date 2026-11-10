@@ -14,10 +14,13 @@ from nix_update.options import Options
 from nix_update.update import update
 from nix_update.version import VersionFetchConfig, fetch_latest_version
 from nix_update.version.pecl import fetch_pecl_versions
-from nix_update.version.version import Version, VersionPreference
+from nix_update.version.version import VersionPreference
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
+
+PDO_SQLSRV_URL = "https://pecl.php.net/get/pdo_sqlsrv-5.13.2.tgz"
 
 PDO_SQLSRV_RELEASES = b"""<?xml version="1.0" encoding="UTF-8" ?>
 <a xmlns="http://pear.php.net/dtd/rest.allreleases"
@@ -42,41 +45,40 @@ def fake_pecl_urlopen(url: str, timeout: float | None = None) -> io.BytesIO:
     raise ValueError(f"Unexpected URL in test: {url}")  # noqa: EM102, TRY003
 
 
-def latest(url: str, preference: VersionPreference) -> str:
+@pytest.fixture
+def fake_pecl() -> Iterator[None]:
     with unittest.mock.patch("urllib.request.urlopen", fake_pecl_urlopen):
-        return fetch_latest_version(
-            urlparse(url),
-            VersionFetchConfig(preference=preference, version_regex="(.*)"),
-        ).number
+        yield
 
 
-def test_stable_skips_mislabelled_prereleases() -> None:
+def latest(url: str, preference: VersionPreference) -> str:
+    return fetch_latest_version(
+        urlparse(url),
+        VersionFetchConfig(preference=preference, version_regex="(.*)"),
+    ).number
+
+
+@pytest.mark.usefixtures("fake_pecl")
+def test_marks_mislabelled_prereleases() -> None:
     versions = {
-        v.number: v.prerelease
-        for v in fetch_pecl_versions_mocked(
-            "https://pecl.php.net/get/pdo_sqlsrv-5.13.2.tgz"
-        )
+        v.number: v.prerelease for v in fetch_pecl_versions(urlparse(PDO_SQLSRV_URL))
     }
     assert versions["5.13.4RC1"] is True
     assert versions["5.13.4dev"] is True
     assert versions["5.13.3"] is False
 
 
-def fetch_pecl_versions_mocked(url: str) -> list[Version]:
-    with unittest.mock.patch("urllib.request.urlopen", fake_pecl_urlopen):
-        return fetch_pecl_versions(urlparse(url))
-
-
+@pytest.mark.usefixtures("fake_pecl")
 def test_stable_skips_beta() -> None:
-    url = "https://pecl.php.net/get/pdo_sqlsrv-5.13.2.tgz"
-    assert latest(url, VersionPreference.STABLE) == "5.13.3"
+    assert latest(PDO_SQLSRV_URL, VersionPreference.STABLE) == "5.13.3"
 
 
+@pytest.mark.usefixtures("fake_pecl")
 def test_unstable_picks_beta() -> None:
-    url = "https://pecl.php.net/get/pdo_sqlsrv-5.13.2.tgz"
-    assert latest(url, VersionPreference.UNSTABLE) == "5.14.0beta1"
+    assert latest(PDO_SQLSRV_URL, VersionPreference.UNSTABLE) == "5.14.0beta1"
 
 
+@pytest.mark.usefixtures("fake_pecl")
 def test_mixed_case_name() -> None:
     url = "https://pecl.php.net/get/PDO_SQLSRV-5.13.2.tgz"
     assert latest(url, VersionPreference.STABLE) == "5.13.3"

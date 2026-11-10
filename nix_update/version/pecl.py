@@ -15,9 +15,7 @@ if TYPE_CHECKING:
     from xml.etree.ElementTree import Element
 
 # https://pecl.php.net/get/<name>-<version>.tgz
-# Name may contain underscores (pdo_sqlsrv), so the version is everything after
-# the last dash.
-filename_regex = re.compile(r"^/get/([^/]+)-[^-/]+\.(?:tgz|tar(?:\.[^./]+)?)$")
+filename_regex = re.compile(r"^/get/([^/]+)-[^-/]+\.tgz$")
 
 namespace = {"pecl": "http://pear.php.net/dtd/rest.allreleases"}
 
@@ -48,9 +46,8 @@ def fetch_pecl_versions(url: ParseResult) -> list[Version]:
     with urllib.request.urlopen(releases_url, timeout=DEFAULT_TIMEOUT) as resp:
         tree = ET.fromstring(resp.read())
 
-    versions = []
-    for r in tree.findall("pecl:r", namespace):
-        version = version_from_release(r)
-        if version:
-            versions.append(version)
-    return versions
+    return [
+        v
+        for r in tree.findall("pecl:r", namespaces=namespace)
+        if (v := version_from_release(r))
+    ]
