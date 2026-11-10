@@ -5,13 +5,21 @@ from typing import TYPE_CHECKING
 
 from nix_update.options import Options
 from nix_update.update import update
+from nix_update.version.version import VersionPreference
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 
 def test_update(testpkgs: Path) -> None:
-    opts = Options(attribute="composer", import_path=str(testpkgs))
+    # Pinned: upstream occasionally tags releases with a stale composer.lock,
+    # which composerStrictValidation rejects.
+    opts = Options(
+        attribute="composer",
+        version="11.3.1",
+        version_preference=VersionPreference.FIXED,
+        import_path=str(testpkgs),
+    )
     update(opts)
     version = subprocess.run(
         [
@@ -28,4 +36,4 @@ def test_update(testpkgs: Path) -> None:
         stdout=subprocess.PIPE,
         check=True,
     ).stdout.strip()
-    assert tuple(map(int, version.split("."))) >= (11, 3, 1)
+    assert version == "11.3.1"
