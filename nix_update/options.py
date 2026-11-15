@@ -120,12 +120,22 @@ def get_flake_store_path(import_path: str) -> str | None:
         if not isinstance(path, str):
             return None
 
+        # Copy the source tree if metadata only reported its store path
         flake_dir = _metadata_flake_dir(metadata)
-        if flake_dir:
-            return str(Path(path) / flake_dir)
-    except (subprocess.CalledProcessError, json.JSONDecodeError):
+        source = Path(path, flake_dir) if flake_dir else Path(path)
+        if not (source / "flake.nix").exists():
+            prefetch = subprocess.run(
+                ["nix", "flake", "prefetch", "--json"],
+                cwd=import_path,
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            store_path = json.loads(prefetch.stdout)["storePath"]
+            source = Path(store_path, flake_dir) if flake_dir else Path(store_path)
+    except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
         return None
-    return path
+    return str(source)
 
 
 @dataclass
