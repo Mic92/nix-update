@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import json
 import subprocess
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -74,4 +76,36 @@ def test_get_flake_store_path_subdir(tmp_path: Path) -> None:
 
     assert store_path is not None
     assert store_path.endswith("/systems/nixos")
+    assert (Path(store_path) / "flake.nix").exists()
+
+
+def test_get_flake_store_path_lazy_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A store path that metadata did not materialize is prefetched."""
+    (tmp_path / "flake.nix").write_text("{ outputs = _: { }; }")
+    subprocess.run(["git", "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run(["git", "add", "-A"], cwd=tmp_path, check=True)
+
+    virtual_path = "/nix/store/00000000000000000000000000000000-lazy-source"
+    real_run = subprocess.run
+
+    def lazy_metadata_run(*args: Any, **kwargs: Any) -> Any:  # noqa: ANN401
+        if list(args[0][:3]) == ["nix", "flake", "metadata"]:
+            metadata = {"path": virtual_path}
+            return subprocess.CompletedProcess(
+                args=args[0],
+                returncode=0,
+                stdout=json.dumps(metadata),
+                stderr="",
+            )
+        return real_run(*args, **kwargs)
+
+    monkeypatch.setattr("nix_update.options.subprocess.run", lazy_metadata_run)
+
+    store_path = get_flake_store_path(str(tmp_path))
+
+    assert store_path is not None
+    assert store_path != virtual_path
     assert (Path(store_path) / "flake.nix").exists()
