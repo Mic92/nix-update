@@ -3,20 +3,34 @@ from __future__ import annotations
 import subprocess
 from typing import TYPE_CHECKING
 
+from nix_update import dependency_hashes
 from nix_update.options import Options
 from nix_update.update import update
 
 if TYPE_CHECKING:
     from pathlib import Path
 
+    import pytest
 
-def test_update(testpkgs: Path) -> None:
+
+def test_update(testpkgs: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    prefetched: list[str] = []
+    nix_prefetch = dependency_hashes.nix_prefetch
+
+    def recording_nix_prefetch(opts: Options, attr: str | None) -> str:
+        prefetched.append(f"{opts.attribute}.{attr}")
+        return nix_prefetch(opts, attr)
+
+    monkeypatch.setattr(dependency_hashes, "nix_prefetch", recording_nix_prefetch)
+
     opts = Options(
         attribute="subpackage",
         subpackages=["autobrr-web"],
         import_path=str(testpkgs),
     )
     update(opts)
+
+    assert "subpackage.autobrr-web.src" not in prefetched
 
     def get_attr(attr: str) -> str:
         return subprocess.run(
