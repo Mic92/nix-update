@@ -198,7 +198,7 @@ def run_update_script(package: Package, opts: Options) -> None:
     )
 
 
-def update(opts: Options) -> Package:
+def update(opts: Options, *, parent_src_hash: str | None = None) -> Package:
     package = eval_attr(opts)
 
     if package.has_update_script and opts.use_update_script:
@@ -223,8 +223,14 @@ def update(opts: Options) -> Package:
             opts.version_regex,
         )
 
-    if package.hash and update_hash and opts.update_src:
-        update_src_hash(opts, package.filename, package.hash)
+    src_hash = None
+    if (
+        package.hash
+        and update_hash
+        and opts.update_src
+        and package.hash != parent_src_hash
+    ):
+        src_hash = update_src_hash(opts, package.filename, package.hash)
 
     if opts.subpackages:
         for subpackage in opts.subpackages:
@@ -236,7 +242,7 @@ def update(opts: Options) -> Package:
             subpackage_opts.subpackages = None
             # Do not update the version number since that's already been done
             subpackage_opts.version_preference = VersionPreference.SKIP
-            update(subpackage_opts)
+            update(subpackage_opts, parent_src_hash=src_hash)
 
     update_dependency_hashes(opts, package, update_hash=update_hash)
 
