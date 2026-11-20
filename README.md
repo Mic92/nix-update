@@ -162,6 +162,9 @@ $ nix-update --format nixpkgs-review
 Nix-update also can optionally generate a commit message in the form
 `attribute: old_version -> new_version` with the applied version update:
 
+If `jj` is installed and the update target is in a Jujutsu workspace,
+`--commit` uses `jj` instead of Git, including in colocated workspaces.
+
 ```console
 $ nix-update --commit bitcoin-abc
 ...

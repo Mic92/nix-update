@@ -41,6 +41,7 @@
                 pytest
               ]
             ))
+            pkgs.jujutsu
             pkgs.mypy
             pkgs.ruff
           ];
