@@ -17,9 +17,10 @@ PACKAGE = """{
 
 
 def test_replace_in_strings() -> None:
+    # everything but the identifier
     assert replace_in_strings(PACKAGE, "abc123", "def456") == PACKAGE.replace(
-        "-abc123.tar", "-def456.tar"
-    ).replace('"abc123"', '"def456"')
+        "abc123", "def456"
+    ).replace("def456 = true", "abc123 = true")
 
 
 def test_replace_whole_strings() -> None:

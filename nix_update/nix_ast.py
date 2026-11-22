@@ -56,7 +56,7 @@ def apply_edits(text: str, edits: list[Edit]) -> str:
 def replace_in_strings(
     text: str, old: str, new: str, *, whole: bool = False, line: int | None = None
 ) -> str:
-    """Replace ``old`` inside string literals, leaving comments and code alone.
+    """Replace ``old`` inside string literals and comments, leaving code alone.
 
     With ``whole`` only strings that are exactly ``old`` are replaced, and
     ``line`` limits the replacement to that 1-based line.
@@ -72,7 +72,9 @@ def replace_in_strings(
         )
 
     edits: list[Edit] = []
-    for kind in ("string_fragment", "uri_expression"):
+    # Comments often link to the pinned rev, so partial matches follow there too
+    kinds = ["string_fragment", "uri_expression"] + ([] if whole else ["comment"])
+    for kind in kinds:
         for node in root.find_all(kind=kind):
             rng = node.range()
             if line is not None and rng.start.line != line - 1:
