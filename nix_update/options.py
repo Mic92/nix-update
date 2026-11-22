@@ -89,10 +89,10 @@ def parse_attribute_path(attribute: str) -> list[str]:
     return parts
 
 
-def _metadata_flake_dir(metadata: dict[str, Any]) -> str | None:
-    """Extract the flake subdirectory (``?dir=``) from flake metadata."""
-    for key in ("locked", "resolved", "original"):
-        value = metadata.get(key)
+def _flake_dir(prefetched: dict[str, Any]) -> str | None:
+    """Extract the flake subdirectory (``?dir=``) from a prefetched flake."""
+    for key in ("locked", "original"):
+        value = prefetched.get(key)
         if isinstance(value, dict) and isinstance(value.get("dir"), str):
             return value["dir"]
     return None
@@ -101,26 +101,28 @@ def _metadata_flake_dir(metadata: dict[str, Any]) -> str | None:
 def get_flake_store_path(import_path: str) -> str | None:
     """Copy a local flake into the Nix store and return its store path.
 
-    Uses ``nix flake metadata`` so that git-ignored files are excluded and
-    only tracked content is copied.  For flakes in a subdirectory of a git
-    repository the reported store path is the repository root, so the
-    flake's subdirectory is appended.  Returns *None* when the command
-    fails (e.g. the directory is not a flake).
+    Uses ``nix flake prefetch`` so that git-ignored files are excluded and
+    only tracked content is copied.  ``nix flake metadata`` is not enough:
+    it reports the store path without copying the flake.
+    For flakes in a subdirectory of a git repository the reported store
+    path is the repository root, so the flake's subdirectory is appended.
+    Returns *None* when the command fails (e.g. the directory is not a
+    flake).
     """
     try:
         result = subprocess.run(
-            ["nix", "flake", "metadata", "--json"],
+            ["nix", "flake", "prefetch", "--json", "."],
             cwd=import_path,
             capture_output=True,
             text=True,
             check=True,
         )
-        metadata = json.loads(result.stdout)
-        path = metadata.get("path")
+        prefetched = json.loads(result.stdout)
+        path = prefetched.get("storePath")
         if not isinstance(path, str):
             return None
 
-        flake_dir = _metadata_flake_dir(metadata)
+        flake_dir = _flake_dir(prefetched)
         if flake_dir:
             return str(Path(path) / flake_dir)
     except (subprocess.CalledProcessError, json.JSONDecodeError):

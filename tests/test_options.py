@@ -75,3 +75,19 @@ def test_get_flake_store_path_subdir(tmp_path: Path) -> None:
     assert store_path is not None
     assert store_path.endswith("/systems/nixos")
     assert (Path(store_path) / "flake.nix").exists()
+
+
+def test_get_flake_store_path_clean_git_tree(tmp_path: Path) -> None:
+    """The store path of a committed flake exists in the store."""
+    (tmp_path / "flake.nix").write_text("{ outputs = _: { }; }")
+    # unique content, so the tree cannot already be in the store
+    (tmp_path / "marker").write_text(str(tmp_path))
+    git = ["git", "-c", "user.name=test", "-c", "user.email=test@example.com"]
+    subprocess.run([*git, "init", "-q"], cwd=tmp_path, check=True)
+    subprocess.run([*git, "add", "-A"], cwd=tmp_path, check=True)
+    subprocess.run([*git, "commit", "-q", "-m", "init"], cwd=tmp_path, check=True)
+
+    store_path = get_flake_store_path(str(tmp_path))
+
+    assert store_path is not None
+    assert (Path(store_path) / "flake.nix").exists()
