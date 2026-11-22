@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import fileinput
 import re
 import shutil
 import tempfile
@@ -14,6 +13,7 @@ from typing import TYPE_CHECKING
 from .eval import CargoLock, CargoLockInSource, CargoLockInStore
 from .git import git_prefetch
 from .lockfile import generate_lockfile
+from .nix_ast import Edit, apply_edits, bindings, parse, whole_lines
 from .utils import run
 
 if TYPE_CHECKING:
@@ -50,47 +50,35 @@ def _process_git_dependencies(lock: dict) -> dict[str, str]:
     return dict(ThreadPoolExecutor().map(git_prefetch, git_deps.items()))
 
 
-def _update_short_format(
-    hashes: dict[str, str],
-    match: re.Match[str],
-    f: fileinput.FileInput[str],
-) -> None:
-    indent = match[1]
-    print(match[0], end="")
-    _print_hashes(hashes, indent)
-    for line in f:
-        print(line, end="")
+def set_output_hashes(text: str, hashes: dict[str, str]) -> str:
+    """Replace the outputHashes next to a cargo ``lockFile`` binding."""
+    root = parse(text)
+    if root is None:
+        return text
+    prefix = "cargoLock."
+    lock_files = bindings(root, f"{prefix}lockFile")
+    if not lock_files:
+        prefix = ""
+        lock_files = bindings(root, "lockFile")
+    if not lock_files:
+        return text
+    lock_file = lock_files[0]
+    attrs = lock_file.parent()
+    if attrs is None:
+        return text
 
-
-def _update_expanded_format(
-    hashes: dict[str, str],
-    match: re.Match[str],
-    f: fileinput.FileInput[str],
-) -> None:
-    indent = match[1]
-    print(match[0], end="")
-    _print_hashes(hashes, indent)
-    brace = 0
-    for next_line in f:
-        for c in next_line:
-            if c == "{":
-                brace -= 1
-            if c == "}":
-                brace += 1
-            if brace == 1:
-                print(next_line, end="")
-                for final_line in f:
-                    print(final_line, end="")
-                return
-
-
-def _print_hashes(hashes: dict[str, str], indent: str) -> None:
-    if not hashes:
-        return
-    print(f"{indent}outputHashes = {{")
-    for k, v in hashes.items():
-        print(f'{indent}  "{k}" = "{v}";')
-    print(f"{indent}}};")
+    edits: list[Edit] = []
+    for old in bindings(attrs, f"{prefix}outputHashes"):
+        rng = old.range()
+        edits.append((*whole_lines(text, rng.start.index, rng.end.index), ""))
+    if hashes:
+        indent = " " * lock_file.range().start.column
+        entries = "".join(f'{indent}  "{k}" = "{v}";\n' for k, v in hashes.items())
+        end = lock_file.range().end.index
+        edits.append(
+            (end, end, f"\n{indent}{prefix}outputHashes = {{\n{entries}{indent}}};")
+        )
+    return apply_edits(text, edits)
 
 
 def _update_cargo_lock(
@@ -121,18 +109,8 @@ def _update_cargo_lock(
             lock = tomllib.load(f)
             hashes = _process_git_dependencies(lock)
 
-    with fileinput.FileInput(filename, inplace=True) as f:
-        short = re.compile(r"(\s*)cargoLock\.lockFile\s*=\s*(.+)\s*;\s*")
-        expanded = re.compile(r"(\s*)lockFile\s*=\s*(.+)\s*;\s*")
-
-        for line in f:
-            if match := short.fullmatch(line):
-                _update_short_format(hashes, match, f)
-                return
-            if match := expanded.fullmatch(line):
-                _update_expanded_format(hashes, match, f)
-                return
-            print(line, end="")
+    path = Path(filename)
+    path.write_text(set_output_hashes(path.read_text(), hashes))
 
 
 def update_cargo_lock(

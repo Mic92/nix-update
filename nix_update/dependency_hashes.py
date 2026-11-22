@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import fileinput
 import json
 import re
 import subprocess
@@ -19,16 +18,15 @@ from .cargo import update_cargo_lock
 from .errors import UpdateError
 from .hashes import to_sri
 from .lockfile import generate_lockfile
+from .nix_ast import replace_in_strings
 from .utils import run
 
 
 def replace_hash(filename: str, current: str, target: str) -> None:
     normalized_hash = to_sri(target)
     if to_sri(current) != normalized_hash:
-        with fileinput.FileInput(filename, inplace=True) as f:
-            for original_line in f:
-                modified_line = original_line.replace(current, normalized_hash)
-                print(modified_line, end="")
+        path = Path(filename)
+        path.write_text(replace_in_strings(path.read_text(), current, normalized_hash))
 
 
 def extract_hash_from_nix_error(stderr: str) -> str | None:

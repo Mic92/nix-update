@@ -34,6 +34,7 @@
           packages = [
             (pkgs.python3.withPackages (
               ps: with ps; [
+                ast-grep-py
                 pytest
               ]
             ))
