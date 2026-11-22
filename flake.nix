@@ -3,16 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
-
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
     {
       self,
       nixpkgs,
-      treefmt-nix,
     }:
     let
       inherit (nixpkgs) lib;
@@ -24,7 +20,7 @@
         "aarch64-darwin"
       ];
       eachSystem = f: lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
-      treefmtEval = eachSystem (pkgs: treefmt-nix.lib.evalModule pkgs ./treefmt.nix);
+      treefmt = eachSystem (pkgs: import ./treefmt.nix { inherit pkgs; });
     in
     {
       packages = eachSystem (pkgs: rec {
@@ -50,9 +46,7 @@
       });
 
       # nixfmt (GHC) does not build on riscv64-linux
-      formatter = lib.genAttrs (lib.filter (s: s != "riscv64-linux") systems) (
-        system: treefmtEval.${system}.config.build.wrapper
-      );
+      formatter = lib.removeAttrs treefmt [ "riscv64-linux" ];
 
       checks = eachSystem (
         pkgs:
@@ -64,7 +58,11 @@
         packages
         // devShells
         // lib.optionalAttrs (system != "riscv64-linux") {
-          formatting = treefmtEval.${system}.config.build.check self;
+          formatting = pkgs.runCommand "treefmt-check" { nativeBuildInputs = [ treefmt.${system} ]; } ''
+            cp -r ${self} src && chmod -R +w src && cd src
+            HOME=$TMPDIR treefmt --ci
+            touch $out
+          '';
         }
         // {
           # Puts test-fixture toolchains in a runtime closure so the
