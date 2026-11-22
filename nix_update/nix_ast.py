@@ -11,26 +11,82 @@ if TYPE_CHECKING:
     from ast_grep_py import SgNode
 
 
-def _find_binding(root: SgNode, name: str, line: int) -> SgNode | None:
-    """Find ``name = ...;`` at the 1-based line, or the only one in the file."""
-    bindings = [
+Edit = tuple[int, int, str]
+
+
+def parse(text: str) -> SgNode | None:
+    """Parse Nix code; None for anything else, such as JSON given via --override-filename."""
+    root = SgRoot(text, "nix").root()
+    return None if root.find(kind="ERROR") else root
+
+
+def bindings(root: SgNode, name: str) -> list[SgNode]:
+    """All ``name = ...;`` bindings; the name may be dotted."""
+    return [
         binding
         for binding in root.find_all(kind="binding")
         if (attrpath := binding.field("attrpath")) and attrpath.text() == name
     ]
-    for binding in bindings:
+
+
+def _find_binding(root: SgNode, name: str, line: int) -> SgNode | None:
+    """Find ``name = ...;`` at the 1-based line, or the only one in the file."""
+    found = bindings(root, name)
+    for binding in found:
         if binding.range().start.line == line - 1:
             return binding
-    return bindings[0] if len(bindings) == 1 else None
+    return found[0] if len(found) == 1 else None
 
 
-def _whole_lines(text: str, start: int, end: int) -> tuple[int, int]:
+def whole_lines(text: str, start: int, end: int) -> tuple[int, int]:
     """Widen the span to full lines if nothing else is on them."""
     line_start = text.rfind("\n", 0, start) + 1
     line_end = text.find("\n", end)
     if line_end < 0 or text[line_start:start].strip() or text[end:line_end].strip():
         return start, end
     return line_start, line_end + 1
+
+
+def apply_edits(text: str, edits: list[Edit]) -> str:
+    for start, end, replacement in sorted(edits, reverse=True):
+        text = text[:start] + replacement + text[end:]
+    return text
+
+
+def replace_in_strings(
+    text: str, old: str, new: str, *, whole: bool = False, line: int | None = None
+) -> str:
+    """Replace ``old`` inside string literals, leaving comments and code alone.
+
+    With ``whole`` only strings that are exactly ``old`` are replaced, and
+    ``line`` limits the replacement to that 1-based line.
+    """
+    root = parse(text)
+    if root is None:
+        if whole:
+            old, new = f'"{old}"', f'"{new}"'
+        lines = text.splitlines(keepends=True)
+        return "".join(
+            item.replace(old, new) if line in (None, number) else item
+            for number, item in enumerate(lines, 1)
+        )
+
+    edits: list[Edit] = []
+    for kind in ("string_fragment", "uri_expression"):
+        for node in root.find_all(kind=kind):
+            rng = node.range()
+            if line is not None and rng.start.line != line - 1:
+                continue
+            content = node.text()
+            if whole:
+                parent = node.parent()
+                if parent is None or parent.text() != f'"{old}"':
+                    continue
+            if old in content:
+                edits.append(
+                    (rng.start.index, rng.end.index, content.replace(old, new))
+                )
+    return apply_edits(text, edits)
 
 
 def remove_list_elements(
@@ -43,7 +99,8 @@ def remove_list_elements(
     """
     path = Path(filename)
     text = path.read_text()
-    binding = _find_binding(SgRoot(text, "nix").root(), name, line)
+    root = parse(text)
+    binding = _find_binding(root, name, line) if root else None
     value = binding.field("expression") if binding else None
     while value and value.kind() == "binary_expression":
         value = value.field("left")
@@ -62,14 +119,11 @@ def remove_list_elements(
                 comment_start = rng.start.index
             continue
         start = rng.start.index if comment_start is None else comment_start
-        spans.append(_whole_lines(text, start, rng.end.index))
+        spans.append(whole_lines(text, start, rng.end.index))
         comment_start = None
         previous_line = rng.end.line
 
     removed = {index for index in indices if index < len(spans)}
-    for index in sorted(removed, reverse=True):
-        start, end = spans[index]
-        text = text[:start] + text[end:]
     if removed:
-        path.write_text(text)
+        path.write_text(apply_edits(text, [(*spans[i], "") for i in removed]))
     return removed

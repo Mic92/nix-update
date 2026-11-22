@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import fileinput
 from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -10,6 +9,7 @@ from .diff_urls import generate_diff_url
 from .errors import UpdateError
 from .eval import Package, eval_attr
 from .git import old_version_from_git
+from .nix_ast import replace_in_strings
 from .patches import drop_merged_patches
 from .utils import info, run
 from .version import VersionFetchConfig, fetch_latest_version
@@ -36,30 +36,19 @@ def replace_version(package: Package) -> bool:
 
     if changed:
         info(f"Update {old_version} -> {new_version} in {package.filename}")
-        version_string_in_version_declaration = False
-        if package.version_position is not None:
-            with Path(package.filename).open() as f:
-                for i, line in enumerate(f, 1):
-                    if package.version_position.line == i:
-                        version_string_in_version_declaration = old_version in line
-                        break
-        with fileinput.FileInput(package.filename, inplace=True) as f:
-            for i, original_line in enumerate(f, 1):
-                modified_line = original_line
-                if old_rev_tag is not None and package.new_version.rev:
-                    modified_line = modified_line.replace(
-                        old_rev_tag,
-                        package.new_version.rev,
-                    )
-                if not version_string_in_version_declaration or (
-                    package.version_position is not None
-                    and package.version_position.line == i
-                ):
-                    modified_line = modified_line.replace(
-                        f'"{old_version}"',
-                        f'"{new_version}"',
-                    )
-                print(modified_line, end="")
+        path = Path(package.filename)
+        text = path.read_text()
+        if old_rev_tag is not None and package.new_version.rev:
+            text = replace_in_strings(text, old_rev_tag, package.new_version.rev)
+        # The same string may be used elsewhere, so prefer the version declaration
+        line = None
+        if (pos := package.version_position) and old_version in "".join(
+            text.splitlines()[pos.line - 1 : pos.line]
+        ):
+            line = pos.line
+        path.write_text(
+            replace_in_strings(text, old_version, new_version, whole=True, line=line)
+        )
     else:
         info(f"Not updating version, already {old_version}")
 
