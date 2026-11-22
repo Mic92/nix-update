@@ -99,10 +99,11 @@ def update_hash_with_prefetch(
     opts: Options,
     filename: str,
     current_hash: str,
-) -> None:
+) -> str:
     """Generic function to update a hash by prefetching with a specific attribute."""
     target_hash = nix_prefetch(opts, attr_name)
     replace_hash(filename, current_hash, target_hash)
+    return target_hash
 
 
 # Create partial function for updating src hash (used elsewhere in the code)
@@ -212,7 +213,7 @@ def update_dependency_hashes(
     # modifying the hash. Ensure such modules come "later" in order below.
     # https://github.com/NixOS/nixpkgs/issues/358844
     # Dictionary iteration order is guaranteed since python 3.7
-    hash_updaters: dict[str, Callable[[Options, str, Any], None]] = {
+    hash_updaters: dict[str, Callable[[Options, str, Any], object]] = {
         "fod_subpackage": partial(update_hash_with_prefetch, None),
         "cargo_deps": partial(update_hash_with_prefetch, "cargoDeps"),
         "cargo_vendor_deps": partial(
