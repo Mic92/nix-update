@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import shlex
 import shutil
@@ -260,6 +261,21 @@ def git_has_diff(git_dir: str, package: Package) -> bool:
     return len(diff.stdout) > 0
 
 
+def jj_package_paths(package: Package) -> list[str]:
+    return [
+        "cwd:" + json.dumps(Path(path).resolve().as_posix(), ensure_ascii=False)
+        for path in sorted(get_package_directories(package))
+    ]
+
+
+def jj_has_diff(jj_dir: str, package: Package) -> bool:
+    diff = run(
+        ["jj", "diff", "--summary", "--", *jj_package_paths(package)],
+        cwd=jj_dir,
+    )
+    return bool(diff.stdout)
+
+
 def format_commit_message(package: Package) -> str:
     new_version = getattr(package.new_version, "number", None)
     if (
@@ -276,16 +292,25 @@ def format_commit_message(package: Package) -> str:
     return msg
 
 
+def version_changed(package: Package) -> bool:
+    new_version = package.new_version
+    return new_version is not None and (
+        package.old_version != new_version.number
+        or (bool(new_version.rev) and new_version.rev != package.rev)
+    )
+
+
+def jj_commit(jj_dir: str, package: Package) -> None:
+    cmd = ["jj", "commit", "--message", format_commit_message(package)]
+    if not version_changed(package):
+        cmd.append("--editor")
+    run([*cmd, "--", *jj_package_paths(package)], cwd=jj_dir, stdout=None)
+
+
 def git_commit(git_dir: str, package: Package) -> None:
     msg = format_commit_message(package)
-    new_version = package.new_version
-    # Get all directories that may have changes
     files_changed = get_package_directories(package)
-
-    if new_version and (
-        package.old_version != new_version.number
-        or (new_version.rev and new_version.rev != package.rev)
-    ):
+    if version_changed(package):
         run(
             [
                 "git",
@@ -340,6 +365,16 @@ def find_git_root(path: str) -> str | None:
         if root_path.resolve() == Path("/"):
             return None
         prefix.append("..")
+
+
+def find_jj_root(import_path: str) -> str | None:
+    if shutil.which("jj") is None:
+        return None
+    path = Path(import_path).resolve()
+    return next(
+        (str(p) for p in (path, *path.parents) if (p / ".jj").is_dir()),
+        None,
+    )
 
 
 def validate_git_dir(import_path: str) -> str:
@@ -452,12 +487,16 @@ def handle_commit_operations(
     options: Options,
     package: Package,
     git_dir: str | None,
+    jj_dir: str | None,
 ) -> None:
     if options.commit:
-        if git_dir is None:
+        if jj_dir is not None:
+            jj_commit(jj_dir, package)
+        elif git_dir is not None:
+            git_commit(git_dir, package)
+        else:
             msg = "Git directory not found, cannot commit changes"
             raise RuntimeError(msg)
-        git_commit(git_dir, package)
 
     if options.print_commit_message:
         print_commit_message(package)
@@ -474,8 +513,9 @@ def main(args: list[str] = sys.argv[1:]) -> None:
     if not Path(options.import_path).exists():
         die(f"path {options.import_path} does not exist")
 
+    jj_dir = find_jj_root(options.import_path) if options.commit else None
     git_dir = None
-    if options.commit or options.review:
+    if options.review or (options.commit and jj_dir is None):
         git_dir = validate_git_dir(options.import_path)
 
     package = update(options)
@@ -483,17 +523,18 @@ def main(args: list[str] = sys.argv[1:]) -> None:
     print_maintainers(package)
     run_nix_commands(options)
 
-    if not git_dir:
-        git_dir = find_git_root(options.import_path)
-
-    changes_detected = not git_dir or git_has_diff(git_dir, package)
+    if jj_dir is not None:
+        changes_detected = jj_has_diff(jj_dir, package)
+    else:
+        git_dir = git_dir or find_git_root(options.import_path)
+        changes_detected = git_dir is None or git_has_diff(git_dir, package)
 
     if not changes_detected:
         info("No changes detected, skipping remaining steps")
         return
 
     run_post_update_checks(options, package)
-    handle_commit_operations(options, package, git_dir)
+    handle_commit_operations(options, package, git_dir, jj_dir)
 
 
 if __name__ == "__main__":
