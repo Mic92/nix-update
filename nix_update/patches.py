@@ -59,7 +59,11 @@ def drop_merged_patches(opts: Options, package: Package) -> None:
         return
     merged = _merged_patch_indices(opts)
     dropped = remove_list_elements(
-        package.filename, "patches", package.patches_position.line, merged
+        package.filename,
+        "patches",
+        package.patches_position.line,
+        merged,
+        len(package.patches),
     )
     for index in sorted(dropped):
         patch = Path(str(package.patches[index]["path"])).name

@@ -79,25 +79,23 @@ def set_output_hashes(text: str, hashes: dict[str, str]) -> str:
         return text
     lock_file = lock_files[0]
 
+    rng = lock_file.range()
+    line = text.splitlines()[rng.start.line]
+    indent = line[: len(line) - len(line.lstrip())]
+    if line[: rng.start.column].strip():
+        # shares its line with the opening brace
+        indent += "  "
+    entries = "".join(f'{indent}  "{k}" = "{v}";\n' for k, v in hashes.items())
+    new = f"{prefix}outputHashes = {{\n{entries}{indent}}};" if hashes else ""
+
+    # Reuse the place of the existing binding so surrounding comments stay put
     edits: list[Edit] = []
     for old in bindings(attrs, f"{prefix}outputHashes", nested=True):
-        rng = old.range()
-        edits.append((*whole_lines(text, rng.start.index, rng.end.index), ""))
-    if hashes:
-        rng = lock_file.range()
-        line = text.splitlines()[rng.start.line]
-        indent = line[: len(line) - len(line.lstrip())]
-        if line[: rng.start.column].strip():
-            # shares its line with the opening brace
-            indent += "  "
-        entries = "".join(f'{indent}  "{k}" = "{v}";\n' for k, v in hashes.items())
-        edits.append(
-            (
-                rng.end.index,
-                rng.end.index,
-                f"\n{indent}{prefix}outputHashes = {{\n{entries}{indent}}};",
-            )
-        )
+        span = old.range().start.index, old.range().end.index
+        edits.append((*span, new) if new else (*whole_lines(text, *span), ""))
+        new = ""
+    if new:
+        edits.append((rng.end.index, rng.end.index, f"\n{indent}{new}"))
     return apply_edits(text, edits)
 
 

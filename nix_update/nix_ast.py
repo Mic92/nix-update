@@ -33,15 +33,6 @@ def bindings(root: SgNode, name: str, *, nested: bool = False) -> list[SgNode]:
     ]
 
 
-def _find_binding(root: SgNode, name: str, line: int) -> SgNode | None:
-    """Find ``name = ...;`` at the 1-based line, or the only one in the file."""
-    found = bindings(root, name)
-    for binding in found:
-        if binding.range().start.line == line - 1:
-            return binding
-    return found[0] if len(found) == 1 else None
-
-
 def whole_lines(text: str, start: int, end: int) -> tuple[int, int]:
     """Widen the span to full lines if nothing else is on them."""
     line_start = text.rfind("\n", 0, start) + 1
@@ -65,6 +56,8 @@ def replace_in_strings(
     With ``whole`` only strings that are exactly ``old`` are replaced, and
     ``line`` limits the replacement to that 1-based line.
     """
+    if not old:
+        return text
     root = parse(text)
     if root is None:
         if whole:
@@ -95,30 +88,14 @@ def replace_in_strings(
     return apply_edits(text, edits)
 
 
-def remove_list_elements(
-    filename: str, name: str, line: int, indices: set[int]
-) -> set[int]:
-    """Remove elements of the list bound to ``name`` and return those removed.
-
-    Comments belonging to a removed element go with it.  For
-    ``[ ... ] ++ ...`` only the leading list is considered.
-    """
-    path = Path(filename)
-    text = path.read_text()
-    root = parse(text)
-    binding = _find_binding(root, name, line) if root else None
-    value = binding.field("expression") if binding else None
-    while value and value.kind() == "binary_expression":
-        value = value.field("left")
-    if value is None or value.kind() != "list_expression":
-        return set()
-
+def _element_spans(items: SgNode) -> list[tuple[int, int]]:
+    """Spans of the list elements, each with the comments that belong to it."""
     # An element owns the comment block directly above it and a comment
     # trailing it on the same line.
     spans: list[tuple[int, int]] = []
     comment_start = None
     comment_line = element_line = -1
-    for child in value.children():
+    for child in items.children():
         if not child.is_named():
             continue
         rng = child.range()
@@ -135,6 +112,41 @@ def remove_list_elements(
             if comment_start is None or rng.start.line > comment_line + 1:
                 comment_start = rng.start.index
             comment_line = rng.end.line
+    return spans
+
+
+def remove_list_elements(
+    filename: str, name: str, line: int, indices: set[int], total: int
+) -> set[int]:
+    """Remove elements of the list bound to ``name`` and return those removed.
+
+    ``line`` is where Nix reports the attribute and ``total`` the length of
+    the evaluated list.  Both are checked against the source, as the list
+    may come from another file or be extended by a wrapper, in which case
+    the indices would point at the wrong elements.  For ``[ ... ] ++ ...``
+    only the leading list is considered.  Comments belonging to a removed
+    element go with it.
+    """
+    path = Path(filename)
+    text = path.read_text()
+    root = parse(text)
+    found = bindings(root, name) if root else []
+    at_line = [b for b in found if b.range().start.line == line - 1]
+    # `inherit name;` is reported at the inherit, not at the definition
+    binding = at_line[0] if at_line else found[0] if len(found) == 1 else None
+    value = binding.field("expression") if binding else None
+    concatenated = False
+    while value and value.kind() == "binary_expression":
+        value = value.field("left")
+        concatenated = True
+    if value is None or value.kind() != "list_expression":
+        return set()
+    if concatenated and not at_line:
+        return set()
+
+    spans = _element_spans(value)
+    if len(spans) > total or (not concatenated and len(spans) != total):
+        return set()
     spans = [whole_lines(text, *span) for span in spans]
 
     removed = {index for index in indices if index < len(spans)}

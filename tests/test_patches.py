@@ -1,14 +1,23 @@
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from nix_update import main
 from nix_update.nix_ast import remove_list_elements
 
 
-def drop(tmp_path: Path, expression: str, line: int, indices: set[int]) -> str:
+def drop(
+    tmp_path: Path,
+    expression: str,
+    line: int,
+    indices: set[int],
+    total: int | None = None,
+) -> str:
     path = tmp_path / "package.nix"
     path.write_text(expression)
-    remove_list_elements(str(path), "patches", line, indices)
+    total = expression.count(".patch") if total is None else total
+    remove_list_elements(str(path), "patches", line, indices, total)
     return path.read_text()
 
 
@@ -29,7 +38,7 @@ def test_remove_list_elements(tmp_path: Path) -> None:
 }
 """
     assert (
-        drop(tmp_path, expression, 4, {1, 2, 7})
+        drop(tmp_path, expression, 4, {1, 2, 7}, total=4)
         == """{
   # "patches = [" in a comment or string must not confuse us
   description = "patches = [ ./keep.patch ]";
@@ -74,9 +83,27 @@ def test_comments_follow_their_element(tmp_path: Path) -> None:
     )
 
 
-def test_leaves_non_list_alone(tmp_path: Path) -> None:
-    expression = "{ patches = lib.optionals true [ ./a.patch ]; }\n"
-    assert drop(tmp_path, expression, 1, {0}) == expression
+@pytest.mark.parametrize(
+    ("expression", "line", "total"),
+    [
+        # not a list
+        ("{ patches = lib.optionals true [ ./a.patch ]; }\n", 1, 1),
+        # a wrapper added patches, so indices do not match the source
+        ("{ patches = [ ./a.patch ]; }\n", 1, 2),
+        # reported in another file, this list merely has the same name
+        ("{\n  foo = 1;\n  other.patches = [ ./a.patch ];\n}\n", 2, 1),
+        ("{\n  foo = 1;\n  patches = [ ./a.patch ] ++ more;\n}\n", 2, 2),
+    ],
+)
+def test_leaves_unexpected_lists_alone(
+    tmp_path: Path, expression: str, line: int, total: int
+) -> None:
+    assert drop(tmp_path, expression, line, {0}, total) == expression
+
+
+def test_follows_inherit(tmp_path: Path) -> None:
+    expression = "let patches = [ ./a.patch ]; in { inherit patches; }\n"
+    assert drop(tmp_path, expression, 1, {0}) == expression.replace("./a.patch", "")
 
 
 def test_drop_merged_patch_produced_by_derivation(testpkgs_git: Path) -> None:
