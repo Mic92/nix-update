@@ -17,6 +17,8 @@ from .nix_ast import Edit, apply_edits, bindings, parse, whole_lines
 from .utils import run
 
 if TYPE_CHECKING:
+    from ast_grep_py import SgNode
+
     from .options import Options
 
 
@@ -50,33 +52,51 @@ def _process_git_dependencies(lock: dict) -> dict[str, str]:
     return dict(ThreadPoolExecutor().map(git_prefetch, git_deps.items()))
 
 
+def _is_cargo_lock(lock_file: SgNode) -> bool:
+    """Whether ``lockFile`` sits in ``cargoLock = { }`` or ``importCargoLock { }``."""
+    attrs = lock_file.parent()
+    owner = attrs.parent() if attrs else None
+    if owner and owner.kind() == "attrset_expression":
+        owner = owner.parent()
+    return owner is not None and owner.text().startswith(
+        ("cargoLock", "cargoDeps", "rustPlatform.importCargoLock", "importCargoLock")
+    )
+
+
 def set_output_hashes(text: str, hashes: dict[str, str]) -> str:
     """Replace the outputHashes next to a cargo ``lockFile`` binding."""
     root = parse(text)
     if root is None:
         return text
     prefix = "cargoLock."
-    lock_files = bindings(root, f"{prefix}lockFile")
+    lock_files = bindings(root, "cargoLock.lockFile")
     if not lock_files:
         prefix = ""
         lock_files = bindings(root, "lockFile")
-    if not lock_files:
-        return text
-    lock_file = lock_files[0]
-    attrs = lock_file.parent()
+        lock_files.sort(key=_is_cargo_lock, reverse=True)
+    attrs = lock_files[0].parent() if lock_files else None
     if attrs is None:
         return text
+    lock_file = lock_files[0]
 
     edits: list[Edit] = []
-    for old in bindings(attrs, f"{prefix}outputHashes"):
+    for old in bindings(attrs, f"{prefix}outputHashes", nested=True):
         rng = old.range()
         edits.append((*whole_lines(text, rng.start.index, rng.end.index), ""))
     if hashes:
-        indent = " " * lock_file.range().start.column
+        rng = lock_file.range()
+        line = text.splitlines()[rng.start.line]
+        indent = line[: len(line) - len(line.lstrip())]
+        if line[: rng.start.column].strip():
+            # shares its line with the opening brace
+            indent += "  "
         entries = "".join(f'{indent}  "{k}" = "{v}";\n' for k, v in hashes.items())
-        end = lock_file.range().end.index
         edits.append(
-            (end, end, f"\n{indent}{prefix}outputHashes = {{\n{entries}{indent}}};")
+            (
+                rng.end.index,
+                rng.end.index,
+                f"\n{indent}{prefix}outputHashes = {{\n{entries}{indent}}};",
+            )
         )
     return apply_edits(text, edits)
 

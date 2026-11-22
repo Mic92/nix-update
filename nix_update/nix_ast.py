@@ -20,12 +20,16 @@ def parse(text: str) -> SgNode | None:
     return None if root.find(kind="ERROR") else root
 
 
-def bindings(root: SgNode, name: str) -> list[SgNode]:
-    """All ``name = ...;`` bindings; the name may be dotted."""
+def bindings(root: SgNode, name: str, *, nested: bool = False) -> list[SgNode]:
+    """All ``name = ...;`` bindings, with ``nested`` also ``name.<...> = ...;``."""
     return [
         binding
         for binding in root.find_all(kind="binding")
-        if (attrpath := binding.field("attrpath")) and attrpath.text() == name
+        if (attrpath := binding.field("attrpath"))
+        and (
+            attrpath.text() == name
+            or (nested and attrpath.text().startswith(f"{name}."))
+        )
     ]
 
 
@@ -96,7 +100,7 @@ def remove_list_elements(
 ) -> set[int]:
     """Remove elements of the list bound to ``name`` and return those removed.
 
-    Comments on the lines directly above a removed element go with it.  For
+    Comments belonging to a removed element go with it.  For
     ``[ ... ] ++ ...`` only the leading list is considered.
     """
     path = Path(filename)
@@ -109,21 +113,29 @@ def remove_list_elements(
     if value is None or value.kind() != "list_expression":
         return set()
 
+    # An element owns the comment block directly above it and a comment
+    # trailing it on the same line.
     spans: list[tuple[int, int]] = []
     comment_start = None
-    previous_line = -1
+    comment_line = element_line = -1
     for child in value.children():
         if not child.is_named():
             continue
         rng = child.range()
-        if child.kind() == "comment":
-            if comment_start is None and rng.start.line > previous_line:
+        if child.kind() != "comment":
+            start = rng.start.index
+            if comment_start is not None and rng.start.line <= comment_line + 1:
+                start = comment_start
+            spans.append((start, rng.end.index))
+            comment_start = None
+            element_line = rng.end.line
+        elif rng.start.line == element_line:
+            spans[-1] = (spans[-1][0], rng.end.index)
+        else:
+            if comment_start is None or rng.start.line > comment_line + 1:
                 comment_start = rng.start.index
-            continue
-        start = rng.start.index if comment_start is None else comment_start
-        spans.append(whole_lines(text, start, rng.end.index))
-        comment_start = None
-        previous_line = rng.end.line
+            comment_line = rng.end.line
+    spans = [whole_lines(text, *span) for span in spans]
 
     removed = {index for index in indices if index < len(spans)}
     if removed:

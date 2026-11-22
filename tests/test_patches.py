@@ -47,6 +47,33 @@ def test_remove_from_compact_list(tmp_path: Path) -> None:
     assert drop(tmp_path, expression, 1, {0}) == "{ patches = [  ./keep.patch ]; }\n"
 
 
+def test_comments_follow_their_element(tmp_path: Path) -> None:
+    expression = """{
+  patches = [
+    # section
+
+    # about a
+    # more about a
+    ./a.patch # trailing a
+    # about b
+    ./b.patch
+  ];
+}
+"""
+    assert (
+        drop(tmp_path, expression, 2, {0})
+        == """{
+  patches = [
+    # section
+
+    # about b
+    ./b.patch
+  ];
+}
+"""
+    )
+
+
 def test_leaves_non_list_alone(tmp_path: Path) -> None:
     expression = "{ patches = lib.optionals true [ ./a.patch ]; }\n"
     assert drop(tmp_path, expression, 1, {0}) == expression
