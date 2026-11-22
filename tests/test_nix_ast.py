@@ -43,9 +43,7 @@ def test_replace_in_other_formats() -> None:
 def test_set_output_hashes_short() -> None:
     text = """{
   cargoLock.lockFile = ./Cargo.lock;
-  cargoLock.outputHashes = {
-    "old-1.0" = "sha256-old";
-  };
+  cargoLock.outputHashes."old-1.0" = "sha256-old";
   doCheck = false;
 }
 """
@@ -66,6 +64,7 @@ def test_set_output_hashes_expanded() -> None:
     text = """{
   cargoLock = {
     lockFile = ./Cargo.lock;
+    # forks
     outputHashes = {
       "old-1.0" = "sha256-old";
     };
@@ -73,14 +72,40 @@ def test_set_output_hashes_expanded() -> None:
   };
 }
 """
-    expected = """{
+    replaced = text.replace("old-1.0", "new-2.0").replace("sha256-old", "sha256-new")
+    assert set_output_hashes(text, {"new-2.0": "sha256-new"}) == replaced
+    removed = set_output_hashes(text, {})
+    assert "outputHashes" not in removed
+    assert (
+        set_output_hashes(removed, {"old-1.0": "sha256-old"})
+        == """{
   cargoLock = {
     lockFile = ./Cargo.lock;
+    outputHashes = {
+      "old-1.0" = "sha256-old";
+    };
+    # forks
     allowBuiltinFetchGit = false;
   };
 }
 """
-    assert set_output_hashes(text, {}) == expected
-    assert set_output_hashes(expected, {"new-2.0": "sha256-new"}) == text.replace(
-        "old-1.0", "new-2.0"
-    ).replace("sha256-old", "sha256-new")
+    )
+
+
+def test_set_output_hashes_picks_the_cargo_lock_file() -> None:
+    text = """{
+  npmDeps = importNpmLock { lockFile = ./package-lock.json; };
+  cargoDeps = rustPlatform.importCargoLock { lockFile = ./Cargo.lock; };
+}
+"""
+    assert (
+        set_output_hashes(text, {"new-2.0": "sha256-new"})
+        == """{
+  npmDeps = importNpmLock { lockFile = ./package-lock.json; };
+  cargoDeps = rustPlatform.importCargoLock { lockFile = ./Cargo.lock;
+    outputHashes = {
+      "new-2.0" = "sha256-new";
+    }; };
+}
+"""
+    )
