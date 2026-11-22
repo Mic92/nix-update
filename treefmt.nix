@@ -2,6 +2,7 @@
 let
   inherit (pkgs) lib;
   mypy = pkgs.python3.withPackages (ps: [
+    ps.ast-grep-py
     ps.mypy
     ps.pytest
   ]);

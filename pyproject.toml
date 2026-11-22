@@ -8,6 +8,7 @@ description = "Swiss-knife for updating nix packages"
 version = "1.16.0"
 authors = [{ name = "Jörg Thalheim", email = "joerg@thalheim.io" }]
 license = { text = "MIT" }
+dependencies = ["ast-grep-py"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
   "Environment :: Console",
