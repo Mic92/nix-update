@@ -5,7 +5,6 @@ import json
 import os
 import shlex
 import shutil
-import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -371,24 +370,11 @@ def find_git_root(path: str) -> str | None:
 def find_jj_root(import_path: str) -> str | None:
     if shutil.which("jj") is None:
         return None
-    cwd = Path(import_path).resolve()
-    if not cwd.is_dir():
-        cwd = cwd.parent
-    if not any((parent / ".jj").is_dir() for parent in (cwd, *cwd.parents)):
-        return None
-    result = run(
-        ["jj", "root"],
-        cwd=cwd,
-        stderr=subprocess.PIPE,
-        check=False,
+    path = Path(import_path).resolve()
+    return next(
+        (str(p) for p in (path, *path.parents) if (p / ".jj").is_dir()),
+        None,
     )
-    if result.returncode != 0:
-        print(
-            f"{result.stderr.rstrip()}\n`jj root` failed; falling back to Git.",
-            file=sys.stderr,
-        )
-        return None
-    return result.stdout.rstrip("\n")
 
 
 def validate_git_dir(import_path: str) -> str:

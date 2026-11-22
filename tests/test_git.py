@@ -122,18 +122,3 @@ def test_jj_commit(
     revision = jj(*revision_args)
     nix_update.main(args)
     assert jj(*revision_args) == revision
-
-
-@requires_jj
-def test_broken_jj_root(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
-) -> None:
-    (tmp_path / ".jj").mkdir()
-    config = tmp_path / "broken.toml"
-    config.write_text("[invalid")
-    monkeypatch.setenv("JJ_CONFIG", str(config))
-
-    assert nix_update.find_jj_root(str(tmp_path)) is None
-    stderr = capsys.readouterr().err
-    assert "broken.toml" in stderr
-    assert "`jj root` failed; falling back to Git." in stderr
