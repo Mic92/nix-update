@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "nix-update"
 description = "Swiss-knife for updating nix packages"
-version = "1.16.0"
+version = "1.17.0"
 authors = [{ name = "Jörg Thalheim", email = "joerg@thalheim.io" }]
 license = { text = "MIT" }
 dependencies = ["ast-grep-py"]
