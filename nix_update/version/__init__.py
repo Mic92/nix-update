@@ -25,6 +25,7 @@ from .radicle import fetch_radicle_snapshots, fetch_radicle_versions
 from .rubygems import fetch_rubygem_versions
 from .savannah import fetch_savannah_versions
 from .sourcehut import fetch_sourcehut_snapshots, fetch_sourcehut_versions
+from .tangled import fetch_tangled_snapshots, fetch_tangled_versions
 from .version import Version, VersionPreference
 
 
@@ -78,6 +79,7 @@ fetchers: list[Fetcher] = [
     fetch_sourcehut_versions,
     fetch_bitbucket_versions,
     fetch_radicle_versions,
+    fetch_tangled_versions,
     # all entries below perform requests to check if the target url is of that type
     fetch_gitea_versions,
 ]
@@ -89,6 +91,7 @@ branch_snapshots_fetchers: list[SnapshotFetcher] = [
     fetch_bitbucket_snapshots,
     fetch_sourcehut_snapshots,
     fetch_radicle_snapshots,
+    fetch_tangled_snapshots,
     # all entries below perform requests to check if the target url is of that type
     fetch_gitea_snapshots,
 ]
@@ -218,5 +221,5 @@ def fetch_latest_version(
         msg = f"Found an unstable version {all_unstable[0]}, which is being ignored. To update to unstable version, please use '--version=unstable'"
         raise VersionError(msg)
 
-    msg = "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/pecl/pypi/savannah/sourcehut/radicle/rubygems/npm projects right now"
+    msg = "Please specify the version. We can only get the latest version from codeberg/crates.io/gitea/github/gitlab/pecl/pypi/savannah/sourcehut/radicle/rubygems/npm/tangled projects right now"
     raise VersionError(msg)

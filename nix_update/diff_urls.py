@@ -6,6 +6,7 @@ import re
 from typing import TYPE_CHECKING
 
 from .errors import UpdateError
+from .version.tangled import tangled_did
 
 if TYPE_CHECKING:
     from .eval import Package
@@ -95,6 +96,8 @@ def create_other_diff_urls(package: Package, new_version: Version) -> str | None
         return f"https://{netloc}/{owner}/{repo}/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
     if GITLAB_API.match(package.parsed_url.geturl()) and package.src_homepage:
         return f"{package.src_homepage}-/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
+    if did := tangled_did(package.parsed_url):
+        return f"https://{netloc}/{did}/compare/{old_rev_tag}...{new_version.rev or new_version.number}"
     if netloc in ["bitbucket.org", "bitbucket.io"]:
         _, owner, repo, *_ = package.parsed_url.path.split("/")
         return f"https://{netloc}/{owner}/{repo}/branches/compare/{new_version.rev or new_version.number}%0D{old_rev_tag}"

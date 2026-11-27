@@ -55,4 +55,5 @@
   yarn-berry-missing-hashes = pkgs.callPackage ./yarn-berry-missing-hashes { };
   radicle = pkgs.callPackage ./radicle.nix { };
   radicle-namespace = pkgs.callPackage ./radicle-namespace.nix { };
+  tangled = pkgs.callPackage ./tangled.nix { };
 }
