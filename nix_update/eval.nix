@@ -22,6 +22,7 @@ let
   # In case of flakes, we must pass a url with git attrs of the flake
   # otherwise the entire directory is copied to nix store
   flakeOrImportPath = if flakeImportPath != null then flakeImportPath else importPath;
+  flake = getFlake flakeOrImportPath;
 
   # Try to navigate nested attributes, returning { success = bool; value = ...; }
   tryGetAttrPath =
@@ -49,7 +50,6 @@ let
   pkg =
     if isFlake then
       let
-        flake = getFlake flakeOrImportPath;
         legacyPackages = flake.legacyPackages.${system} or { };
         legacyPackagesResult = tryGetAttrPath attributePath legacyPackages;
         packages = flake.packages.${system} or { };
@@ -74,7 +74,6 @@ let
   sanitizePosition =
     if isFlake && sanitizePositions then
       let
-        flake = getFlake flakeOrImportPath;
         outPath = flake.outPath;
         outPathLen = stringLength outPath;
       in
